@@ -18,7 +18,9 @@ git submodule update --init --recursive
 
 ## Contributing
 
-New resource additions and updates are welcome. Adding a resource means registering your GitHub repository as a submodule — ensure it is clean, minimal, and fully compatible with the latest version of Vital.sandbox before submitting.
+Contributions from the community are always welcome — new resources, updates, and improvements alike.
+
+Adding a resource means registering your GitHub repository as a submodule — ensure it is clean, minimal, and fully compatible with the latest version of Vital.sandbox before submitting.
 
 ### How to add your resource:
 
