@@ -24,13 +24,27 @@ git submodule update --init --recursive
 
 ## Contributing
 
-New resource additions and updates are welcome. Because this repository functions as a submodule index, adding a resource means registering your personal GitHub repository link. 
+New resource additions and updates are welcome. Because this repository functions as a submodule index, adding a resource means registering your personal GitHub repository link.
 
-To add a resource, open a pull request that runs the following registration command inside the correct directory layer:
+### How to add your resource:
 
-```bash
-# Example: Adding your resource repository to the vault
-git submodule add https://github.com resources/your-resource-name
-```
+1. **Fork the repository** on GitHub to your own personal account.
+2. **Clone your fork** locally and navigate into the root directory:
+   ```bash
+   git clone https://github.com/ov-studio/Vital.vault
+   cd Vital.vault
+   ```
+3. **Run the registration command** from the repository root. Replace the placeholder URL and resource name with your actual repository details (Git handles creating the folder inside `resources/` automatically):
+   ```bash
+   # Add your resource repository to the vault
+   git submodule add https://github.com resources/your-resource-name
+   ```
+4. **Commit and push** the tracking changes to your fork:
+   ```bash
+   git add .gitmodules resources/your-resource-name
+   git commit -m "add: resource your-resource-name"
+   git push origin main
+   ```
+5. **Open a Pull Request** from your fork back to the main repository to submit your changes for review.
 
 Ensure your target repository is clean, minimal, and fully compatible with the latest version of the core sandbox engine before submitting your registration.
