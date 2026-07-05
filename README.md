@@ -1,6 +1,6 @@
 ## Overview
 
-Official community-driven vault for Vital.sandbox, serving as a curated collection and safe storage house for user-contributed resources.
+Official community-driven vault for [Vital.sandbox](https://github.com/ov-studio/Vital.sandbox), serving as a curated collection and safe storage house for user-contributed resources.
 
 Vital.vault operates as a decentralized directory using **Git Submodules**. Rather than hosting files directly, it tracks pointers to individual community-maintained repositories — keeping resources modular, ownership decentralized, and versioning cleanly decoupled.
 
