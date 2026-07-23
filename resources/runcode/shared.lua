@@ -56,7 +56,6 @@ function private.run(code)
             formatted_result = formatted_result.."\n"..prefix
         end
     end
-
     core.engine.print("info", "Executed run command\n"..prefix.."Code: `"..code.."`\n"..prefix.."Results ("..util.table.len(results).."):\n"..prefix..formatted_result)
 end
 
