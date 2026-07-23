@@ -1,0 +1,6 @@
+name: "Runcode"
+author: "ov-studio"
+version: "1.0.0"
+
+scripts:
+  - { src: "shared.lua", type: "shared" }
