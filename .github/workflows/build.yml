@@ -38,7 +38,6 @@ jobs:
             import yaml
 
           RESOURCES_DIR = Path("resources")
-          KNOWN_TAGS    = {"gamemode","utility","ui","physics","audio","networking","tools"}
 
           def read_manifest(path: Path):
             for name in ("manifest.yaml", "manifest.yml"):
@@ -100,7 +99,7 @@ jobs:
 
             s   = lambda k, fb="N/A": str(manifest[k]).strip() if manifest.get(k) not in (None,"") else fb
             b   = lambda k, fb=False: bool(manifest[k]) if isinstance(manifest.get(k), bool) else fb
-            lst = lambda k: [t for t in (manifest.get(k) or []) if t in KNOWN_TAGS] if isinstance(manifest.get(k), list) else []
+            lst = lambda k: [t for t in (manifest.get(k) or [])] if isinstance(manifest.get(k), list) else []
 
             author_name = s("author", author_fallback)
 
