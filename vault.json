@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-24T14:31:43+03:00",
-  "commit": "9631a322cfd0c8eb103fc56e9218e6a0017e7f04",
+  "generated_at": "2026-07-24T15:16:50+03:00",
+  "commit": "054c2be7a2ee11cdabb7c1f314dff96f88a7e76c",
   "count": 1,
   "resources": [
     {
@@ -11,11 +11,15 @@
       "version": "1.0.0",
       "tagline": "Runtime code executor",
       "description": "Testing description\nMultiline working?\nSecond line working?",
-      "tags": [],
-      "banner": null,
-      "featured": false,
+      "tags": [
+        "utility",
+        "tools"
+      ],
+      "banner": "https://kawaiihoshi.com/wp-content/uploads/2026/02/peach-goma-noodles-nom-blue-wallpaper-kawaii-hoshi-600x409.jpg",
+      "featured": true,
+      "is_submodule": false,
       "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/runcode",
-      "download_url": "https://github.com/ov-studio/Vital.vault/archive/refs/heads/main.zip"
+      "download_url": null
     }
   ]
 }
