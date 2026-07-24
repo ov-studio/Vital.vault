@@ -1,23 +1,27 @@
 name: "Runcode"
 author: "ov-studio"
-author_url: "https://github.com/ov-studio"   # falls back to https://github.com/<author> if omitted
-version: "1.0.0"                       # falls back to "0.0.0" if omitted
+author_url: "https://github.com/ov-studio"
+version: "1.0.0"
 
 banner: "https://wallpapers-clan.com/wp-content/uploads/2025/02/kawaii-cat-collage-desktop-wallpaper-preview.jpg"
-tagline: "Runtime code executor"       # short one-liner, shown on the card + modal header
+tagline: "Execute Lua code directly from the console"
 featured: true
 
-# Only values from this known set are kept; anything else is silently
-# dropped when vault.json is built: gamemode, utility, ui, physics, audio,
-# networking, tools
 tags:
   - "utility"
-  - "tools"
+  - "library"
 
 description: |
-  Testing description
-  Multiline working?
-  Second line working?
+  Runcode is a lightweight runtime code executor that works on both
+  the client and the server.
+
+  Type `run <code>` into the console to compile and execute arbitrary
+  Lua on the fly — no need to reload scripts or restart. Both
+  expressions and statements are supported, and results (or errors)
+  are printed straight back to you, formatted and easy to read.
+
+  Perfect for quick debugging, prototyping, and live tweaks, whether
+  you're working client-side or server-side.
 
 scripts:
   - { src: "shared.lua", type: "shared" }
