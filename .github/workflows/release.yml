@@ -3,6 +3,10 @@ name: Release Vault
 on:
   push:
     branches: [main]
+    paths:
+      - 'resources/**/manifest.yaml'
+      - 'resources/**/manifest.yml'
+      - 'resources/*'
   workflow_dispatch:
 
 jobs:
