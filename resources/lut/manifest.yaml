@@ -1,0 +1,20 @@
+name: "Lut"
+author: "ov-studio"
+author_url: "https://github.com/ov-studio"
+version: "1.0.0"
+
+banner: "https://wallpapers-clan.com/wp-content/uploads/2025/02/kawaii-cat-collage-desktop-wallpaper-preview.jpg"
+tagline: "Pack of some selected luts.."
+featured: true
+
+tags:
+  - "gfx"
+
+description: |
+  Pack of lut...
+
+scripts:
+  - { src: "client.lua", type: "client" }
+
+files:
+  - "assets/**"
