@@ -1,8 +1,19 @@
 name: "Runcode"
 author: "ov-studio"
-version: "1.0.0"
+author_url: "https://github.com/ov-studio"   # falls back to https://github.com/<author> if omitted
+version: "1.0.0"                       # falls back to "0.0.0" if omitted
 
-tagline: "Runtime code executor"
+banner: "https://kawaiihoshi.com/wp-content/uploads/2026/02/peach-goma-noodles-nom-blue-wallpaper-kawaii-hoshi-600x409.jpg"
+tagline: "Runtime code executor"       # short one-liner, shown on the card + modal header
+featured: true
+
+# Only values from this known set are kept; anything else is silently
+# dropped when vault.json is built: gamemode, utility, ui, physics, audio,
+# networking, tools
+tags:
+  - "utility"
+  - "tools"
+
 description: |
   Testing description
   Multiline working?
