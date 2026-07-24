@@ -135,11 +135,7 @@ jobs:
         run: cat vault.json
 
       # ── 4. Commit vault.json to main ────────────────────────────────────────
-      # This is what the Next.js site actually fetches from at runtime, via
-      # raw.githubusercontent.com/<owner>/<repo>/main/vault.json. Unlike a
-      # Access-Control-Allow-Origin header), raw.githubusercontent.com sends
-      # CORS headers and isn't meaningfully rate-limited, so `fetch()` works
-      # straight from the client.
+      # This is what the Next.js site actually fetches from at runtime.
       - name: Commit vault.json to main
         run: |
           git config user.name  "github-actions[bot]"
@@ -151,3 +147,16 @@ jobs:
             git commit -m "chore: update vault.json [skip ci]"
             git push origin HEAD:main
           fi
+
+      # ── 5. Purge the jsDelivr CDN cache ─────────────────────────────────────
+      # The site fetches vault.json via jsDelivr (cdn.jsdelivr.net/gh/...)
+      # rather than raw.githubusercontent.com. Both are CDN-fronted with CORS
+      # enabled, but raw.githubusercontent.com has no public purge mechanism —
+      # you just wait out its cache TTL, and query-string cache-busting doesn't
+      # work because its CDN ignores query strings when keying the cache.
+      # jsDelivr exposes an explicit purge endpoint, so we call it right after
+      # pushing to force an immediate refresh instead of waiting on a TTL.
+      - name: Purge jsDelivr cache
+        run: |
+          curl -s "https://purge.jsdelivr.net/gh/${{ github.repository }}@main/vault.json"
+          echo "Purge requested for vault.json"
