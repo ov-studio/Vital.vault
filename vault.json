@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-24T15:16:50+03:00",
-  "commit": "054c2be7a2ee11cdabb7c1f314dff96f88a7e76c",
+  "generated_at": "2026-07-24T15:22:05+03:00",
+  "commit": "d150b905966f81ccb205987c4381016b9ede0a89",
   "count": 1,
   "resources": [
     {
@@ -15,7 +15,7 @@
         "utility",
         "tools"
       ],
-      "banner": "https://kawaiihoshi.com/wp-content/uploads/2026/02/peach-goma-noodles-nom-blue-wallpaper-kawaii-hoshi-600x409.jpg",
+      "banner": "https://wallpapers-clan.com/wp-content/uploads/2025/02/kawaii-cat-collage-desktop-wallpaper-preview.jpg",
       "featured": true,
       "is_submodule": false,
       "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/runcode",
