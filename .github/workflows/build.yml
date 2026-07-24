@@ -137,7 +137,6 @@ jobs:
       # ── 4. Commit vault.json to main ────────────────────────────────────────
       # This is what the Next.js site actually fetches from at runtime, via
       # raw.githubusercontent.com/<owner>/<repo>/main/vault.json. Unlike a
-      # release asset (served from objects.githubusercontent.com without an
       # Access-Control-Allow-Origin header), raw.githubusercontent.com sends
       # CORS headers and isn't meaningfully rate-limited, so `fetch()` works
       # straight from the client.
