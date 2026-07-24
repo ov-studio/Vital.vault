@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-24T23:59:42+03:00",
-  "commit": "19a5158142a86f18c58c087a50a1dc68156b416d",
+  "generated_at": "2026-07-25T01:41:39+03:00",
+  "commit": "5e5b1501c13cbfcac933f439b0ddf27a6aeea809",
   "count": 2,
   "resources": [
     {
@@ -11,7 +11,9 @@
       "version": "1.0.0",
       "tagline": "Pack of some selected luts..",
       "description": "Pack of lut...",
-      "tags": [],
+      "tags": [
+        "gfx"
+      ],
       "banner": "https://wallpapers-clan.com/wp-content/uploads/2025/02/kawaii-cat-collage-desktop-wallpaper-preview.jpg",
       "featured": true,
       "is_submodule": false,
@@ -24,11 +26,11 @@
       "author": "ov-studio",
       "author_url": "https://github.com/ov-studio",
       "version": "1.0.0",
-      "tagline": "Runtime code executor",
-      "description": "Testing description\nMultiline working?\nSecond line working?",
+      "tagline": "Execute Lua code directly from the console",
+      "description": "Runcode is a lightweight runtime code executor that works on both\nthe client and the server.\n\nType `run <code>` into the console to compile and execute arbitrary\nLua on the fly \u2014 no need to reload scripts or restart. Both\nexpressions and statements are supported, and results (or errors)\nare printed straight back to you, formatted and easy to read.\n\nPerfect for quick debugging, prototyping, and live tweaks, whether\nyou're working client-side or server-side.",
       "tags": [
         "utility",
-        "tools"
+        "library"
       ],
       "banner": "https://wallpapers-clan.com/wp-content/uploads/2025/02/kawaii-cat-collage-desktop-wallpaper-preview.jpg",
       "featured": true,
