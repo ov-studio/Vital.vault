@@ -1,4 +1,4 @@
-name: Release Vault
+name: Build Vault Index
 
 on:
   push:
@@ -134,42 +134,21 @@ jobs:
       - name: Show vault.json
         run: cat vault.json
 
-      # ── 4. Compute next semver tag ──────────────────────────────────────────
-      # Looks at existing vX.Y.Z tags, bumps the patch number. Starts at v1.0.0
-      # if none exist yet. Purely an auto-increment — no conventional-commit
-      # parsing, so it never bumps major/minor on its own.
-      - name: Compute next version
-        id: version
+      # ── 4. Commit vault.json to main ────────────────────────────────────────
+      # This is what the Next.js site actually fetches from at runtime, via
+      # raw.githubusercontent.com/<owner>/<repo>/main/vault.json. Unlike a
+      # release asset (served from objects.githubusercontent.com without an
+      # Access-Control-Allow-Origin header), raw.githubusercontent.com sends
+      # CORS headers and isn't meaningfully rate-limited, so `fetch()` works
+      # straight from the client.
+      - name: Commit vault.json to main
         run: |
-          git fetch --tags -q
-          latest_tag=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1)
-
-          if [ -z "$latest_tag" ]; then
-            next_tag="v1.0.0"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add vault.json
+          if git diff --cached --quiet; then
+            echo "vault.json unchanged, nothing to commit"
           else
-            ver="${latest_tag#v}"
-            IFS='.' read -r major minor patch <<< "$ver"
-            next_tag="v${major}.${minor}.$((patch + 1))"
+            git commit -m "chore: update vault.json [skip ci]"
+            git push origin HEAD:main
           fi
-
-          echo "next_tag=$next_tag" >> "$GITHUB_OUTPUT"
-          echo "Next version: $next_tag (previous: ${latest_tag:-none})"
-
-      # ── 5. Tag and publish a real, immutable versioned release ─────────────
-      # Marked as the repo's "latest" release (the default for gh release
-      # create unless --draft/--prerelease is passed) instead of --prerelease,
-      # so anything fetching via GitHub's /releases/latest API or download URL
-      # keeps working unchanged.
-      - name: Publish release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEXT_TAG: ${{ steps.version.outputs.next_tag }}
-        run: |
-          git tag "$NEXT_TAG"
-          git push origin "refs/tags/$NEXT_TAG"
-
-          gh release create "$NEXT_TAG" vault.json \
-            --title "$NEXT_TAG" \
-            --notes "Auto-generated vault index. Rebuilt on every push to main." \
-            --latest \
-            --target "${{ github.sha }}"
