@@ -6,6 +6,7 @@ tagline: "Runtime code executor"
 description: |
   Testing description
   Multiline working?
+  Second line working?
 
 scripts:
   - { src: "shared.lua", type: "shared" }
