@@ -95,7 +95,7 @@ jobs:
             else:
               repo_root       = "https://github.com/${{ github.repository }}"
               src_url         = f"{repo_root}/tree/main/{rel_path}"
-              dl_url          = f"{repo_root}/archive/refs/heads/main.zip"
+              dl_url          = None  # directory resources are zipped client-side, no link needed
               author_fallback = "${{ github.repository_owner }}"
 
             s   = lambda k, fb="N/A": str(manifest[k]).strip() if manifest.get(k) not in (None,"") else fb
@@ -105,18 +105,19 @@ jobs:
             author_name = s("author", author_fallback)
 
             resources.append({
-              "id":           f"{'sub' if is_sub else 'dir'}:{entry.name}",
-              "name":         s("name", entry.name),
-              "author":       author_name,
-              "author_url":   s("author_url", f"https://github.com/{author_name}"),
-              "version":      s("version", "0.0.0"),
-              "tagline":      s("tagline"),
-              "description":  s("description"),
-              "tags":         lst("tags"),
-              "banner":       s("banner", "") or None,
-              "featured":     b("featured"),
-              "source_url":   src_url,
-              "download_url": dl_url,
+              "id":            f"{'sub' if is_sub else 'dir'}:{entry.name}",
+              "name":          s("name", entry.name),
+              "author":        author_name,
+              "author_url":    s("author_url", f"https://github.com/{author_name}"),
+              "version":       s("version", "0.0.0"),
+              "tagline":       s("tagline"),
+              "description":   s("description"),
+              "tags":          lst("tags"),
+              "banner":        s("banner", "") or None,
+              "featured":      b("featured"),
+              "is_submodule":  is_sub,
+              "source_url":    src_url,
+              "download_url":  dl_url,
             })
 
           resources.sort(key=lambda r: (0 if r["featured"] else 1, r["name"].lower()))
