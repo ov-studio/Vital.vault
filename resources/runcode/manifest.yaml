@@ -1,6 +1,7 @@
 name: "Runcode"
 author: "ov-studio"
 version: "1.0.0"
+tagline: "Runtime code executor"
 
 scripts:
   - { src: "shared.lua", type: "shared" }
