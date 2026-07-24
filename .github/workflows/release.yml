@@ -130,22 +130,42 @@ jobs:
       - name: Show vault.json
         run: cat vault.json
 
-      # ── 4. Force-move the 'latest' tag then publish ────────────────────────
-      - name: Publish rolling release
+      # ── 4. Compute next semver tag ──────────────────────────────────────────
+      # Looks at existing vX.Y.Z tags, bumps the patch number. Starts at v1.0.0
+      # if none exist yet. Purely an auto-increment — no conventional-commit
+      # parsing, so it never bumps major/minor on its own.
+      - name: Compute next version
+        id: version
+        run: |
+          git fetch --tags -q
+          latest_tag=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n1)
+
+          if [ -z "$latest_tag" ]; then
+            next_tag="v1.0.0"
+          else
+            ver="${latest_tag#v}"
+            IFS='.' read -r major minor patch <<< "$ver"
+            next_tag="v${major}.${minor}.$((patch + 1))"
+          fi
+
+          echo "next_tag=$next_tag" >> "$GITHUB_OUTPUT"
+          echo "Next version: $next_tag (previous: ${latest_tag:-none})"
+
+      # ── 5. Tag and publish a real, immutable versioned release ─────────────
+      # Marked as the repo's "latest" release (the default for gh release
+      # create unless --draft/--prerelease is passed) instead of --prerelease,
+      # so anything fetching via GitHub's /releases/latest API or download URL
+      # keeps working unchanged.
+      - name: Publish release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_TAG: ${{ steps.version.outputs.next_tag }}
         run: |
-          # Force-move the tag to current commit so gh release create won't
-          # complain about a stale local tag
-          git tag -f latest
-          git push origin refs/tags/latest --force
+          git tag "$NEXT_TAG"
+          git push origin "refs/tags/$NEXT_TAG"
 
-          # Delete the GitHub release object (not the tag) if it exists
-          gh release delete latest --yes --cleanup-tag 2>/dev/null || true
-
-          # Recreate release and attach vault.json
-          gh release create latest vault.json \
-            --title "Vault" \
+          gh release create "$NEXT_TAG" vault.json \
+            --title "$NEXT_TAG" \
             --notes "Auto-generated vault index. Rebuilt on every push to main." \
-            --prerelease \
+            --latest \
             --target "${{ github.sha }}"
