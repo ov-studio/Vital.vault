@@ -4,18 +4,6 @@ Official community-driven vault for Vital.sandbox — serving as a curated colle
 
 Vital.vault operates as a decentralized directory using **Git Submodules**. Rather than hosting files directly, it tracks pointers to individual community-maintained repositories — keeping resources modular, ownership decentralized, and versioning cleanly decoupled.
 
-## Getting Started
-
-Standard cloning will produce empty directories. You must initialize submodules explicitly:
-
-```bash
-# Clone with all submodules
-git clone --recurse-submodules https://github.com/ov-studio/Vital.vault
-
-# Or, if already cloned normally:
-git submodule update --init --recursive
-```
-
 ## Contributing
 
 Contributions from the community are always welcome! 🤝 
@@ -27,6 +15,7 @@ Adding a resource means registering your GitHub repository as a submodule — en
 - **Clone your fork** and navigate into it:
    ```bash
    git clone https://github.com/your-username/Vital.vault
+   git submodule update --init --recursive
    cd Vital.vault
    ```
 
