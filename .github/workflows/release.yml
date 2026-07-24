@@ -1,16 +1,15 @@
-name: Build Vault Index
+name: Release Vault
 
 on:
   push:
     branches: [main]
-  # Also re-run when any submodule's tracked commit changes
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # needed to create/update the release
+      contents: write
 
     steps:
       # ── 1. Checkout with submodules ────────────────────────────────────────
@@ -22,10 +21,9 @@ jobs:
 
       # ── 2. Build vault.json ────────────────────────────────────────────────
       - name: Build vault.json
-        id: build
         run: |
           python3 - << 'PYEOF'
-          import json, os, re, sys
+          import json, re, sys
           from pathlib import Path
 
           try:
@@ -38,34 +36,19 @@ jobs:
           RESOURCES_DIR = Path("resources")
           KNOWN_TAGS    = {"gamemode","utility","ui","physics","audio","networking","tools"}
 
-          # ── helpers ──────────────────────────────────────────────────────
-          def read_manifest(path: Path) -> dict | None:
+          def read_manifest(path: Path):
             for name in ("manifest.yaml", "manifest.yml"):
               f = path / name
               if f.exists():
                 with open(f) as fh:
-                  try:
-                    return yaml.safe_load(fh) or {}
-                  except yaml.YAMLError:
-                    return None
+                  try:    return yaml.safe_load(fh) or {}
+                  except: return None
             return None
 
-          def git_remote_url(folder: Path) -> str | None:
-            """Return the remote URL if folder is a git submodule."""
-            gitfile = folder / ".git"
-            if gitfile.is_file():
-              # submodule: .git is a file containing "gitdir: ../.git/modules/..."
-              return None  # we'll use the .gitmodules parse below
-            return None
-
-          def parse_gitmodules() -> dict[str, str]:
-            """Return {submodule_path: url} from .gitmodules."""
+          def parse_gitmodules():
             gm = Path(".gitmodules")
-            if not gm.exists():
-              return {}
-            text   = gm.read_text()
-            result = {}
-            current_path = None
+            if not gm.exists(): return {}
+            text, result, current_path = gm.read_text(), {}, None
             for line in text.splitlines():
               line = line.strip()
               pm = re.match(r'path\s*=\s*(.+)', line)
@@ -76,19 +59,11 @@ jobs:
                 current_path = None
             return result
 
-          def gh_source_url(submodule_url: str) -> str:
-            """Convert git remote URL to https GitHub URL."""
-            url = submodule_url.strip()
-            url = re.sub(r'\.git$', '', url)
-            url = re.sub(r'^git@github\.com:', 'https://github.com/', url)
-            return url
+          def to_https(url):
+            url = re.sub(r'\.git$', '', url.strip())
+            return re.sub(r'^git@github\.com:', 'https://github.com/', url)
 
-          def download_url(source_url: str, branch: str = "main") -> str:
-            return f"{source_url}/archive/refs/heads/{branch}.zip"
-
-          # ── main ─────────────────────────────────────────────────────────
-          submodule_urls = parse_gitmodules()  # {"resources/runcode": "https://..."}
-
+          submodule_urls = parse_gitmodules()
           resources = []
 
           if not RESOURCES_DIR.is_dir():
@@ -96,91 +71,81 @@ jobs:
             sys.exit(1)
 
           for entry in sorted(RESOURCES_DIR.iterdir()):
-            if not entry.is_dir():
-              continue
+            if not entry.is_dir(): continue
 
             manifest = read_manifest(entry)
             if manifest is None:
-              # No manifest → skip (not a valid resource)
               print(f"  skip {entry.name} — no manifest")
               continue
 
             print(f"  ok   {entry.name}")
 
-            # Determine source/download URLs
-            rel_path   = str(entry)           # "resources/runcode"
-            sub_url    = submodule_urls.get(rel_path)
-            is_sub     = sub_url is not None
+            rel_path = str(entry)
+            sub_url  = submodule_urls.get(rel_path)
+            is_sub   = sub_url is not None
 
             if is_sub:
-              src_url  = gh_source_url(sub_url)
-              dl_url   = download_url(src_url)
+              src_url         = to_https(sub_url)
+              dl_url          = f"{src_url}/archive/refs/heads/main.zip"
               author_fallback = src_url.rstrip("/").split("/")[-2]
             else:
-              repo_root = "https://github.com/${{ github.repository }}"
-              src_url   = f"{repo_root}/tree/main/{rel_path}"
-              dl_url    = f"{repo_root}/archive/refs/heads/main.zip"
+              repo_root       = "https://github.com/${{ github.repository }}"
+              src_url         = f"{repo_root}/tree/main/{rel_path}"
+              dl_url          = f"{repo_root}/archive/refs/heads/main.zip"
               author_fallback = "${{ github.repository_owner }}"
 
-            def s(key, fallback="N/A"):
-              v = manifest.get(key)
-              return str(v).strip() if v not in (None, "") else fallback
-
-            def b(key, fallback=False):
-              v = manifest.get(key)
-              return bool(v) if isinstance(v, bool) else fallback
-
-            raw_tags = manifest.get("tags") or []
-            tags     = [t for t in raw_tags if t in KNOWN_TAGS] if isinstance(raw_tags, list) else []
+            s   = lambda k, fb="N/A": str(manifest[k]).strip() if manifest.get(k) not in (None,"") else fb
+            b   = lambda k, fb=False: bool(manifest[k]) if isinstance(manifest.get(k), bool) else fb
+            lst = lambda k: [t for t in (manifest.get(k) or []) if t in KNOWN_TAGS] if isinstance(manifest.get(k), list) else []
 
             author_name = s("author", author_fallback)
-            author_url  = s("author_url", f"https://github.com/{author_name}")
 
             resources.append({
-              "id":           f"{'submodule' if is_sub else 'dir'}:{entry.name}",
+              "id":           f"{'sub' if is_sub else 'dir'}:{entry.name}",
               "name":         s("name", entry.name),
               "author":       author_name,
-              "author_url":   author_url,
+              "author_url":   s("author_url", f"https://github.com/{author_name}"),
               "version":      s("version", "0.0.0"),
               "tagline":      s("tagline"),
               "description":  s("description"),
-              "tags":         tags,
+              "tags":         lst("tags"),
               "banner":       s("banner", "") or None,
               "featured":     b("featured"),
               "source_url":   src_url,
               "download_url": dl_url,
             })
 
-          # Featured first, then alphabetical
           resources.sort(key=lambda r: (0 if r["featured"] else 1, r["name"].lower()))
 
-          out = {
+          Path("vault.json").write_text(json.dumps({
             "generated_at": "${{ github.event.head_commit.timestamp || github.run_started_at }}",
             "commit":       "${{ github.sha }}",
             "count":        len(resources),
             "resources":    resources,
-          }
-
-          Path("vault.json").write_text(json.dumps(out, indent=2))
+          }, indent=2))
           print(f"\nBuilt vault.json — {len(resources)} resource(s)")
           PYEOF
 
-      # ── 3. Show what was built (useful in CI logs) ─────────────────────────
+      # ── 3. Show what was built ─────────────────────────────────────────────
       - name: Show vault.json
         run: cat vault.json
 
-      # ── 4. Delete existing 'latest' release + tag, then recreate ──────────
-      #    Using gh CLI (pre-installed on ubuntu-latest)
-      - name: Publish to rolling 'latest' release
+      # ── 4. Force-move the 'latest' tag then publish ────────────────────────
+      - name: Publish rolling release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Delete old release if it exists (ignore error if not)
-          gh release delete latest --yes 2>/dev/null || true
-          git push origin :refs/tags/latest 2>/dev/null || true
+          # Force-move the tag to current commit so gh release create won't
+          # complain about a stale local tag
+          git tag -f latest
+          git push origin refs/tags/latest --force
 
-          # Create fresh release with vault.json attached
+          # Delete the GitHub release object (not the tag) if it exists
+          gh release delete latest --yes --cleanup-tag 2>/dev/null || true
+
+          # Recreate release and attach vault.json
           gh release create latest vault.json \
-            --title "Vault Index" \
-            --notes "Auto-generated resource index. Updated on every push to main." \
-            --prerelease
+            --title "Vault" \
+            --notes "Auto-generated vault index. Rebuilt on every push to main." \
+            --prerelease \
+            --target "${{ github.sha }}"
