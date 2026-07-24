@@ -3,7 +3,7 @@ author: "ov-studio"
 author_url: "https://github.com/ov-studio"
 version: "1.0.0"
 
-banner: "https://wallpapers-clan.com/wp-content/uploads/2025/02/kawaii-cat-collage-desktop-wallpaper-preview.jpg"
+banner: "https://raw.githubusercontent.com/ov-studio/Vital.vault/refs/heads/main/resources/runcode/.vault/banner.png"
 tagline: "Execute Lua code directly from the console"
 featured: true
 
