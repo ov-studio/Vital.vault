@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Aviril, Tron, Mario, Аниса, A-Variakojiene
      DOC: 23/07/2026
-     Desc: Runtime code executor ]]--
+     Desc: Runtime code executor ]]-- 
 ----------------------------------------------------------------
 
 
