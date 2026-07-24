@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-24T14:15:04+03:00",
-  "commit": "8d8ca132186be316a0723f8ca11f670533772432",
+  "generated_at": "2026-07-24T14:21:54+03:00",
+  "commit": "eb669d97b9a976920bc0beb38fc4c1af0858f4cd",
   "count": 1,
   "resources": [
     {
@@ -10,7 +10,7 @@
       "author_url": "https://github.com/ov-studio",
       "version": "1.0.0",
       "tagline": "Runtime code executor",
-      "description": "Testing description<br/>Multline working?",
+      "description": "Testing description\nMultiline working?",
       "tags": [],
       "banner": null,
       "featured": false,
