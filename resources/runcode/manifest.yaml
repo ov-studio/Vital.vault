@@ -3,7 +3,7 @@ author: "ov-studio"
 version: "1.0.0"
 
 tagline: "Runtime code executor"
-description: "Testing description\nMultine working?"
+description: "Testing description\nMultline working?"
 
 scripts:
   - { src: "shared.lua", type: "shared" }
