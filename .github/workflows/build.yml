@@ -144,20 +144,47 @@ jobs:
           git add vault.json
           if git diff --cached --quiet; then
             echo "vault.json unchanged, nothing to commit"
+            echo "NEW_SHA=" >> $GITHUB_ENV
           else
             git commit -m "chore: update vault.json [skip ci]"
             git push origin HEAD:main
+            echo "NEW_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
           fi
 
-      # ── 5. Purge the jsDelivr CDN cache ─────────────────────────────────────
-      # The site fetches vault.json via jsDelivr (cdn.jsdelivr.net/gh/...)
-      # rather than raw.githubusercontent.com. Both are CDN-fronted with CORS
-      # enabled, but raw.githubusercontent.com has no public purge mechanism —
-      # you just wait out its cache TTL, and query-string cache-busting doesn't
-      # work because its CDN ignores query strings when keying the cache.
-      # jsDelivr exposes an explicit purge endpoint, so we call it right after
-      # pushing to force an immediate refresh instead of waiting on a TTL.
-      - name: Purge jsDelivr cache
+      # ── 5. Purge jsDelivr cache ──────────────────────────────────────────
+      # Strategy: purge @main and the exact commit SHA three times each,
+      # spaced 15 s apart, to beat both edge-propagation lag (GitHub's own
+      # CDN takes a few seconds to expose a new commit to jsDelivr's origin
+      # fetcher) and jsDelivr's own multi-POP propagation window.
+      # We also purge the SHA-pinned URL so the client can fall back to a
+      # direct CDN hit that is guaranteed fresh (see note in vault component).
+      - name: Purge jsDelivr cache (round 1 — immediate)
         run: |
-          curl -s "https://purge.jsdelivr.net/gh/${{ github.repository }}@main/vault.json"
-          echo "Purge requested for vault.json"
+          REPO="${{ github.repository }}"
+          SHA="${{ env.NEW_SHA || github.sha }}"
+          echo "Purging @main and @${SHA:0:7}…"
+          curl -fsS "https://purge.jsdelivr.net/gh/${REPO}@main/vault.json"
+          curl -fsS "https://purge.jsdelivr.net/gh/${REPO}@${SHA}/vault.json" || true
+          echo "Round 1 done"
+
+      - name: Wait 15 s
+        run: sleep 15
+
+      - name: Purge jsDelivr cache (round 2)
+        run: |
+          REPO="${{ github.repository }}"
+          SHA="${{ env.NEW_SHA || github.sha }}"
+          curl -fsS "https://purge.jsdelivr.net/gh/${REPO}@main/vault.json"
+          curl -fsS "https://purge.jsdelivr.net/gh/${REPO}@${SHA}/vault.json" || true
+          echo "Round 2 done"
+
+      - name: Wait 15 s
+        run: sleep 15
+
+      - name: Purge jsDelivr cache (round 3)
+        run: |
+          REPO="${{ github.repository }}"
+          SHA="${{ env.NEW_SHA || github.sha }}"
+          curl -fsS "https://purge.jsdelivr.net/gh/${REPO}@main/vault.json"
+          curl -fsS "https://purge.jsdelivr.net/gh/${REPO}@${SHA}/vault.json" || true
+          echo "Round 3 done — cache should be fresh on all POPs"
