@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-25T01:41:39+03:00",
-  "commit": "5e5b1501c13cbfcac933f439b0ddf27a6aeea809",
+  "generated_at": "2026-07-25T02:32:05+03:00",
+  "commit": "4cb40825f707a3a977f853132dff1b6ad9c29de2",
   "count": 2,
   "resources": [
     {
@@ -32,7 +32,7 @@
         "utility",
         "library"
       ],
-      "banner": "https://wallpapers-clan.com/wp-content/uploads/2025/02/kawaii-cat-collage-desktop-wallpaper-preview.jpg",
+      "banner": "https://raw.githubusercontent.com/ov-studio/Vital.vault/refs/heads/main/resources/runcode/.vault/banner.png",
       "featured": true,
       "is_submodule": false,
       "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/runcode",
