@@ -85,7 +85,7 @@ function private.get_list()
 end
 
 function private.get_lut()
-    local path = gfx.adjustment.get_lut()
+    local path = gfx.adjustment.get_lut() -- TODO: Verify if it returns the path correctly or indexed using :resourcename
     for i = 1, #private.list, 1 do
         local j = private.list[i]
         if path == private.list[i] then
