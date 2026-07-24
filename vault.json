@@ -1,8 +1,23 @@
 {
-  "generated_at": "2026-07-24T15:39:35+03:00",
-  "commit": "190d4e4f82ea2abe81fa3e4feb2cf7e40ddff915",
-  "count": 1,
+  "generated_at": "2026-07-24T23:59:42+03:00",
+  "commit": "19a5158142a86f18c58c087a50a1dc68156b416d",
+  "count": 2,
   "resources": [
+    {
+      "id": "dir:lut",
+      "name": "Lut",
+      "author": "ov-studio",
+      "author_url": "https://github.com/ov-studio",
+      "version": "1.0.0",
+      "tagline": "Pack of some selected luts..",
+      "description": "Pack of lut...",
+      "tags": [],
+      "banner": "https://wallpapers-clan.com/wp-content/uploads/2025/02/kawaii-cat-collage-desktop-wallpaper-preview.jpg",
+      "featured": true,
+      "is_submodule": false,
+      "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/lut",
+      "download_url": null
+    },
     {
       "id": "dir:runcode",
       "name": "Runcode",
