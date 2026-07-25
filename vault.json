@@ -1,24 +1,24 @@
 {
-  "generated_at": "2026-07-25T03:57:15+03:00",
-  "commit": "d3ca1e4074269595cedf334c5bead01f6085cfc6",
+  "generated_at": "2026-07-25T04:30:46+03:00",
+  "commit": "f9af7fdaf432b1f18f8a0476a2f0cf8ef9d7b4f8",
   "count": 2,
   "resources": [
     {
-      "id": "dir:lut",
-      "name": "Lut",
+      "id": "dir:lut_presets",
+      "name": "Lut Presets",
       "author": "ov-studio",
       "author_url": "https://github.com/ov-studio",
       "version": "1.0.0",
       "tagline": "A curated collection of color grading LUT presets",
-      "description": "Lut is a curated pack of 63 color grading presets, organized into\nfive collections: Cinematic, Moody, Portrait, ColorBoost, and\nLutify \u2014 covering everything from film-inspired tones to punchy\ncolor boosts and natural skin-tone shaping.\n\nApply, swap, or reset LUTs on the fly through a simple export APIs, \nmaking it easy to wire up your own menu or let other resources control grading directly.",
+      "description": "Lut is a curated pack of 63 color grading presets, organized into\nfive collections: Cinematic, Moody, Portrait, ColorBoost, and\nLutify \u2014 covering everything from film-inspired tones to punchy\ncolor boosts and natural skin-tone shaping.\n\nApply, swap, or reset LUTs on the fly through simple exported APIs, \nmaking it easy to wire up your own menu or let other resources control grading directly.",
       "tags": [
         "asset",
         "gfx"
       ],
-      "banner": "https://raw.githubusercontent.com/ov-studio/Vital.vault/refs/heads/main/resources/lut/.vault/banner.png",
+      "banner": "https://raw.githubusercontent.com/ov-studio/Vital.vault/refs/heads/main/resources/lut_presets/.vault/banner.png",
       "featured": true,
       "is_submodule": false,
-      "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/lut",
+      "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/lut_presets",
       "download_url": null
     },
     {
