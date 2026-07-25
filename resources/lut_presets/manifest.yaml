@@ -1,9 +1,9 @@
-name: "Lut"
+name: "Lut Presets"
 author: "ov-studio"
 author_url: "https://github.com/ov-studio"
 version: "1.0.0"
 
-banner: "https://raw.githubusercontent.com/ov-studio/Vital.vault/refs/heads/main/resources/lut/.vault/banner.png"
+banner: "https://raw.githubusercontent.com/ov-studio/Vital.vault/refs/heads/main/resources/lut_presets/.vault/banner.png"
 tagline: "A curated collection of color grading LUT presets"
 featured: true
 

@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
---[[ Resource: Preset - LUT
+--[[ Resource: LUT Presets
      Script: client.lua
      Author: ov-studio
      Developer(s): Aviril, Tron, Mario, Аниса, A-Variakojiene
