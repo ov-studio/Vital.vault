@@ -12,6 +12,10 @@
 --[[ Util: LUT ]]--
 -------------------
 
+-- Master list of every LUT preset bundled with this resource, grouped by
+-- collection ("Cinematic", "Moody", "Portrait", "ColorBoost", "Lutify").
+-- Each entry is the relative path (minus extension) used to look up and
+-- apply the LUT via gfx.adjustment.set_lut.
 local private = {
     list = {
         "Cinematic/Cinematic 1",
@@ -80,10 +84,14 @@ local private = {
     }
 }
 
+-- Returns the full list of available preset paths, in display order.
+-- Intended for external callers (e.g. a menu UI) building a picker.
 function private.get_list()
     return private.list
 end
 
+-- Returns the 1-based index of the currently applied LUT within
+-- private.list, or `false` if no LUT from this pack is active.
 function private.get_lut()
     local path = gfx.adjustment.get_lut() -- TODO: Verify if it returns the path correctly or indexed using :resourcename
     for i = 1, #private.list, 1 do
@@ -95,6 +103,8 @@ function private.get_lut()
     return false
 end
 
+-- Applies the LUT at the given index (as returned by get_list/get_lut).
+-- Errors if the index is missing, non-numeric, or out of range.
 function private.set_lut(index)
     index = tonumber(index)
     if not private.list[index] then
@@ -103,6 +113,7 @@ function private.set_lut(index)
     return gfx.adjustment.set_lut(private.list[index])
 end
 
+-- Clears any active LUT, restoring the default (unadjusted) color grade.
 function private.reset_lut()
     return gfx.adjustment.reset_lut()
 end
@@ -112,6 +123,8 @@ end
 --[[ Exports ]]--
 -----------------
 
+-- Public API surface exposed to other resources: browse presets, check
+-- or change the active one, and reset back to no grading.
 util.export.register("get_list", private.get_list)
 util.export.register("get_lut", private.get_lut)
 util.export.register("set_lut", private.set_lut)
@@ -122,4 +135,6 @@ util.export.register("reset_lut", private.reset_lut)
 --[[ Commands ]]--
 ------------------
 
+-- Reserved for a future console command to preview/apply presets
+-- directly (e.g. `lut <index>`). Not yet implemented.
 --WIP
