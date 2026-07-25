@@ -17,7 +17,7 @@ description: |
   Lutify — covering everything from film-inspired tones to punchy
   color boosts and natural skin-tone shaping.
 
-  Apply, swap, or reset LUTs on the fly through a simple export APIs, 
+  Apply, swap, or reset LUTs on the fly through simple exported APIs, 
   making it easy to wire up your own menu or let other resources control grading directly.
 
 scripts:
