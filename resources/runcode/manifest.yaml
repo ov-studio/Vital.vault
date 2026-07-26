@@ -25,3 +25,4 @@ description: |
 
 scripts:
   - { src: "shared.lua", type: "shared" }
+  
