@@ -104,7 +104,7 @@ jobs:
             author_name = s("author", author_fallback)
 
             resources.append({
-              "id":            f"{'sub' if is_sub else 'dir'}:{entry.name}",
+              "id":            entry.name,
               "name":          s("name", entry.name),
               "author":        author_name,
               "author_url":    s("author_url", f"https://github.com/{author_name}"),
