@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-25T04:30:46+03:00",
-  "commit": "f9af7fdaf432b1f18f8a0476a2f0cf8ef9d7b4f8",
+  "generated_at": "2026-07-26T16:14:34+03:00",
+  "commit": "daa37ac994f9fd041d813890bc3e4f259463f955",
   "count": 2,
   "resources": [
     {
-      "id": "dir:lut_presets",
+      "id": "lut_presets",
       "name": "Lut Presets",
       "author": "ov-studio",
       "author_url": "https://github.com/ov-studio",
@@ -22,7 +22,7 @@
       "download_url": null
     },
     {
-      "id": "dir:runcode",
+      "id": "runcode",
       "name": "Runcode",
       "author": "ov-studio",
       "author_url": "https://github.com/ov-studio",
