@@ -104,12 +104,10 @@ function private.get_lut()
 end
 
 -- Applies the LUT at the given index (as returned by get_list/get_lut).
--- Errors if the index is missing, non-numeric, or out of range.
+-- Returns false if the index is missing, non-numeric, or out of range.
 function private.set_lut(index)
     index = tonumber(index)
-    if not private.list[index] then
-        error("Invalid lut index")
-    end
+    if not private.list[index] then return false end
     return gfx.adjustment.set_lut(private.list[index])
 end
 
