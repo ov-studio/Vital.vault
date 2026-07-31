@@ -133,6 +133,11 @@ util.export.register("reset_lut", private.reset_lut)
 --[[ Commands ]]--
 ------------------
 
--- Reserved for a future console command to preview/apply presets
--- directly (e.g. `lut <index>`). Not yet implemented.
---WIP
+-- Command to apply presets directly via console
+-- Usage: /lut <index>
+util.input.register("lut", function(args)
+    local index = tonumber(args[1])
+    if not index then return core.engine.print("warn", "Usage: lut <index>") end
+    if not private.set_lut(index) then return core.engine.print("warn", util.string.format("Usage: lut index #%s out of range [1-%s]", index, util.table.len(private.list))) end
+    core.engine.print("info", util.string.format("Lut successfully set to index #%s (%s)", index, private.list[index]))
+end)
