@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-26T16:14:34+03:00",
-  "commit": "daa37ac994f9fd041d813890bc3e4f259463f955",
+  "generated_at": "2026-07-31T21:14:38+03:00",
+  "commit": "66be7ff9ba48b08274c5b88b718979eac806f020",
   "count": 2,
   "resources": [
     {
@@ -10,7 +10,7 @@
       "author_url": "https://github.com/ov-studio",
       "version": "1.0.0",
       "tagline": "A curated collection of color grading LUT presets",
-      "description": "Lut is a curated pack of 63 color grading presets, organized into\nfive collections: Cinematic, Moody, Portrait, ColorBoost, and\nLutify \u2014 covering everything from film-inspired tones to punchy\ncolor boosts and natural skin-tone shaping.\n\nApply, swap, or reset LUTs on the fly through simple exported APIs, \nmaking it easy to wire up your own menu or let other resources control grading directly.",
+      "description": "Lut is a curated pack of 63 color grading presets, organized into\nfive collections: Cinematic, Moody, Portrait, ColorBoost, and\nLutify \u2014 covering everything from film-inspired tones to punchy\ncolor boosts and natural skin-tone shaping.\n\nApply, swap, or reset LUTs on the fly through simple exported APIs,\nmaking it easy to wire up your own menu or let other resources control grading directly.\n\n**Exports:**\n\u2022 `util.export.call(\"lut_presets\", \"get_list\")` \u2014 Returns the full ordered list of available preset paths.\n\u2022 `util.export.call(\"lut_presets\", \"get_lut\")` \u2014 Returns the 1-based index of the currently active preset, or `false` if none is applied.\n\u2022 `util.export.call(\"lut_presets\", \"set_lut\", index)` \u2014 Applies the preset at the given index. Returns `false` if the index is out of range.\n\u2022 `util.export.call(\"lut_presets\", \"reset_lut\")` \u2014 Clears the active LUT, restoring the default ungraded color output.\n\n**Commands:**\n\u2022 `/lut <index>` \u2014 Applies the preset at the given index directly from the console.",
       "tags": [
         "asset",
         "gfx"
