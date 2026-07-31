@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-31T21:23:53+03:00",
-  "commit": "a3abf73fdd28298be9a56387cc128f63045f6b6f",
-  "count": 2,
+  "generated_at": "2026-07-31T23:50:59+03:00",
+  "commit": "0c04b5354cc9a66b5d495e925dbf7883d1c05d91",
+  "count": 3,
   "resources": [
     {
       "id": "lut_presets",
@@ -37,6 +37,21 @@
       "featured": true,
       "is_submodule": false,
       "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/runcode",
+      "download_url": null
+    },
+    {
+      "id": "monitor",
+      "name": "Performance Monitor",
+      "author": "ov-kivi",
+      "author_url": "https://github.com/ov-kivi",
+      "version": "1.0.0",
+      "tagline": "N/A",
+      "description": "N/A",
+      "tags": [],
+      "banner": null,
+      "featured": false,
+      "is_submodule": false,
+      "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/monitor",
       "download_url": null
     }
   ]
