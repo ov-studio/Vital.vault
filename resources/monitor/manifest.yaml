@@ -1,0 +1,9 @@
+name: "Performance Monitor"
+author: "ov-kivi"
+version: "1.0.0"
+  
+scripts:
+  - { src: "client.lua", type: "client" }
+
+files:
+  - "assets/**"
