@@ -93,7 +93,7 @@ end
 -- Returns the 1-based index of the currently applied LUT within
 -- private.list, or `false` if no LUT from this pack is active.
 function private.get_lut()
-    local path = gfx.adjustment.get_lut() -- TODO: Verify if it returns the path correctly or indexed using :resourcename
+    local path = gfx.adjustment.get_lut()
     for i = 1, #private.list, 1 do
         local j = private.list[i]
         if path == private.list[i] then
