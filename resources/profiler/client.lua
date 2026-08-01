@@ -143,7 +143,6 @@ end
 --   [{"label":"ped entity count","value":"42"}, ...]
 -- Each stat's value is fetched live via util.monitor.get, rounded to 2
 -- packed into the resulting label/value pair. Returns a plain Lua table
--- (not yet encoded) so callers can batch multiple lists into one payload.
 function private.to_json_list(list)
     local parts = {}
     for _, item in ipairs(list) do
