@@ -1,5 +1,4 @@
 var panels_config = null;
-var panels_config_raw = null;
 var graphs = {};
 var top_z = 0;
 
@@ -8,8 +7,6 @@ function as_array(v) {
 }
 
 function init_panels(config_json) {
-  if (config_json === panels_config_raw) return;
-  panels_config_raw = config_json;
   build_panels(JSON.parse(config_json));
 }
 

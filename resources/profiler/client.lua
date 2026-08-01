@@ -89,8 +89,6 @@ function private.setup()
     private.view:load_url("assets/widget/index.html")
     private.view:set_visible(true)
 
-    -- Encoded once and re-sent every draw tick (see below) instead of
-    -- once here, since the webview page usually hasn't finished loading
     -- yet at this point -- a single early eval would be silently lost
     -- and the widget would never build its panels.
     private.panels_json = util.table.encode(private.panels)
