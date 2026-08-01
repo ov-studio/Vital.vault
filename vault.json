@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-31T23:50:59+03:00",
-  "commit": "0c04b5354cc9a66b5d495e925dbf7883d1c05d91",
+  "generated_at": "2026-08-01T12:42:31+03:00",
+  "commit": "f678b4d0a966e4ca68cfd5600e62e6facc2de6d5",
   "count": 3,
   "resources": [
     {
@@ -22,6 +22,24 @@
       "download_url": null
     },
     {
+      "id": "monitor",
+      "name": "Performance Monitor",
+      "author": "ov-kivi",
+      "author_url": "https://github.com/ov-kivi",
+      "version": "1.0.0",
+      "tagline": "Live FPS, memory, native and entity stats overlay",
+      "description": "Performance Monitor is an in-game overlay that tracks live client\nperformance and debug stats: FPS, memory usage, per-native timings,\nand per-entity-type counts (peds, vehicles, objects, and so on).\n\nNative/entity stats are auto-registered for every entity type the\nengine exposes, so new types are picked up automatically with no\nextra configuration. Each panel is draggable, resizable, and\nbrings itself to front on click, so you can arrange the overlay\nhowever suits your workflow.\n\nPerfect for spotting frame drops, memory leaks, and entity/native\nbloat while developing or debugging live.",
+      "tags": [
+        "utility",
+        "debug"
+      ],
+      "banner": null,
+      "featured": true,
+      "is_submodule": false,
+      "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/monitor",
+      "download_url": null
+    },
+    {
       "id": "runcode",
       "name": "Runcode",
       "author": "ov-studio",
@@ -37,21 +55,6 @@
       "featured": true,
       "is_submodule": false,
       "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/runcode",
-      "download_url": null
-    },
-    {
-      "id": "monitor",
-      "name": "Performance Monitor",
-      "author": "ov-kivi",
-      "author_url": "https://github.com/ov-kivi",
-      "version": "1.0.0",
-      "tagline": "N/A",
-      "description": "N/A",
-      "tags": [],
-      "banner": null,
-      "featured": false,
-      "is_submodule": false,
-      "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/monitor",
       "download_url": null
     }
   ]
