@@ -29,12 +29,14 @@ html, body {
 .panel-header:active { cursor: grabbing; }
 
 .panel-header .title,
-.panel-header .count,
+.row .key,
+.row .val {
+  letter-spacing: .05em;
+}
+
 .row .key,
 .row .val {
   font-size: .68rem;
-  font-weight: 500;
-  letter-spacing: .05em;
 }
 
 .panel-header .title {
@@ -54,7 +56,7 @@ html, body {
   flex-shrink: 0;
 }
 
-.panel-header .count { 
+.panel-header .count {
   font-size: 0.9rem;
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
@@ -127,6 +129,11 @@ html, body {
   min-height: 50px;
 }
 
+.row,
+.panel-resize {
+  transition: background .15s;
+}
+
 .row {
   display: flex;
   align-items: center;
@@ -135,11 +142,11 @@ html, body {
   padding: 0 14px;
   background: var(--bg5);
   margin-bottom: 2px;
-  transition: background .15s;
 }
 .row:hover { background: var(--b20); }
 
 .row .key {
+  font-weight: 500;
   text-transform: uppercase;
   color: var(--dim);
   white-space: nowrap;
@@ -161,6 +168,5 @@ html, body {
   background: var(--b05);
   border-top: 1px solid var(--rule);
   cursor: ns-resize;
-  transition: background .15s;
 }
 .panel-resize:hover { background: var(--b18); }
