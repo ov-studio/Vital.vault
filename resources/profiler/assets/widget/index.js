@@ -53,9 +53,6 @@ function build_panels(config) {
   root.innerHTML = '';
 
   config.forEach(function (panel) {
-    // A single malformed panel entry should never abort the whole
-    // build (which would also skip layout_panels() and leave every
-    // panel after it missing/misplaced) -- isolate it instead.
     try {
       var panel_el = document.createElement('div');
       panel_el.className = 'panel';
@@ -108,7 +105,8 @@ function build_panels(config) {
       wire_resize(resize_el);
 
       root.appendChild(panel_el);
-    } catch (err) {
+    } 
+    catch (err) {
       console.error('Failed to build panel "' + (panel && panel.id) + '":', err);
     }
   });
