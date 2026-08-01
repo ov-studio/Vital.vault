@@ -36,18 +36,9 @@ local monitor_view = core.webview.create({ forward_input = true })
 monitor_view:load_url("assets/widget/index.html")
 monitor_view:set_visible(true)
 
-local last_resolution = {0, 0}
-
 util.event.on("sandbox:draw", function()
     local res = core.engine.get_resolution()
-
-    if res[1] ~= last_resolution[1] or res[2] ~= last_resolution[2] then
-        monitor_view:set_size({ res[1], res[2] })
-        monitor_view:set_position({ 0, 0 })
-        last_resolution = res
-    end
-
-    local lists         = util.monitor.list()
+    local lists = util.monitor.list()
     local natives_json  = stats_to_json(lists.native or {})
     local entities_json = stats_to_json(lists.custom  or {})
 
