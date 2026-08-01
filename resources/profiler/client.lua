@@ -26,7 +26,7 @@ function private.setup()
         forward_input = true
     })
     private.view:load_url("assets/widget/index.html")
-    private.view:set_visible(true)
+    private.view:set_visible(false)
 
     for _, kind in ipairs(core.engine.get_entity_types()) do
         util.monitor.register(
