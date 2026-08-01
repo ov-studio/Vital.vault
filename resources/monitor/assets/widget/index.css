@@ -16,7 +16,7 @@ html, body {
 .panel {
   position: fixed;
   width: var(--panel-w);
-  background: var(--rule);
+  background: var(--bg9);
   border: 2px solid var(--bg);
   z-index: 1;
 }
@@ -63,42 +63,56 @@ html, body {
 
 .panel-graph {
   position: relative;
-  height: 90px;
-  background: var(--bg5);
+  height: 84px;
+  padding: 9px 14px 0;
+  background:
+    radial-gradient(var(--b18) 1px, transparent 1px),
+    var(--bg7);
+  background-size: 10px 10px, auto;
   overflow: hidden;
   margin-bottom: 2px;
 }
 
 .panel-graph canvas {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
-  height: 100%;
+  height: 42px;
   display: block;
 }
 
-.graph-overlay {
-  position: absolute;
-  top: 8px;
-  left: 12px;
-  display: flex;
-  flex-direction: column;
+.graph-label {
+  position: relative;
+  z-index: 1;
   pointer-events: none;
 }
 
-.graph-value {
-  font-size: 1.5rem;
+.graph-key {
+  display: block;
+  font-size: .68rem;
   font-weight: 700;
-  color: var(--white);
-  line-height: 1;
-  letter-spacing: -.01em;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--blue);
 }
 
-.graph-sub {
-  margin-top: 3px;
-  font-size: .65rem;
-  font-weight: 500;
-  letter-spacing: .05em;
+.graph-val {
+  display: block;
+  margin-top: 2px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+.graph-val .val-sub {
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .02em;
   color: var(--text-faint);
 }
 

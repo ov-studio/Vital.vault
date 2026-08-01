@@ -2,6 +2,9 @@
 <html>
 <head>
 <meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ov-studio/Vital.site@main/app/theme.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ov-studio/Vital.site@main/app/global.css">
 <link rel="stylesheet" href="index.css">
@@ -13,18 +16,18 @@
     <span class="title">NATIVES</span><span class="count" id="natives-count">#0</span>
   </div>
   <div class="panel-graph" id="fps-graph">
-    <canvas id="fps-canvas"></canvas>
-    <div class="graph-overlay">
-      <span class="graph-value" id="fps-value">0</span>
-      <span class="graph-sub" id="fps-sub">0.0 MS</span>
+    <div class="graph-label">
+      <span class="graph-key">FPS</span>
+      <span class="graph-val" id="fps-value">0</span>
     </div>
+    <canvas id="fps-canvas"></canvas>
   </div>
   <div class="panel-graph" id="mem-graph">
-    <canvas id="mem-canvas"></canvas>
-    <div class="graph-overlay">
-      <span class="graph-value" id="mem-value">0</span>
-      <span class="graph-sub" id="mem-sub">MB</span>
+    <div class="graph-label">
+      <span class="graph-key">MEMORY</span>
+      <span class="graph-val" id="mem-value">0</span>
     </div>
+    <canvas id="mem-canvas"></canvas>
   </div>
   <div class="panel-rows" id="natives-rows"></div>
   <div class="panel-resize" data-rows="natives-rows"></div>
