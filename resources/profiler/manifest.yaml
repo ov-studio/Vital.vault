@@ -1,7 +1,7 @@
 name: "Profiler"
 author: "ov-studio"
 author_url: "https://github.com/ov-studio"
-version: "1.0.0"
+version: "1.0.1"
 
 banner: "https://raw.githubusercontent.com/ov-studio/Vital.vault/refs/heads/main/resources/profiler/.vault/banner.png"
 tagline: "Live FPS, memory, native and entity stats overlay"
