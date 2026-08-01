@@ -33,7 +33,7 @@ end
 
 -- ─── Webview ──────────────────────────────────────────────────────────────────
 local monitor_view = core.webview.create({ forward_input = true })
-monitor_view:load_url("assets/index.html")
+monitor_view:load_url("assets/widget/index.html")
 monitor_view:set_visible(true)
 
 local last_resolution = {0, 0}
