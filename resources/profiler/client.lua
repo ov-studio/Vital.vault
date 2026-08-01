@@ -39,10 +39,11 @@ function private.setup()
 end
 
 
--- Returns the display suffix for a given stat format ("TIME", "MEMORY",
--- "PERCENTAGE"), so the widget can show values like "12 MS" or "48 %"
--- without each individual stat needing to know how to render itself.
--- Formats with no known suffix (e.g. QUANTITY) render with none.
+-- Resolves the display suffix appended to a stat's value based on its
+-- format (e.g. TIME -> " MS", MEMORY -> " MB", PERCENTAGE -> " %"), so
+-- the widget can render values like "12 MS" or "48 %" without each stat
+-- needing to know how to format itself. Formats with no known suffix
+-- (e.g. QUANTITY) resolve to an empty string.
 function private.get_unit(fmt)
     if fmt == util.monitor.stat_format.TIME then return " MS"
     elseif fmt == util.monitor.stat_format.MEMORY then return " MB"
@@ -50,20 +51,25 @@ function private.get_unit(fmt)
     return ""
 end
 
--- Converts a list of monitor stats into a JSON array string that the
--- webview widget understands, e.g.:
+
+-- Serializes a list of monitor stats into the JSON array string expected
+-- by the webview widget, e.g.:
 --   [{"label":"ped entity count","value":"42"}, ...]
--- Each entry's current value is read live via util.monitor.get,
--- rounded to 2 decimal places, and suffixed with its unit (if any).
+-- Each stat's value is fetched live via util.monitor.get, rounded to 2
+-- decimal places, and suffixed with its unit (if any) before being
+-- packed into the resulting label/value pair.
 function private.to_json(list)
     local parts = {}
     for _, item in ipairs(list) do
         local value = util.math.round(util.monitor.get(item.id), 2)
         local label = util.string.gsub(item.name, "_", " ")
         local unit = private.get_unit(item.format)
-        parts[#parts + 1] = util.string.format('{"label":"%s","value":"%s%s"}', label, tostring(value), unit)
+        parts[#parts + 1] = {
+            label = label,
+            value = tostring(value)..unit
+        }
     end
-    return "["..util.table.concat(parts, ",").."]"
+    return util.table.encode(parts)
 end
 
 
