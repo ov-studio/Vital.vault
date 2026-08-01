@@ -41,7 +41,6 @@ local private = {
 --              or "value" (format sub on its own; see the "mem" graph
 --              below for its sub_divisor/sub_decimals/sub_unit_suffix
 --              overrides)
---
 private.panels = {
     {
         id = "natives",
@@ -62,7 +61,7 @@ private.panels = {
                 id = "mem",
                 label = "MEMORY",
                 stat = "RENDER VIDEO MEM USED",
-                divisor = 1024 * 1024,
+                divisor = 1,
                 decimals = 1,
                 unit_suffix = " MB",
                 min_floor = 1,
@@ -138,7 +137,9 @@ end
 function private.to_json_list(list)
     local parts = {}
     for _, item in ipairs(list) do
-        local value = util.math.round(util.monitor.get(item.id), 2)
+        local raw = util.monitor.get(item.id)
+        local divisor = private.get_divisor(item.format)
+        local value = util.math.round(raw / divisor, 2)
         local label = util.string.gsub(item.name, "_", " ")
         local unit = private.get_unit(item.format)
         parts[#parts + 1] = {
