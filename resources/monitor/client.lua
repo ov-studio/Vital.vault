@@ -1,10 +1,10 @@
 ----------------------------------------------------------------
---[[ Resource: Runcode
+--[[ Resource: Profiler
      Script: shared.lua
      Author: ov-studio
      Developer(s): Kivi
      DOC: 01/08/2026
-     Desc: Performance monitor overlay ]]--
+     Desc: In-game profiler overlay ]]--
 ----------------------------------------------------------------
 
 
