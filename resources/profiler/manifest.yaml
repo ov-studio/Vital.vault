@@ -25,6 +25,9 @@ description: |
   Perfect for spotting frame drops, memory leaks, and entity/native
   bloat while developing or debugging live.
 
+  Commands:
+  • `/profiler` — toggles the profiler overlay on/off
+
 scripts:
   - { src: "client.lua", type: "client" }
 
