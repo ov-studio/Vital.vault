@@ -2,7 +2,7 @@
 --[[ Resource: LUT Presets
      Script: client.lua
      Author: ov-studio
-     Developer(s): Aviril, Tron, Mario, Аниса, A-Variakojiene
+     Developer(s): Aviril, Аниса
      DOC: 24/07/2026
      Desc: Curated LUT presets ]]--
 ----------------------------------------------------------------

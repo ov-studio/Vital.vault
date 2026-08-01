@@ -2,7 +2,7 @@
 --[[ Resource: Runcode
      Script: shared.lua
      Author: ov-studio
-     Developer(s): Aviril, Tron, Mario, Аниса, A-Variakojiene
+     Developer(s): Aviril, Tron, Аниса, Kivi
      DOC: 23/07/2026
      Desc: Runtime code executor ]]--
 ----------------------------------------------------------------

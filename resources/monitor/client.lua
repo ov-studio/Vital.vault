@@ -2,7 +2,7 @@
 --[[ Resource: Runcode
      Script: shared.lua
      Author: ov-studio
-     Developer(s): Aviril, Tron, Mario, Аниса, A-Variakojiene
+     Developer(s): Kivi
      DOC: 01/08/2026
      Desc: Performance monitor overlay ]]--
 ----------------------------------------------------------------
