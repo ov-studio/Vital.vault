@@ -1,26 +1,150 @@
-window.addEventListener('load', function () {
-  var pn = document.getElementById('panel-natives');
-  var pe = document.getElementById('panel-entities');
-  pn.style.top = '1vh';
-  pn.style.right = '1vw';
-  pn.style.left = 'auto';
-  var rn = pn.getBoundingClientRect();
-  pe.style.top = '1vh';
-  pe.style.left = (rn.left - pe.offsetWidth - window.innerWidth * 0.01) + 'px';
-});
+// ------------------------------------------------------------------
+// Panel config lifecycle:
+//   1. Lua calls init_panels(config_json) once, after load_url.
+//      config_json is an array of panel definitions, e.g.:
+//        [{
+//          id: "natives", title: "NATIVES", source: "native",
+//          graphs: [{ id, label, stat, divisor, decimals, unit_suffix,
+//                     min_floor, sub_stat, sub_mode,
+//                     // sub_mode: "ms" | "percent" | "value"
+//                     // "value" also accepts sub_divisor/sub_decimals/
+//                     // sub_unit_suffix to format independently of the
+//                     // main value (defaults to the main ones) }, ...]
+//        }, ...]
+//   2. build_panels() creates every panel's DOM (header, optional
+//      graphs, rows, resize handle) purely from that config -- no
+//      panel/graph is ever referenced by name in this file.
+//   3. Lua calls update_monitor(data_json) on every draw tick, where
+//      data_json is a map of source -> [{label, value}, ...]. Each
+//      panel looks up its own `source` in that map.
+// ------------------------------------------------------------------
+
+// Lua's JSON encoder can't distinguish an empty array from an empty
+// object when encoding an empty table, so a panel with no graphs may
+// arrive as `graphs: {}` instead of `graphs: []`. Route every read of
+// panel.graphs through this so that ambiguity can never throw and
+// silently abort a panel build (which also skips layout_panels()).
+function as_array(v) {
+  return Array.isArray(v) ? v : [];
+}
+
+var panels_config = null;
+var panels_config_raw = null; // last raw config_json successfully applied
+var graphs = {};   // key: `${panel.id}::${graph.id}` -> graph state
+var top_z = 0;
+
+// Lua calls this on every draw tick (not just once after load_url),
+// because the webview may not have finished loading the page the first
+// time it's sent -- a single early call would otherwise be lost forever
+// and the widget would stay blank. Re-sending is cheap: if the config
+// hasn't changed since the last successful build, this is a no-op.
+function init_panels(config_json) {
+  if (config_json === panels_config_raw) return;
+  panels_config_raw = config_json;
+  build_panels(JSON.parse(config_json));
+}
+
+function build_panels(config) {
+  panels_config = config;
+  graphs = {};
+  top_z = 0;
+
+  var root = document.getElementById('panels-root');
+  root.innerHTML = '';
+
+  config.forEach(function (panel) {
+    // A single malformed panel entry should never abort the whole
+    // build (which would also skip layout_panels() and leave every
+    // panel after it missing/misplaced) -- isolate it instead.
+    try {
+      var panel_el = document.createElement('div');
+      panel_el.className = 'panel';
+      panel_el.id = 'panel-' + panel.id;
+      top_z += 1;
+      panel_el.style.zIndex = top_z;
+
+      var header = document.createElement('div');
+      header.className = 'panel-header';
+      header.setAttribute('data-panel', panel_el.id);
+      header.innerHTML =
+        '<span class="title">' + panel.title + '</span>' +
+        '<span class="count" id="' + panel.id + '-count">#0</span>';
+      panel_el.appendChild(header);
+      wire_drag(header);
+
+      as_array(panel.graphs).forEach(function (g) {
+        var canvas_id = panel.id + '-' + g.id + '-canvas';
+        var value_id = panel.id + '-' + g.id + '-value';
+
+        var graph_el = document.createElement('div');
+        graph_el.className = 'panel-graph';
+        graph_el.id = panel.id + '-' + g.id + '-graph';
+        graph_el.innerHTML =
+          '<div class="graph-label">' +
+            '<span class="graph-key">' + g.label + '</span>' +
+            '<span class="graph-val" id="' + value_id + '">0</span>' +
+          '</div>' +
+          '<canvas id="' + canvas_id + '"></canvas>';
+        panel_el.appendChild(graph_el);
+
+        graphs[panel.id + '::' + g.id] = {
+          config: g,
+          canvas_id: canvas_id,
+          value_id: value_id,
+          history: [],
+          min_floor: (g.min_floor !== undefined) ? g.min_floor : 1
+        };
+      });
+
+      var rows_el = document.createElement('div');
+      rows_el.className = 'panel-rows';
+      rows_el.id = panel.id + '-rows';
+      panel_el.appendChild(rows_el);
+
+      var resize_el = document.createElement('div');
+      resize_el.className = 'panel-resize';
+      resize_el.setAttribute('data-rows', rows_el.id);
+      panel_el.appendChild(resize_el);
+      wire_resize(resize_el);
+
+      root.appendChild(panel_el);
+    } catch (err) {
+      console.error('Failed to build panel "' + (panel && panel.id) + '":', err);
+    }
+  });
+
+  layout_panels();
+}
+
+// Anchors the first panel top-right, then chains every subsequent panel
+// immediately to the left of the previous one. Works for any number of
+// panels, in whatever order they appear in the config.
+function layout_panels() {
+  if (!panels_config) return;
+  var prev_left = null;
+
+  panels_config.forEach(function (panel, i) {
+    var el = document.getElementById('panel-' + panel.id);
+    if (!el) return;
+    el.style.top = '1vh';
+
+    if (i === 0) {
+      el.style.right = '1vw';
+      el.style.left = 'auto';
+    } 
+    else {
+      el.style.right = 'auto';
+      el.style.left = (prev_left - el.offsetWidth - window.innerWidth * 0.01) + 'px';
+    }
+    prev_left = el.getBoundingClientRect().left;
+  });
+}
 
 window.addEventListener('resize', function () {
-  var pn = document.getElementById('panel-natives');
-  var pe = document.getElementById('panel-entities');
-  pn.style.top = '1vh';
-  pn.style.right = '1vw';
-  pn.style.left = 'auto';
-  var rn = pn.getBoundingClientRect();
-  pe.style.top = '1vh';
-  pe.style.left = (rn.left - pe.offsetWidth - window.innerWidth * 0.01) + 'px';
+  layout_panels();
+  Object.keys(graphs).forEach(function (key) { draw_sparkline(graphs[key]); });
 });
 
-var top_z = 2;
 function bring_to_front(panel_id) {
   var el = document.getElementById(panel_id);
   top_z += 1;
@@ -28,7 +152,7 @@ function bring_to_front(panel_id) {
 }
 
 var drag = null;
-document.querySelectorAll('.panel-header').forEach(function (header) {
+function wire_drag(header) {
   header.addEventListener('mousedown', function (e) {
     if (e.button !== 0) return;
     var panel_id = header.getAttribute('data-panel');
@@ -38,7 +162,19 @@ document.querySelectorAll('.panel-header').forEach(function (header) {
     drag = { el: el, ox: e.clientX - rect.left, oy: e.clientY - rect.top };
     e.preventDefault();
   });
-});
+}
+
+var resize = null;
+function wire_resize(handle) {
+  handle.addEventListener('mousedown', function (e) {
+    if (e.button !== 0) return;
+    var rows_el = document.getElementById(handle.getAttribute('data-rows'));
+    var panel_el = rows_el.closest('.panel');
+    if (panel_el) bring_to_front(panel_el.id);
+    resize = { rows_el: rows_el, start_y: e.clientY, start_h: rows_el.offsetHeight };
+    e.preventDefault();
+  });
+}
 
 document.addEventListener('mousemove', function (e) {
   if (drag) {
@@ -55,23 +191,7 @@ document.addEventListener('mousemove', function (e) {
 
 document.addEventListener('mouseup', function () { drag = null; resize = null; });
 
-var resize = null;
-document.querySelectorAll('.panel-resize').forEach(function (handle) {
-  handle.addEventListener('mousedown', function (e) {
-    if (e.button !== 0) return;
-    var rows_el = document.getElementById(handle.getAttribute('data-rows'));
-    var panel_el = rows_el.closest('.panel');
-    if (panel_el) bring_to_front(panel_el.id);
-    resize = { rows_el: rows_el, start_y: e.clientY, start_h: rows_el.offsetHeight };
-    e.preventDefault();
-  });
-});
-
 var HISTORY_MAX = 120;
-var graphs = {
-  fps: { canvas_id: 'fps-canvas', history: [], min_floor: 30 },
-  mem: { canvas_id: 'mem-canvas', history: [], min_floor: 1 }
-};
 
 function get_theme_color(var_name, fallback) {
   var v = getComputedStyle(document.documentElement).getPropertyValue(var_name).trim();
@@ -159,60 +279,79 @@ function find_item(items, label) {
   return items.filter(function (i) { return i.label === label; })[0];
 }
 
-function format_number(n) {
-  return Math.round(n).toLocaleString();
-}
+// Renders every graph configured on a panel (if any) from that panel's
+// own item list. Nothing here is specific to fps/memory -- the stat to
+// read, how to scale it, and what the parenthetical sub-value means all
+// come from the graph's config (see the header comment for the shape).
+function update_graphs(panel, items) {
+  as_array(panel.graphs).forEach(function (g) {
+    var graph = graphs[panel.id + '::' + g.id];
+    if (!graph) return;
 
-function update_graphs(natives) {
-  var fps_item = find_item(natives, 'TIME FPS');
-  var ms_item = find_item(natives, 'TIME PROCESS');
-  var fps_val = fps_item ? parseFloat(fps_item.value) : 0;
-  if (isNaN(fps_val)) fps_val = 0;
-  push_history(graphs.fps, fps_val);
+    var divisor = g.divisor || 1;
+    var decimals = (g.decimals !== undefined) ? g.decimals : 0;
 
-  var fps_val_el = document.getElementById('fps-value');
-  if (fps_val_el) {
-    var fps_ms = ms_item ? ms_item.value.replace(' MS', 'ms').toLowerCase() : '';
-    fps_val_el.innerHTML = Math.round(fps_val) + (fps_ms ? ' <span class="val-sub">(' + fps_ms + ')</span>' : '');
-  }
+    var main_item = find_item(items, g.stat);
+    var raw = main_item ? parseFloat(main_item.value) : 0;
+    if (isNaN(raw)) raw = 0;
+    var main_val = raw / divisor;
 
-  draw_sparkline(graphs.fps);
-  var mem_item = find_item(natives, 'MEMORY STATIC');
-  var mem_max_item = find_item(natives, 'MEMORY STATIC MAX');
-  var mem_val_bytes = mem_item ? parseFloat(mem_item.value) : 0;
-  if (isNaN(mem_val_bytes)) mem_val_bytes = 0;
-  var mem_mb = mem_val_bytes / (1024 * 1024);
-  push_history(graphs.mem, mem_mb);
-  var mem_val_el = document.getElementById('mem-value');
-  if (mem_val_el) {
-    var mem_text = mem_mb.toFixed(1) + ' MB';
-    if (mem_max_item) {
-      var mem_max_mb = parseFloat(mem_max_item.value) / (1024 * 1024);
-      if (mem_max_mb > 0) {
-        var mem_pct = Math.round((mem_mb / mem_max_mb) * 100);
-        mem_text += ' <span class="val-sub">(' + mem_pct + '%)</span>';
+    push_history(graph, main_val);
+
+    var value_el = document.getElementById(graph.value_id);
+    if (value_el) {
+      var text = main_val.toFixed(decimals) + (g.unit_suffix || '');
+      var sub_text = '';
+
+      if (g.sub_stat) {
+        var sub_item = find_item(items, g.sub_stat);
+        if (sub_item) {
+          if (g.sub_mode === 'ms') {
+            sub_text = sub_item.value.replace(' MS', 'ms').toLowerCase();
+          } 
+          else if (g.sub_mode === 'percent') {
+            var sub_val = parseFloat(sub_item.value) / divisor;
+            if (!isNaN(sub_val) && sub_val > 0) {
+              sub_text = Math.round((main_val / sub_val) * 100) + '%';
+            }
+          } 
+          else if (g.sub_mode === 'value') {
+            var sub_divisor = (g.sub_divisor !== undefined) ? g.sub_divisor : divisor;
+            var sub_decimals = (g.sub_decimals !== undefined) ? g.sub_decimals : decimals;
+            var sub_unit = (g.sub_unit_suffix !== undefined) ? g.sub_unit_suffix : (g.unit_suffix || '');
+            var sub_num = parseFloat(sub_item.value) / sub_divisor;
+            if (!isNaN(sub_num)) {
+              sub_text = sub_num.toFixed(sub_decimals) + sub_unit;
+            }
+          }
+        }
       }
+
+      if (sub_text) text += ' <span class="val-sub">(' + sub_text + ')</span>';
+      value_el.innerHTML = text;
     }
-    mem_val_el.innerHTML = mem_text;
-  }
-  draw_sparkline(graphs.mem);
+
+    draw_sparkline(graph);
+  });
 }
 
-window.addEventListener('resize', function () {
-  draw_sparkline(graphs.fps);
-  draw_sparkline(graphs.mem);
-});
+function update_monitor(data_json) {
+  if (!panels_config) return;
+  var data = JSON.parse(data_json);
 
-function update_monitor(natives_json, entities_json) {
-  var natives = JSON.parse(natives_json);
-  render_panel('natives', natives);
-  render_panel('entities', JSON.parse(entities_json));
-  update_graphs(natives);
+  panels_config.forEach(function (panel) {
+    var items = data[panel.source] || [];
+    render_panel(panel.id, items);
+    if (as_array(panel.graphs).length) {
+      update_graphs(panel, items);
+    }
+  });
 }
 
 function render_panel(id, items) {
   var count_el = document.getElementById(id + '-count');
   var rows_el = document.getElementById(id + '-rows');
+  if (!count_el || !rows_el) return;
   count_el.textContent = '#' + items.length;
 
   var existing = rows_el.children;

@@ -4,45 +4,14 @@
     <meta charset="utf-8">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap"
-      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ov-studio/Vital.site@main/app/theme.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ov-studio/Vital.site@main/app/global.css">
     <link rel="stylesheet" href="index.css">
   </head>
 
   <body>
-    <div class="panel" id="panel-natives" style="top:1vh; right:1vw; z-index:1;">
-      <div class="panel-header" data-panel="panel-natives">
-        <span class="title">NATIVES</span><span class="count" id="natives-count">#0</span>
-      </div>
-      <div class="panel-graph" id="fps-graph">
-        <div class="graph-label">
-          <span class="graph-key">FPS</span>
-          <span class="graph-val" id="fps-value">0</span>
-        </div>
-        <canvas id="fps-canvas"></canvas>
-      </div>
-      <div class="panel-graph" id="mem-graph">
-        <div class="graph-label">
-          <span class="graph-key">MEMORY</span>
-          <span class="graph-val" id="mem-value">0</span>
-        </div>
-        <canvas id="mem-canvas"></canvas>
-      </div>
-      <div class="panel-rows" id="natives-rows"></div>
-      <div class="panel-resize" data-rows="natives-rows"></div>
-    </div>
-
-    <div class="panel" id="panel-entities" style="top:1vh; z-index:2;">
-      <div class="panel-header" data-panel="panel-entities">
-        <span class="title">ENTITIES</span><span class="count" id="entities-count">#0</span>
-      </div>
-      <div class="panel-rows" id="entities-rows"></div>
-      <div class="panel-resize" data-rows="entities-rows"></div>
-    </div>
-
+    <div id="panels-root"></div>
     <script src="index.js"></script>
   </body>
 </html>
