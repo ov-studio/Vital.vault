@@ -1,0 +1,107 @@
+:root { --panel-w: 375px; }
+
+/* body already gets font-family/background/color from global.css;
+   only override what this overlay actually needs to differ. */
+html, body {
+  width: 100%; height: 100%;
+  background: transparent !important;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* global.css sets `* { cursor: none }` for the site's custom cursor;
+   this overlay needs a real cursor, so override it once here. */
+* { cursor: auto; }
+
+.panel {
+  position: fixed;
+  width: var(--panel-w);
+  background: var(--rule);
+  border: 2px solid var(--bg);
+  z-index: 1;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 50px;
+  padding: 0 14px;
+  background: var(--bg);
+  cursor: grab;
+}
+.panel-header:active { cursor: grabbing; }
+
+/* shared label typography for header title/count and row key/val */
+.panel-header .title,
+.panel-header .count,
+.row .key,
+.row .val {
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .05em;
+}
+
+.panel-header .title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+.panel-header .title::before {
+  content: '';
+  width: 10px;
+  height: 2px;
+  background: var(--blue);
+  flex-shrink: 0;
+}
+
+.panel-header .count { color: var(--text-faint); }
+
+.panel-rows {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 80vh;
+  min-height: 50px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 30px;
+  padding: 0 14px;
+  background: var(--bg5);
+  margin-bottom: 2px;
+  transition: background .15s;
+}
+.row:hover { background: var(--b18); }
+
+.row .key {
+  text-transform: uppercase;
+  color: var(--dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.row:hover .key { color: var(--white); }
+
+.row .val {
+  font-weight: 600;
+  color: var(--blue);
+  white-space: nowrap;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.panel-resize {
+  height: 4px;
+  background: var(--b05);
+  border-top: 1px solid var(--rule);
+  cursor: ns-resize;
+  transition: background .15s;
+}
+.panel-resize:hover { background: var(--b18); }
