@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-01T13:12:38+03:00",
-  "commit": "542169444e9a1ced84be2656eb548b6888d401a5",
+  "generated_at": "2026-08-01T16:56:37+03:00",
+  "commit": "bc8a31496bce1b4f8092942733370df078a6e34a",
   "count": 3,
   "resources": [
     {
@@ -28,7 +28,7 @@
       "author_url": "https://github.com/ov-studio",
       "version": "1.0.0",
       "tagline": "Live FPS, memory, native and entity stats overlay",
-      "description": "Profiler is an in-game overlay that tracks live client performance\nand debug stats: FPS, memory usage, per-native timings, and\nper-entity-type counts (peds, vehicles, objects, and so on).\n\nNative/entity stats are auto-registered for every entity type the\nengine exposes, so new types are picked up automatically with no\nextra configuration. Each panel is draggable, resizable, and\nbrings itself to front on click, so you can arrange the overlay\nhowever suits your workflow.\n\nPerfect for spotting frame drops, memory leaks, and entity/native\nbloat while developing or debugging live.",
+      "description": "Profiler is an in-game overlay that tracks live client performance\nand debug stats: FPS, memory usage, per-native timings, and\nper-entity-type counts (peds, vehicles, objects, and so on).\n\nNative/entity stats are auto-registered for every entity type the\nengine exposes, so new types are picked up automatically with no\nextra configuration. Each panel is draggable, resizable, and\nbrings itself to front on click, so you can arrange the overlay\nhowever suits your workflow.\n\nPerfect for spotting frame drops, memory leaks, and entity/native\nbloat while developing or debugging live.\n\nCommands:\n\u2022 `/profiler` \u2014 toggles the profiler overlay on/off",
       "tags": [
         "ui",
         "utility"
