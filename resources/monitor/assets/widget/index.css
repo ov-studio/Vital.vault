@@ -1,7 +1,5 @@
 :root { --panel-w: 375px; }
 
-/* body already gets font-family/background/color from global.css;
-   only override what this overlay actually needs to differ. */
 html, body {
   width: 100%; height: 100%;
   background: transparent !important;
@@ -9,8 +7,6 @@ html, body {
   user-select: none;
 }
 
-/* global.css sets `* { cursor: none }` for the site's custom cursor;
-   this overlay needs a real cursor, so override it once here. */
 * { cursor: auto; }
 
 .panel {
@@ -32,7 +28,6 @@ html, body {
 }
 .panel-header:active { cursor: grabbing; }
 
-/* shared label typography for header title/count and row key/val */
 .panel-header .title,
 .panel-header .count,
 .row .key,

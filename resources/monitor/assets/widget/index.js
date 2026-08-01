@@ -1,19 +1,14 @@
 window.addEventListener('load', function() {
   var pn = document.getElementById('panel-natives');
   var pe = document.getElementById('panel-entities');
-
-  // Natives: top-right, vw/vh based
   pn.style.top   = '1vh';
   pn.style.right = '1vw';
   pn.style.left  = 'auto';
-
-  // Entities: to the left of natives, gap = 1vw
   var rn = pn.getBoundingClientRect();
   pe.style.top  = '1vh';
   pe.style.left = (rn.left - pe.offsetWidth - window.innerWidth * 0.01) + 'px';
 });
 
-// Reposition on window resize
 window.addEventListener('resize', function() {
   var pn = document.getElementById('panel-natives');
   var pe = document.getElementById('panel-entities');
@@ -25,18 +20,14 @@ window.addEventListener('resize', function() {
   pe.style.left = (rn.left - pe.offsetWidth - window.innerWidth * 0.01) + 'px';
 });
 
-// ── Z-index stacking (bring-to-front) ────────────────────────────────────────
-var topZ = 2; // panel-entities starts as the front-most panel
-
+var topZ = 2;
 function bringToFront(panelId) {
   var el = document.getElementById(panelId);
   topZ += 1;
   el.style.zIndex = topZ;
 }
 
-// ── Drag panels ───────────────────────────────────────────────────────────────
 var drag = null;
-
 document.querySelectorAll('.panel-header').forEach(function(header) {
   header.addEventListener('mousedown', function(e) {
     if (e.button !== 0) return;
@@ -64,9 +55,7 @@ document.addEventListener('mousemove', function(e) {
 
 document.addEventListener('mouseup', function() { drag = null; resize = null; });
 
-// ── Resize rows height ────────────────────────────────────────────────────────
 var resize = null;
-
 document.querySelectorAll('.panel-resize').forEach(function(handle) {
   handle.addEventListener('mousedown', function(e) {
     if (e.button !== 0) return;
@@ -78,7 +67,6 @@ document.querySelectorAll('.panel-resize').forEach(function(handle) {
   });
 });
 
-// ── Sparkline graphs (FPS + memory) ─────────────────────────────────────────
 var HISTORY_MAX = 120;
 var graphs = {
   fps: { canvasId: 'fps-canvas', history: [], minFloor: 30 },
@@ -100,7 +88,6 @@ function drawSparkline(graph) {
   var cw = canvas.clientWidth;
   var ch = canvas.clientHeight;
   if (cw === 0 || ch === 0) return;
-
   if (canvas.width !== Math.round(cw * dpr) || canvas.height !== Math.round(ch * dpr)) {
     canvas.width  = Math.round(cw * dpr);
     canvas.height = Math.round(ch * dpr);
@@ -112,14 +99,9 @@ function drawSparkline(graph) {
 
   var maxVal = Math.max.apply(null, history);
   maxVal = Math.max(maxVal * 1.8, graph.minFloor);
-
   var n = history.length;
-  // Stretch whatever samples we have across the full canvas width, so the
-  // graph is visible immediately rather than waiting for HISTORY_MAX
-  // samples to accumulate.
   var stepX = cw / Math.max(n - 1, 1);
   var pad = 5;
-
   var points = [];
   for (var i = 0; i < n; i++) {
     var x = i * stepX;
@@ -131,13 +113,10 @@ function drawSparkline(graph) {
   }
 
   var blue = getThemeColor('--blue', '#3b82f6');
-
   var gradient = ctx.createLinearGradient(0, 0, 0, ch);
   gradient.addColorStop(0, blue);
   gradient.addColorStop(1, 'transparent');
 
-  // Smooth the line using quadratic curves through midpoints, rather than
-  // sharp straight segments, so it reads as a clean line at a small height.
   function tracePath(ctx2) {
     ctx2.moveTo(points[0][0], points[0][1]);
     for (var m = 1; m < points.length - 1; m++) {
@@ -162,7 +141,6 @@ function drawSparkline(graph) {
   ctx.fillStyle = gradient;
   ctx.fill();
   ctx.restore();
-
   ctx.beginPath();
   tracePath(ctx);
   ctx.strokeStyle = blue;
@@ -186,9 +164,8 @@ function formatNumber(n) {
 }
 
 function updateGraphs(natives) {
-  // FPS graph: big number = current FPS, sub-label = frame time
   var fpsItem = findItem(natives, 'TIME FPS');
-  var msItem  = findItem(natives, 'TIME PROCESS');
+  var msItem = findItem(natives, 'TIME PROCESS');
   var fpsVal = fpsItem ? parseFloat(fpsItem.value) : 0;
   if (isNaN(fpsVal)) fpsVal = 0;
   pushHistory(graphs.fps, fpsVal);
@@ -200,18 +177,12 @@ function updateGraphs(natives) {
   }
 
   drawSparkline(graphs.fps);
-
-  // Memory graph: big number = current static memory, sub-label = usage vs max
-  // Note: the engine's MEMORY STATIC / MEMORY STATIC MAX values are raw bytes
-  // even though the source data appends " MB" to them, so we convert here to
-  // show real usage instead of a mislabeled billion-scale number.
-  var memItem    = findItem(natives, 'MEMORY STATIC');
+  var memItem = findItem(natives, 'MEMORY STATIC');
   var memMaxItem = findItem(natives, 'MEMORY STATIC MAX');
   var memValBytes = memItem ? parseFloat(memItem.value) : 0;
   if (isNaN(memValBytes)) memValBytes = 0;
   var memMb = memValBytes / (1024 * 1024);
   pushHistory(graphs.mem, memMb);
-
   var memValEl = document.getElementById('mem-value');
   if (memValEl) {
     var memText = memMb.toFixed(1) + ' MB';
@@ -224,7 +195,6 @@ function updateGraphs(natives) {
     }
     memValEl.innerHTML = memText;
   }
-
   drawSparkline(graphs.mem);
 }
 
@@ -233,12 +203,9 @@ window.addEventListener('resize', function() {
   drawSparkline(graphs.mem);
 });
 
-// ── Data update ───────────────────────────────────────────────────────────────
 function update_monitor(nativesJson, entitiesJson) {
-  var natives  = JSON.parse(nativesJson);
-  var entities = JSON.parse(entitiesJson);
-  renderPanel('natives',  natives);
-  renderPanel('entities', entities);
+  renderPanel('natives', JSON.parse(nativesJson));
+  renderPanel('entities', JSON.parse(entitiesJson));
   updateGraphs(natives);
 }
 
@@ -252,7 +219,8 @@ function renderPanel(id, items) {
     var row;
     if (i < existing.length) {
       row = existing[i];
-    } else {
+    } 
+    else {
       row = document.createElement('div');
       row.className = 'row';
       row.innerHTML = '<span class="key"></span><span class="val"></span>';
