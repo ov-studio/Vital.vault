@@ -61,6 +61,47 @@ html, body {
 
 .panel-header .count { color: var(--text-faint); }
 
+.panel-graph {
+  position: relative;
+  height: 90px;
+  background: var(--bg5);
+  overflow: hidden;
+  margin-bottom: 2px;
+}
+
+.panel-graph canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.graph-overlay {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.graph-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+  letter-spacing: -.01em;
+}
+
+.graph-sub {
+  margin-top: 3px;
+  font-size: .65rem;
+  font-weight: 500;
+  letter-spacing: .05em;
+  color: var(--text-faint);
+}
+
 .panel-rows {
   overflow-y: auto;
   overflow-x: hidden;

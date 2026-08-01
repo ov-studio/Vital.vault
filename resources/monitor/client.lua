@@ -39,11 +39,10 @@ monitor_view:set_visible(true)
 util.event.on("sandbox:draw", function()
     local res = core.engine.get_resolution()
     local lists = util.monitor.list()
-    local natives_json  = stats_to_json(lists.native or {})
-    local entities_json = stats_to_json(lists.custom  or {})
-
+    
     monitor_view:eval(util.string.format(
         "updateMonitor(%q, %q);",
-        natives_json, entities_json
+        stats_to_json(lists.native),
+        stats_to_json(lists.custom)
     ))
 end)

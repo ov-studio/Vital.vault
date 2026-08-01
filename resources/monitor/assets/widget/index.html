@@ -12,6 +12,20 @@
   <div class="panel-header" data-panel="panel-natives">
     <span class="title">NATIVES</span><span class="count" id="natives-count">#0</span>
   </div>
+  <div class="panel-graph" id="fps-graph">
+    <canvas id="fps-canvas"></canvas>
+    <div class="graph-overlay">
+      <span class="graph-value" id="fps-value">0</span>
+      <span class="graph-sub" id="fps-sub">0.0 MS</span>
+    </div>
+  </div>
+  <div class="panel-graph" id="mem-graph">
+    <canvas id="mem-canvas"></canvas>
+    <div class="graph-overlay">
+      <span class="graph-value" id="mem-value">0</span>
+      <span class="graph-sub" id="mem-sub">MB</span>
+    </div>
+  </div>
   <div class="panel-rows" id="natives-rows"></div>
   <div class="panel-resize" data-rows="natives-rows"></div>
 </div>
