@@ -127,11 +127,21 @@ function private.get_unit(fmt)
 end
 
 
+-- Resolves the divisor needed to convert a stat's raw value into the
+-- unit implied by its get_unit() suffix. Godot's MEMORY-format stats
+-- (MEMORY_STATIC, RENDER_VIDEO_MEM_USED, etc.) are reported in raw
+-- bytes, so they need to be divided down to MB -- without this, the
+-- row list would show a byte count with a misleading " MB" tacked on.
+function private.get_divisor(fmt)
+    if fmt == util.monitor.stat_format.MEMORY then return 1024 * 1024 end
+    return 1
+end
+
+
 -- Serializes a list of monitor stats into the label/value pair list
 -- expected by the widget, e.g.:
 --   [{"label":"ped entity count","value":"42"}, ...]
 -- Each stat's value is fetched live via util.monitor.get, rounded to 2
--- decimal places, and suffixed with its unit (if any) before being
 -- packed into the resulting label/value pair. Returns a plain Lua table
 -- (not yet encoded) so callers can batch multiple lists into one payload.
 function private.to_json_list(list)
