@@ -111,7 +111,7 @@ function drawSparkline(graph) {
   ctx.clearRect(0, 0, cw, ch);
 
   var maxVal = Math.max.apply(null, history);
-  maxVal = Math.max(maxVal * 1.15, graph.minFloor);
+  maxVal = Math.max(maxVal * 1.8, graph.minFloor);
 
   var n = history.length;
   // Stretch whatever samples we have across the full canvas width, so the
@@ -234,7 +234,7 @@ window.addEventListener('resize', function() {
 });
 
 // ── Data update ───────────────────────────────────────────────────────────────
-function updateMonitor(nativesJson, entitiesJson) {
+function update_monitor(nativesJson, entitiesJson) {
   var natives  = JSON.parse(nativesJson);
   var entities = JSON.parse(entitiesJson);
   renderPanel('natives',  natives);

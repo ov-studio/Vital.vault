@@ -1,4 +1,3 @@
--- ─── Register entity-count stats ─────────────────────────────────────────────
 for _, kind in ipairs(core.engine.get_entity_types()) do
     util.monitor.register(
         kind .. "_entity_count",
@@ -8,7 +7,6 @@ for _, kind in ipairs(core.engine.get_entity_types()) do
     )
 end
 
--- ─── Helpers ──────────────────────────────────────────────────────────────────
 local function get_unit(fmt)
     if fmt == util.monitor.stat_format.TIME       then return " MS"
     elseif fmt == util.monitor.stat_format.MEMORY then return " MB"
@@ -31,17 +29,14 @@ local function stats_to_json(list)
     return "[" .. util.table.concat(parts, ",") .. "]"
 end
 
--- ─── Webview ──────────────────────────────────────────────────────────────────
 local monitor_view = core.webview.create({ forward_input = true })
 monitor_view:load_url("assets/widget/index.html")
 monitor_view:set_visible(true)
 
 util.event.on("sandbox:draw", function()
-    local res = core.engine.get_resolution()
     local lists = util.monitor.list()
-    
     monitor_view:eval(util.string.format(
-        "updateMonitor(%q, %q);",
+        "update_monitor(%q, %q);",
         stats_to_json(lists.native),
         stats_to_json(lists.custom)
     ))
