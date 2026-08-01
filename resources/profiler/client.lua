@@ -84,3 +84,15 @@ util.event.on("sandbox:draw", function()
         private.to_json(lists.custom)
     ))
 end)
+
+
+------------------
+--[[ Commands ]]--
+------------------
+
+-- Command to toggle profiler overlay via console
+-- Usage: /profiler
+util.input.register("profiler", function(args)
+    private.view:set_visible(not private.view:is_visible())
+    core.engine.print("info", util.string.format("Profiler overlay %s", (private.view:is_visible() and "enabled") or "disabled"))
+end)
