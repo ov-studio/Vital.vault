@@ -8,13 +8,13 @@ tagline: "Live FPS, memory, native and entity stats overlay"
 featured: true
 
 tags:
+  - "ui"
   - "utility"
-  - "debug"
 
 description: |
-  Performance Monitor is an in-game overlay that tracks live client
-  performance and debug stats: FPS, memory usage, per-native timings,
-  and per-entity-type counts (peds, vehicles, objects, and so on).
+  Profiler is an in-game overlay that tracks live client performance
+  and debug stats: FPS, memory usage, per-native timings, and
+  per-entity-type counts (peds, vehicles, objects, and so on).
 
   Native/entity stats are auto-registered for every entity type the
   engine exposes, so new types are picked up automatically with no
