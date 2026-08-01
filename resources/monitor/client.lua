@@ -53,19 +53,17 @@ local MONITOR_HTML = [[<!DOCTYPE html>
   .panel {
     position: fixed;
     width: 375px;
-    background: var(--bg3);
-    border: 1px solid var(--rule);
-    cursor: default;
+    background: var(--rule);
+    border: 2px solid var(--bg);
   }
 
   .panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 36px;
+    height: 50px;
     padding: 0 14px;
-    background: var(--bg5);
-    border-bottom: 1px solid var(--rule);
+    background: var(--bg);
     cursor: grab;
   }
   .panel-header:active { cursor: grabbing; }
@@ -108,13 +106,13 @@ local MONITOR_HTML = [[<!DOCTYPE html>
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 26px;
+    height: 30px;
     padding: 0 14px;
-    background: var(--bg3);
-    border-bottom: 1px solid var(--rule7);
+    background: var(--bg5);
+    margin-bottom: 2px;
     transition: background .15s;
   }
-  .row:hover { background: var(--bg5); }
+  .row:hover { background: var(--b18); }
 
   .row .key {
     font-family: 'Geist', sans-serif;
@@ -126,7 +124,9 @@ local MONITOR_HTML = [[<!DOCTYPE html>
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    
   }
+  .row:hover .key { color: var(--white); }
 
   .row .val {
     font-family: 'Geist', sans-serif;
@@ -151,7 +151,7 @@ local MONITOR_HTML = [[<!DOCTYPE html>
 </head>
 <body>
 
-<div class="panel" id="panel-natives" style="top:8px; right:8px; left:auto;">
+<div class="panel" id="panel-natives" style="top:1vh; right:1vw;">
   <div class="panel-header" data-panel="panel-natives">
     <span class="title">NATIVES</span><span class="count" id="natives-count">#0</span>
   </div>
@@ -159,7 +159,7 @@ local MONITOR_HTML = [[<!DOCTYPE html>
   <div class="panel-resize" data-rows="natives-rows"></div>
 </div>
 
-<div class="panel" id="panel-entities" style="top:8px;">
+<div class="panel" id="panel-entities" style="top:1vh;">
   <div class="panel-header" data-panel="panel-entities">
     <span class="title">ENTITIES</span><span class="count" id="entities-count">#0</span>
   </div>
@@ -172,18 +172,27 @@ window.addEventListener('load', function() {
   var pn = document.getElementById('panel-natives');
   var pe = document.getElementById('panel-entities');
 
-  function toLeftBased(el) {
-    var r = el.getBoundingClientRect();
-    el.style.left  = r.left + 'px';
-    el.style.right = 'auto';
-    el.style.top   = r.top  + 'px';
-  }
+  // Natives: top-right, vw/vh based
+  pn.style.top   = '1vh';
+  pn.style.right = '1vw';
+  pn.style.left  = 'auto';
 
-  toLeftBased(pn);
-
+  // Entities: to the left of natives, gap = 1vw
   var rn = pn.getBoundingClientRect();
-  pe.style.top  = '8px';
-  pe.style.left = (rn.left - pe.offsetWidth - 8) + 'px';
+  pe.style.top  = '1vh';
+  pe.style.left = (rn.left - pe.offsetWidth - window.innerWidth * 0.01) + 'px';
+});
+
+// Reposition on window resize
+window.addEventListener('resize', function() {
+  var pn = document.getElementById('panel-natives');
+  var pe = document.getElementById('panel-entities');
+  pn.style.top   = '1vh';
+  pn.style.right = '1vw';
+  pn.style.left  = 'auto';
+  var rn = pn.getBoundingClientRect();
+  pe.style.top  = '1vh';
+  pe.style.left = (rn.left - pe.offsetWidth - window.innerWidth * 0.01) + 'px';
 });
 
 // ── Drag panels ───────────────────────────────────────────────────────────────
