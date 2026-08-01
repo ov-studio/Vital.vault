@@ -87,11 +87,7 @@ function private.setup()
         forward_input = true
     })
     private.view:load_url("assets/widget/index.html")
-    private.view:set_visible(true)
-
-    -- yet at this point -- a single early eval would be silently lost
-    -- and the widget would never build its panels.
-    private.panels_json = util.table.encode(private.panels)
+    private.view:set_visible(false)
 
     -- Entity counter
     for _, kind in ipairs(core.engine.get_entity_types()) do
@@ -171,22 +167,18 @@ util.event.on("resource:started", function(name)
     private.setup()
 end)
 
+util.event.on("webview:load", function(webview, ...)
+    if webview ~= private.view then return false end
+    private.view:eval(util.string.format("init_panels(%q);", util.table.encode(private.panels)))
+end)
+
 util.event.on("sandbox:draw", function()
     local lists = util.monitor.list()
     local data = {}
     for source in pairs(private.sources) do
         data[source] = private.to_json_list(lists[source] or {})
     end
-
-    -- init_panels is re-sent every tick alongside update_monitor. It's a
-    -- no-op on the JS side once the config has already been applied, so
-    -- this just guarantees the very first successful eval (whenever the
-    -- webview page actually finishes loading) is the one that sticks.
-    private.view:eval(util.string.format(
-        "init_panels(%q); update_monitor(%q);",
-        private.panels_json,
-        util.table.encode(data)
-    ))
+    private.view:eval(util.string.format("update_monitor(%q);", util.table.encode(data)))
 end)
 
 
@@ -198,5 +190,5 @@ end)
 -- Usage: /profiler
 util.input.register("profiler", function(args)
     private.view:set_visible(not private.view:is_visible())
-    core.engine.print("info", util.string.format("Profiler overlay %s", (private.view:is_visible() and "enabled") or "disabled"))
+    core.engine.print("info", util.string.format("Profiler overlay succesfully %s!", (private.view:is_visible() and "enabled") or "disabled"))
 end)
