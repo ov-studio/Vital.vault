@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-01T12:57:35+03:00",
-  "commit": "e95f2743f8cb792244d25e8e0c9480f2653d0687",
+  "generated_at": "2026-08-01T12:58:42+03:00",
+  "commit": "95c4ce3c77ac70f51ab676c7ffafc2b93f50afbc",
   "count": 3,
   "resources": [
     {
@@ -22,7 +22,7 @@
       "download_url": null
     },
     {
-      "id": "monitor",
+      "id": "profiler",
       "name": "Profiler",
       "author": "ov-studio",
       "author_url": "https://github.com/ov-studio",
@@ -36,7 +36,7 @@
       "banner": "https://raw.githubusercontent.com/ov-studio/Vital.vault/refs/heads/main/resources/profiler/.vault/banner.png",
       "featured": true,
       "is_submodule": false,
-      "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/monitor",
+      "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/profiler",
       "download_url": null
     },
     {
