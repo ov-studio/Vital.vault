@@ -1,43 +1,12 @@
-// ------------------------------------------------------------------
-// Panel config lifecycle:
-//   1. Lua calls init_panels(config_json) once, after load_url.
-//      config_json is an array of panel definitions, e.g.:
-//        [{
-//          id: "natives", title: "NATIVES", source: "native",
-//          graphs: [{ id, label, stat, divisor, decimals, unit_suffix,
-//                     min_floor, sub_stat, sub_mode,
-//                     // sub_mode: "ms" | "percent" | "value"
-//                     // "value" also accepts sub_divisor/sub_decimals/
-//                     // sub_unit_suffix to format independently of the
-//                     // main value (defaults to the main ones) }, ...]
-//        }, ...]
-//   2. build_panels() creates every panel's DOM (header, optional
-//      graphs, rows, resize handle) purely from that config -- no
-//      panel/graph is ever referenced by name in this file.
-//   3. Lua calls update_monitor(data_json) on every draw tick, where
-//      data_json is a map of source -> [{label, value}, ...]. Each
-//      panel looks up its own `source` in that map.
-// ------------------------------------------------------------------
+var panels_config = null;
+var panels_config_raw = null;
+var graphs = {};
+var top_z = 0;
 
-// Lua's JSON encoder can't distinguish an empty array from an empty
-// object when encoding an empty table, so a panel with no graphs may
-// arrive as `graphs: {}` instead of `graphs: []`. Route every read of
-// panel.graphs through this so that ambiguity can never throw and
-// silently abort a panel build (which also skips layout_panels()).
 function as_array(v) {
   return Array.isArray(v) ? v : [];
 }
 
-var panels_config = null;
-var panels_config_raw = null; // last raw config_json successfully applied
-var graphs = {};   // key: `${panel.id}::${graph.id}` -> graph state
-var top_z = 0;
-
-// Lua calls this on every draw tick (not just once after load_url),
-// because the webview may not have finished loading the page the first
-// time it's sent -- a single early call would otherwise be lost forever
-// and the widget would stay blank. Re-sending is cheap: if the config
-// hasn't changed since the last successful build, this is a no-op.
 function init_panels(config_json) {
   if (config_json === panels_config_raw) return;
   panels_config_raw = config_json;
@@ -114,9 +83,6 @@ function build_panels(config) {
   layout_panels();
 }
 
-// Anchors the first panel top-right, then chains every subsequent panel
-// immediately to the left of the previous one. Works for any number of
-// panels, in whatever order they appear in the config.
 function layout_panels() {
   if (!panels_config) return;
   var prev_left = null;
@@ -277,10 +243,6 @@ function find_item(items, label) {
   return items.filter(function (i) { return i.label === label; })[0];
 }
 
-// Renders every graph configured on a panel (if any) from that panel's
-// own item list. Nothing here is specific to fps/memory -- the stat to
-// read, how to scale it, and what the parenthetical sub-value means all
-// come from the graph's config (see the header comment for the shape).
 function update_graphs(panel, items) {
   as_array(panel.graphs).forEach(function (g) {
     var graph = graphs[panel.id + '::' + g.id];
