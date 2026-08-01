@@ -16,25 +16,18 @@ local private = {
     command = "profiler"
 }
 
-private.view = core.webview.create({
-    fullscreen = true,
-    transparent = true,
-    incognito = false,
-    autoplay = false,
-    zoomable = false,
-    forward_input = true
-})
-private.view:load_url("assets/widget/index.html")
-private.view:set_visible(true)
-
-
--- Registers one monitor stat per entity type known to the engine
--- (e.g. "ped", "vehicle", "object"), so each type's live count is
--- tracked automatically without needing to hardcode a list here.
---   Stat id:    "<kind>_entity_count"          e.g. "ped_entity_count"
---   Stat label: "<KIND>_ENTITY_COUNT"          e.g. "PED_ENTITY_COUNT"
---   Value:      number of currently spawned entities of that kind
 function private.setup()
+    private.view = core.webview.create({
+        fullscreen = true,
+        transparent = true,
+        incognito = false,
+        autoplay = false,
+        zoomable = false,
+        forward_input = true
+    })
+    private.view:load_url("assets/widget/index.html")
+    private.view:set_visible(true)
+
     for _, kind in ipairs(core.engine.get_entity_types()) do
         util.monitor.register(
             kind.."_entity_count",
@@ -62,16 +55,13 @@ end
 --   [{"label":"ped entity count","value":"42"}, ...]
 -- Each entry's current value is read live via util.monitor.get,
 -- rounded to 2 decimal places, and suffixed with its unit (if any).
-function private.stats_to_json(list)
+function private.to_json(list)
     local parts = {}
     for _, item in ipairs(list) do
         local value = util.math.round(util.monitor.get(item.id), 2)
         local label = util.string.gsub(item.name, "_", " ")
-        local unit  = private.get_unit(item.format)
-        parts[#parts + 1] = util.string.format(
-            '{"label":"%s","value":"%s%s"}',
-            label, tostring(value), unit
-        )
+        local unit = private.get_unit(item.format)
+        parts[#parts + 1] = util.string.format('{"label":"%s","value":"%s%s"}', label, tostring(value), unit)
     end
     return "["..util.table.concat(parts, ",").."]"
 end
@@ -81,14 +71,16 @@ end
 --[[ Events ]]--
 ----------------
 
--- Every frame, pulls the current native (built-in) and custom monitor
--- stat lists, serializes each to JSON, and forwards them into the
--- webview by calling its `update_monitor(natives, custom)` JS function.
+util.event.on("resource:started", function(name)
+    if name ~= util.resource.current() then return false end
+    private.setup()
+end)
+
 util.event.on("sandbox:draw", function()
     local lists = util.monitor.list()
     private.view:eval(util.string.format(
         "update_monitor(%q, %q);",
-        private.stats_to_json(lists.native),
-        private.stats_to_json(lists.custom)
+        private.to_json(lists.native),
+        private.to_json(lists.custom)
     ))
 end)
