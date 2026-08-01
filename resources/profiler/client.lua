@@ -141,8 +141,12 @@ end
 -- Serializes a list of monitor stats into the label/value pair list
 -- expected by the widget, e.g.:
 --   [{"label":"ped entity count","value":"42"}, ...]
--- Each stat's value is fetched live via util.monitor.get, rounded to 2
--- packed into the resulting label/value pair. Returns a plain Lua table
+-- Each stat's raw value is fetched live via util.monitor.get, converted
+-- into the unit implied by its format (see get_divisor), rounded to 2
+-- decimal places, and suffixed with its unit (see get_unit) before
+-- being packed into the resulting label/value pair. Returns a plain
+-- Lua table (not yet encoded) so callers can batch multiple lists into
+-- one payload.
 function private.to_json_list(list)
     local parts = {}
     for _, item in ipairs(list) do
