@@ -49,7 +49,7 @@ function private.run(code)
     for i = 1, util.table.len(results) do
         local value = results[i]
         local value_type = type(value)
-        local formatted_value = ((value_type == "string") and string.format("%q", value)) or tostring(value)
+        local formatted_value = ((value_type == "string") and util.string.format("%q", value)) or tostring(value)
         formatted_value = formatted_value:gsub("^"..value_type..": ", "")
         formatted_result = formatted_result.."• `"..value_type.."`: "..formatted_value
         if i < util.table.len(results) then
