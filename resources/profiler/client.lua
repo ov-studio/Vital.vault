@@ -79,6 +79,7 @@ private.panels = {
 
 function private.setup()
     private.view = core.webview.create({
+        z_index = 10000,
         fullscreen = true,
         transparent = true,
         incognito = false,
