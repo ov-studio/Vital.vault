@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-18T18:47:44+03:00",
-  "commit": "ad9671108d7c52f48134aebaf3b927715eb5878c",
+  "generated_at": "2026-08-18T18:50:00+03:00",
+  "commit": "c5b40783a6d54bdddfb88059f5f516f89e25eb88",
   "count": 3,
   "resources": [
     {
@@ -10,7 +10,7 @@
       "author_url": "https://github.com/ov-studio",
       "version": "1.0.0",
       "tagline": "A curated collection of color grading LUT presets",
-      "description": "Lut is a curated pack of 63 color grading presets, organized into\nfive collections: Cinematic, Moody, Portrait, ColorBoost, and\nLutify \u2014 covering everything from film-inspired tones to punchy\ncolor boosts and natural skin-tone shaping.\n\nApply, swap, or reset LUTs on the fly through simple exported APIs,\nmaking it easy to wire up your own menu or let other resources control grading directly.\n\n**Exports:**\n\u2022 `util.export.call(\"lut_presets\", \"get_list\")` - returns all preset paths\n\u2022 `util.export.call(\"lut_presets\", \"get_lut\")` - returns active preset index, or false\n\u2022 `util.export.call(\"lut_presets\", \"set_lut\", index)` - applies preset by index\n\u2022 `util.export.call(\"lut_presets\", \"reset_lut\")` - clears the active LUT\n\n**Commands:**\n\u2022 `/lut <index>` \u2014 applies preset by index from the console",
+      "description": "Lut is a curated pack of 63 color grading presets, organized into\nfive collections: Cinematic, Moody, Portrait, ColorBoost, and\nLutify \u2014 covering everything from film-inspired tones to punchy\ncolor boosts and natural skin-tone shaping.\n\nApply, swap, or reset LUTs on the fly through simple exported APIs,\nmaking it easy to wire up your own menu or let other resources control grading directly.\n\n**Exports:**\n\u2022 `util.export.call(\"lut_presets\", \"get_list\")` - returns all preset paths\n\u2022 `util.export.call(\"lut_presets\", \"get_lut\")` - returns active preset index, or false\n\u2022 `util.export.call(\"lut_presets\", \"set_lut\", index)` - applies preset by index\n\u2022 `util.export.call(\"lut_presets\", \"reset_lut\")` - clears the active LUT\n\n**Commands:**\n\u2022 `/lut <index>` - applies preset by index from the console",
       "tags": [
         "asset",
         "gfx"
