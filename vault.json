@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-18T18:41:22+03:00",
-  "commit": "8f6f4d4873d728f43520e1200e5b4a8fdc39c6e3",
+  "generated_at": "2026-08-18T18:47:44+03:00",
+  "commit": "ad9671108d7c52f48134aebaf3b927715eb5878c",
   "count": 3,
   "resources": [
     {
@@ -10,7 +10,7 @@
       "author_url": "https://github.com/ov-studio",
       "version": "1.0.0",
       "tagline": "A curated collection of color grading LUT presets",
-      "description": "Lut is a curated pack of 63 color grading presets, organized into\nfive collections: Cinematic, Moody, Portrait, ColorBoost, and\nLutify \u2014 covering everything from film-inspired tones to punchy\ncolor boosts and natural skin-tone shaping.\n\nApply, swap, or reset LUTs on the fly through simple exported APIs,\nmaking it easy to wire up your own menu or let other resources control grading directly.\n\n**Exports:**\n\u2022 `util.export.call(\"lut_presets\", \"get_list\")` \u2014 returns all preset paths\n\u2022 `util.export.call(\"lut_presets\", \"get_lut\")` \u2014 returns active preset index, or false\n\u2022 `util.export.call(\"lut_presets\", \"set_lut\", index)` \u2014 applies preset by index\n\u2022 `util.export.call(\"lut_presets\", \"reset_lut\")` \u2014 clears the active LUT\n\n**Commands:**\n\u2022 `/lut <index>` \u2014 applies preset by index from the console",
+      "description": "Lut is a curated pack of 63 color grading presets, organized into\nfive collections: Cinematic, Moody, Portrait, ColorBoost, and\nLutify \u2014 covering everything from film-inspired tones to punchy\ncolor boosts and natural skin-tone shaping.\n\nApply, swap, or reset LUTs on the fly through simple exported APIs,\nmaking it easy to wire up your own menu or let other resources control grading directly.\n\n**Exports:**\n\u2022 `util.export.call(\"lut_presets\", \"get_list\")` - returns all preset paths\n\u2022 `util.export.call(\"lut_presets\", \"get_lut\")` - returns active preset index, or false\n\u2022 `util.export.call(\"lut_presets\", \"set_lut\", index)` - applies preset by index\n\u2022 `util.export.call(\"lut_presets\", \"reset_lut\")` - clears the active LUT\n\n**Commands:**\n\u2022 `/lut <index>` \u2014 applies preset by index from the console",
       "tags": [
         "asset",
         "gfx"
@@ -28,7 +28,7 @@
       "author_url": "https://github.com/ov-studio",
       "version": "1.0.2",
       "tagline": "Live FPS, memory, native and entity stats overlay",
-      "description": "Profiler is an in-game overlay that tracks live client performance\nand debug stats: FPS, memory usage, per-native timings, and\nper-entity-type counts (peds, vehicles, objects, and so on).\n\nNative/entity stats are auto-registered for every entity type the\nengine exposes, so new types are picked up automatically with no\nextra configuration. Each panel is draggable, resizable, and\nbrings itself to front on click, so you can arrange the overlay\nhowever suits your workflow.\n\nPerfect for spotting frame drops, memory leaks, and entity/native\nbloat while developing or debugging live.\n\n**Commands:**\n\u2022 `/profiler` \u2014 toggles the profiler overlay on/off",
+      "description": "Profiler is an in-game overlay that tracks live client performance\nand debug stats: FPS, memory usage, per-native timings, and\nper-entity-type counts (peds, vehicles, objects, and so on).\n\nNative/entity stats are auto-registered for every entity type the\nengine exposes, so new types are picked up automatically with no\nextra configuration. Each panel is draggable, resizable, and\nbrings itself to front on click, so you can arrange the overlay\nhowever suits your workflow.\n\nPerfect for spotting frame drops, memory leaks, and entity/native\nbloat while developing or debugging live.\n\n**Commands:**\n\u2022 `/profiler` - toggles the profiler overlay on/off",
       "tags": [
         "ui",
         "utility"
