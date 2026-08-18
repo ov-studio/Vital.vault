@@ -26,7 +26,7 @@ description: |
   bloat while developing or debugging live.
 
   **Commands:**
-  • `/profiler` — toggles the profiler overlay on/off
+  • `/profiler` - toggles the profiler overlay on/off
 
 scripts:
   - { src: "client.lua", type: "client" }

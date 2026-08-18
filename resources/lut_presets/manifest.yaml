@@ -21,10 +21,10 @@ description: |
   making it easy to wire up your own menu or let other resources control grading directly.
 
   **Exports:**
-  • `util.export.call("lut_presets", "get_list")` — returns all preset paths
-  • `util.export.call("lut_presets", "get_lut")` — returns active preset index, or false
-  • `util.export.call("lut_presets", "set_lut", index)` — applies preset by index
-  • `util.export.call("lut_presets", "reset_lut")` — clears the active LUT
+  • `util.export.call("lut_presets", "get_list")` - returns all preset paths
+  • `util.export.call("lut_presets", "get_lut")` - returns active preset index, or false
+  • `util.export.call("lut_presets", "set_lut", index)` - applies preset by index
+  • `util.export.call("lut_presets", "reset_lut")` - clears the active LUT
 
   **Commands:**
   • `/lut <index>` — applies preset by index from the console
