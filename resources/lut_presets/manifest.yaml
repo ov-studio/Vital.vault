@@ -27,7 +27,7 @@ description: |
   • `util.export.call("lut_presets", "reset_lut")` - clears the active LUT
 
   **Commands:**
-  • `/lut <index>` — applies preset by index from the console
+  • `/lut <index>` - applies preset by index from the console
 
 scripts:
   - { src: "client.lua", type: "client" }
