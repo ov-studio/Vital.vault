@@ -25,7 +25,7 @@ description: |
   Perfect for spotting frame drops, memory leaks, and entity/native
   bloat while developing or debugging live.
 
-  Commands:
+  **Commands:**
   • `/profiler` — toggles the profiler overlay on/off
 
 scripts:
