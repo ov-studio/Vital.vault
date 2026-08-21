@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-20T15:54:41+03:00",
-  "commit": "7ea0811ab2ddd7a4947b92fff2af586c838c0c48",
+  "generated_at": "2026-08-21T18:02:49+03:00",
+  "commit": "6f118f2baa2af8011be04ae387e22930c5f9fa31",
   "count": 3,
   "resources": [
     {
@@ -46,7 +46,7 @@
       "author_url": "https://github.com/ov-studio",
       "version": "1.0.1",
       "tagline": "Execute Lua code directly from the console",
-      "description": "Runcode is a lightweight runtime code executor that works on both\nthe client and the server.\n\nType `run <code>` into the console to compile and execute arbitrary\nLua on the fly \u2014 no need to reload scripts or restart. Both\nexpressions and statements are supported, and results (or errors)\nare printed straight back to you, formatted and easy to read.\n\nPerfect for quick debugging, prototyping, and live tweaks, whether\nyou're working client-side or server-side.",
+      "description": "Runcode is a lightweight runtime code executor that works on both\nthe client and the server.\n\nCompile and execute arbitrary Lua on the fly directly from the\nconsole \u2014 no need to reload scripts or restart. Both expressions\nand statements are supported, and results (or errors) are printed\nstraight back to you, formatted and easy to read.\n\nPerfect for quick debugging, prototyping, and live tweaks, whether\nyou're working client-side or server-side.\n\n**Commands:**\n\u2022 `/run <code>` - compiles and executes Lua code on the fly",
       "tags": [
         "utility",
         "library"
