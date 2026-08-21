@@ -15,14 +15,16 @@ description: |
   Runcode is a lightweight runtime code executor that works on both
   the client and the server.
 
-  Type `run <code>` into the console to compile and execute arbitrary
-  Lua on the fly — no need to reload scripts or restart. Both
-  expressions and statements are supported, and results (or errors)
-  are printed straight back to you, formatted and easy to read.
+  Compile and execute arbitrary Lua on the fly directly from the
+  console — no need to reload scripts or restart. Both expressions
+  and statements are supported, and results (or errors) are printed
+  straight back to you, formatted and easy to read.
 
   Perfect for quick debugging, prototyping, and live tweaks, whether
   you're working client-side or server-side.
 
+  **Commands:**
+  • `/run <code>` - compiles and executes Lua code on the fly
+
 scripts:
   - { src: "shared.lua", type: "shared" }
-  
