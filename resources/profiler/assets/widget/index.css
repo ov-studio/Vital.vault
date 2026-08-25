@@ -28,32 +28,8 @@ html, body {
 }
 .panel-header:active { cursor: grabbing; }
 
-.panel-header .title,
-.row .key,
-.row .val {
-  letter-spacing: .05em;
-}
-
-.row .key,
-.row .val {
-  font-size: .68rem;
-}
-
-.panel-header .title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: .7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--blue);
-}
-.panel-header .title::before {
-  content: '';
-  width: 10px;
-  height: 2px;
-  background: var(--blue);
-  flex-shrink: 0;
+.panel-header .slabel {
+  margin-bottom: 0;
 }
 
 .panel-header .count {
@@ -95,13 +71,9 @@ html, body {
   pointer-events: none;
 }
 
-.graph-key {
-  display: block;
+.graph-label .slabel {
+  margin-bottom: 0;
   font-size: .64rem;
-  font-weight: 700;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  color: var(--blue);
 }
 
 .graph-val {
@@ -144,6 +116,12 @@ html, body {
   margin-bottom: 2px;
 }
 .row:hover { background: var(--b20); }
+
+.row .key,
+.row .val {
+  letter-spacing: .05em;
+  font-size: .68rem;
+}
 
 .row .key {
   font-weight: 500;

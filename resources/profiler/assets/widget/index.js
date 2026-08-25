@@ -30,7 +30,7 @@ function build_panels(config) {
       header.className = 'panel-header';
       header.setAttribute('data-panel', panel_el.id);
       header.innerHTML =
-        '<span class="title">' + panel.title + '</span>' +
+        '<span class="slabel panel-title">' + panel.title + '</span>' +
         '<span class="count" id="' + panel.id + '-count">#0</span>';
       panel_el.appendChild(header);
       wire_drag(header);
@@ -44,7 +44,7 @@ function build_panels(config) {
         graph_el.id = panel.id + '-' + g.id + '-graph';
         graph_el.innerHTML =
           '<div class="graph-label">' +
-            '<span class="graph-key">' + g.label + '</span>' +
+            '<span class="slabel graph-key">' + g.label + '</span>' +
             '<span class="graph-val" id="' + value_id + '">0</span>' +
           '</div>' +
           '<canvas id="' + canvas_id + '"></canvas>';
