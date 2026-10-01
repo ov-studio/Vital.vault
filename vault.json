@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-10-01T13:53:44+03:00",
-  "commit": "6d205d6e2c59ca20a87a55755dd611aa35326140",
-  "count": 4,
+  "generated_at": "2026-10-01T11:58:13Z",
+  "commit": "972596119ae15b4b42663e7837e4006217105b8f",
+  "count": 3,
   "resources": [
     {
       "id": "lut_presets",
@@ -56,24 +56,6 @@
       "is_submodule": false,
       "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/runcode",
       "download_url": null
-    },
-    {
-      "id": "test_vault",
-      "name": "Test Resource",
-      "author": "ov-studio",
-      "author_url": "https://github.com/ov-tron",
-      "version": "1.0.1",
-      "tagline": "Testing vault resource",
-      "description": "Works??",
-      "tags": [
-        "utility",
-        "library"
-      ],
-      "banner": "https://raw.githubusercontent.com/ov-studio/Vital.vault/refs/heads/main/resources/runcode/.vault/banner.png",
-      "featured": true,
-      "is_submodule": true,
-      "source_url": "https://github.com/ov-tron/test-vault",
-      "download_url": "https://github.com/ov-tron/test-vault/archive/refs/heads/main.zip"
     }
   ]
 }
