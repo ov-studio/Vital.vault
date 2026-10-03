@@ -4,7 +4,7 @@ Official community-driven vault for Vital.sandbox — a curated collection of us
 
 Vital.vault is a decentralized directory of **Git Submodules**. It stores pointers to community-owned repositories rather than the files themselves, so ownership stays with authors and versioning stays independent.
 
-## Publishing a resource
+## Publishing Resource
 
 Community submissions are welcome. **Publish only through the website** — do not open manual pull requests for new resources.
 
