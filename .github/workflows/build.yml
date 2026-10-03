@@ -103,6 +103,16 @@ jobs:
 
             author_name = s("author", author_fallback)
 
+            # banner: explicit URL, else .vault/banner.png next to the resource
+            banner = s("banner", "") or None
+            if not banner:
+              default_banner = entry / ".vault" / "banner.png"
+              if default_banner.is_file():
+                banner = (
+                  "https://raw.githubusercontent.com/${{ github.repository }}"
+                  f"/refs/heads/main/{rel_path}/.vault/banner.png"
+                )
+
             resources.append({
               "id":            entry.name,
               "name":          s("name", entry.name),
@@ -112,7 +122,7 @@ jobs:
               "tagline":       s("tagline"),
               "description":   s("description"),
               "tags":          lst("tags"),
-              "banner":        s("banner", "") or None,
+              "banner":        banner,
               "featured":      b("featured"),
               "is_submodule":  is_sub,
               "source_url":    src_url,
