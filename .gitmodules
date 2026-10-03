@@ -1,3 +1,0 @@
-[submodule "resources/test_resource"]
-	path = resources/test_resource
-	url = https://github.com/ov-tron/test-vault
