@@ -12,7 +12,7 @@ Contributions from the community are always welcome! 🤝
 
 1. Publish your resource in a **public** GitHub repository you own.
 2. Include a valid [`manifest.yaml`](https://vital-sandbox.com/docs/resource/manifest) at the repository root (and optionally `.vault/banner.png`).
-3. Open [Vault → Publish resource](https://vital-sandbox.com/vault), sign in to workspace, pick that repository, and open the pull request from there.
+3. Open [Vault](https://vital-sandbox.com/vault), sign in to workspace, pick that repository under "Publish resource", and open the pull request from there.
 
 The site reads your manifest, registers the submodule, and opens the PR on this repository for staff review. Keep the resource clean, minimal, and compatible with the latest Vital.sandbox release.
 
