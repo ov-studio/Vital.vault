@@ -1,19 +1,17 @@
 ## Overview
 
-Official community-driven vault for Vital.sandbox — serving as a curated collection and safe storage house for user-contributed resources.
+Official community-driven vault for Vital.sandbox — a curated collection of user-contributed resources.
 
-Vital.vault operates as a decentralized directory using **Git Submodules**. Rather than hosting files directly, it tracks pointers to individual community-maintained repositories — keeping resources modular, ownership decentralized, and versioning cleanly decoupled.
+Vital.vault is a decentralized directory of **Git Submodules**. It stores pointers to community-owned repositories rather than the files themselves, so ownership stays with authors and versioning stays independent.
 
-## Contributing
+## Publishing a resource
 
-Contributions from the community are always welcome! 🤝
+Community submissions are welcome. **Publish only through the website** — do not open manual pull requests for new resources.
 
-**Submit resources through the website — do not open manual PRs for new resources.**
+1. Put your resource in a **public** GitHub repository you own.
+2. Add a valid [`manifest.yaml`](https://vital-sandbox.com/docs/resource/manifest) at the repository root (optional: `.vault/banner.png` for the Vault card).
+3. Open [Vault](https://vital-sandbox.com/vault), sign in to workspace, choose **Publish resource**, select that repository, and open the pull request from there.
 
-1. Publish your resource in a **public** GitHub repository you own.
-2. Include a valid [`manifest.yaml`](https://vital-sandbox.com/docs/resource/manifest) at the repository root (and optionally `.vault/banner.png`).
-3. Open [Vault](https://vital-sandbox.com/vault), sign in to workspace, pick that repository under "Publish resource", and open the pull request from there.
+The site validates the manifest, registers the submodule, and opens a PR here for staff review. Keep the resource minimal and compatible with the latest Vital.sandbox release.
 
-The site reads your manifest, registers the submodule, and opens the PR on this repository for staff review. Keep the resource clean, minimal, and compatible with the latest Vital.sandbox release.
-
-Manual fork / `git submodule add` workflows are **not** the supported path for community submissions.
+Forking this repo or running `git submodule add` yourself is **not** the supported submission path.
