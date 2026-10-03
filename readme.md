@@ -6,7 +6,7 @@ Vital.vault is a decentralized directory of **Git Submodules**. It stores pointe
 
 ## Publishing Resource
 
-Community submissions are welcome. **Publish only through the website** — do not open manual pull requests for new resources.
+**Publish only through the website** — do not open manual pull requests for new resources.
 
 1. Put your resource in a **public** GitHub repository you own.
 2. Add a valid [`manifest.yaml`](https://vital-sandbox.com/docs/resource/manifest) at the repository root (optional: `.vault/banner.png` for the Vault card).
