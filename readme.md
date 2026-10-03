@@ -6,29 +6,14 @@ Vital.vault operates as a decentralized directory using **Git Submodules**. Rath
 
 ## Contributing
 
-Contributions from the community are always welcome! 🤝 
+Contributions from the community are always welcome! 🤝
 
-Adding a resource means registering your GitHub repository as a submodule — ensure it is clean, minimal, and fully compatible with the latest version of Vital.sandbox before following the steps below:
+**Submit resources through the website — do not open manual PRs for new resources.**
 
-- **Fork** this repository to your own GitHub account.
+1. Publish your resource in a **public** GitHub repository you own.
+2. Include a valid [`manifest.yaml`](https://vital-sandbox.com/docs/resource/manifest) at the repo root (and optionally `.vault/banner.png`).
+3. Open [Vault → Submit a resource](https://vital-sandbox.com/vault), sign in to workspace, pick that repository, and open the pull request from there.
 
-- **Clone your fork** and navigate into it:
-   ```bash
-   git clone https://github.com/your-username/Vital.vault
-   git submodule update --init --recursive
-   cd Vital.vault
-   ```
+The site reads your manifest, registers the submodule, and opens the PR on this repository for staff review. Keep the resource clean, minimal, and compatible with the latest Vital.sandbox release.
 
-- **Register your resource** by adding it as a submodule:
-   ```bash
-   git submodule add https://github.com/your-username/your-resource-name resources/your-resource-name
-   ```
-
-- **Commit and push** to your fork:
-   ```bash
-   git add .gitmodules resources/your-resource-name
-   git commit -m "add: resource your-resource-name"
-   git push origin main
-   ```
-
-- **Open a Pull Request** from your fork to the main repository.
+Manual fork / `git submodule add` workflows are **not** the supported path for community submissions.
