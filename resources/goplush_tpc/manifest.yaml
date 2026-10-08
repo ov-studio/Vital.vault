@@ -1,0 +1,10 @@
+name: "My Resource"
+author: "Tron"
+version: "1.0.0"
+
+scripts:
+  - { src: "client.lua", type: "client" }
+  - { src: "server.lua", type: "server" }
+
+files:
+  - assets/**
