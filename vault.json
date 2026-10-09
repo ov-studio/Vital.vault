@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-10-08T20:34:30+03:00",
-  "commit": "2049bf14af5cdd6210811cd9c4e02d82ad50e240",
-  "count": 3,
+  "generated_at": "2026-10-09T02:59:56+03:00",
+  "commit": "561365d7a6147db11eaad6de9921cf254b6bba73",
+  "count": 4,
   "resources": [
     {
       "id": "lut_presets",
@@ -55,6 +55,21 @@
       "featured": true,
       "is_submodule": false,
       "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/runcode",
+      "download_url": null
+    },
+    {
+      "id": "goplush_tpc",
+      "name": "My Resource",
+      "author": "Tron",
+      "author_url": "https://github.com/Tron",
+      "version": "1.0.0",
+      "tagline": "N/A",
+      "description": "N/A",
+      "tags": [],
+      "banner": null,
+      "featured": false,
+      "is_submodule": false,
+      "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/goplush_tpc",
       "download_url": null
     }
   ]
