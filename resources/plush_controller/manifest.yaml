@@ -1,6 +1,17 @@
-name: "My Resource"
-author: "Tron"
+name: "Plush Controller"
+author: "ov-studio"
+author_url: "https://github.com/ov-studio"
 version: "1.0.0"
+
+tagline: "Third person plush controller"
+featured: true
+
+tags:
+  - "asset"
+  - "gamemode"
+
+description: |
+  Blank placeholder
 
 scripts:
   - { src: "client.lua", type: "client" }
