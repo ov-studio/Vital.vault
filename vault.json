@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-09T02:59:56+03:00",
-  "commit": "561365d7a6147db11eaad6de9921cf254b6bba73",
+  "generated_at": "2026-10-09T03:11:59+03:00",
+  "commit": "beb9c85d9969d3e71739b1206d51792d56d5de90",
   "count": 4,
   "resources": [
     {
@@ -19,6 +19,24 @@
       "featured": true,
       "is_submodule": false,
       "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/lut_presets",
+      "download_url": null
+    },
+    {
+      "id": "plush_controller",
+      "name": "Plush Controller",
+      "author": "ov-studio",
+      "author_url": "https://github.com/ov-studio",
+      "version": "1.0.0",
+      "tagline": "Third person plush controller",
+      "description": "Blank placeholder",
+      "tags": [
+        "asset",
+        "gamemode"
+      ],
+      "banner": "https://raw.githubusercontent.com/ov-studio/Vital.vault/refs/heads/main/resources/plush_controller/.vault/banner.png",
+      "featured": true,
+      "is_submodule": false,
+      "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/plush_controller",
       "download_url": null
     },
     {
@@ -55,21 +73,6 @@
       "featured": true,
       "is_submodule": false,
       "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/runcode",
-      "download_url": null
-    },
-    {
-      "id": "goplush_tpc",
-      "name": "My Resource",
-      "author": "Tron",
-      "author_url": "https://github.com/Tron",
-      "version": "1.0.0",
-      "tagline": "N/A",
-      "description": "N/A",
-      "tags": [],
-      "banner": null,
-      "featured": false,
-      "is_submodule": false,
-      "source_url": "https://github.com/ov-studio/Vital.vault/tree/main/resources/goplush_tpc",
       "download_url": null
     }
   ]
