@@ -87,6 +87,27 @@ local shader = core.shader.create_from_raw([[
     uniform float rainbow_spread = 1.5;   // hue offset across the UV
     uniform float rainbow_glow   = 0.6;   // 0 = no emission
 
+    // Squash & stretch (port of Godot-Plush-Character's squash_and_stretch).
+    // 1.0 = rest, < 1 = squashed (wide + short), > 1 = stretched (thin + tall).
+    // Driven from Lua via shader:set_param("squash_and_stretch", value).
+    // Scales around the model origin, which sits at the character's feet.
+    uniform float squash_and_stretch = 1.0;
+
+    void vertex() {
+        float sy  = max(squash_and_stretch, 0.05);
+        float sxz = 2.0 - sy;                       // same widen/narrow rule as the original
+        vec3  sc  = vec3(sxz, sy, sxz);
+
+        VERTEX *= sc;
+
+        // Non-uniform scale: normals use the inverse scale, tangents use the scale.
+        NORMAL = normalize(NORMAL / sc);
+        vec3 t = TANGENT * sc;
+        vec3 b = BINORMAL * sc;
+        if (length(t) > 0.0001) TANGENT  = normalize(t);
+        if (length(b) > 0.0001) BINORMAL = normalize(b);
+    }
+
     vec3 hsv2rgb(vec3 c) {
         vec3 p = clamp(abs(fract(c.xxx + vec3(0.0, 2.0 / 3.0, 1.0 / 3.0)) * 6.0 - 3.0) - 1.0, 0.0, 1.0);
         return c.z * mix(vec3(1.0), p, c.y);
@@ -230,6 +251,111 @@ end
 
 local function now_sec()
     return core.engine.get_tick() * 0.001 -- get_tick() is milliseconds
+end
+
+-- ------------------------------------------------------------
+-- Squash & stretch (landing / jump)
+-- ------------------------------------------------------------
+-- Ported from Godot-Plush-Character (components/player/player.gd):
+--   jump   -> do_squash_and_stretch(1.2, 0.1)
+--   landed -> do_squash_and_stretch(0.7, 0.08)
+-- each one tweens to the value in `time` seconds, then back to 1.0 in
+-- `time * 1.8` seconds. The original scales the mesh node; here the same
+-- scale is done in the shader's vertex() through the "squash_and_stretch"
+-- uniform, so nothing in the model / animation pipeline changes.
+
+local SQUASH_PARAM          = "squash_and_stretch"
+local SQUASH_RECOVER_MULT   = 1.8    -- return time = squash time * this   (original: 1.8)
+
+local LAND_SQUASH           = 0.7    -- full-strength landing squash       (original: 0.7)
+local LAND_SQUASH_TIME      = 0.08   -- seconds to reach the squash        (original: 0.08)
+local JUMP_STRETCH          = 1.2    -- stretch on take-off, 1.0 = off     (original: 1.2)
+local JUMP_STRETCH_TIME     = 0.1    -- seconds to reach the stretch       (original: 0.1)
+
+-- Extras so small bumps don't squash (the original always squashes at 0.7):
+-- squash strength scales with how fast you hit the ground.
+local LAND_MIN_SPEED        = 4.0        -- impact speed (units/s) below which nothing happens
+local LAND_FULL_SPEED       = JUMP_SPEED -- impact speed that gives the full LAND_SQUASH (a normal jump)
+local LAND_MIN_AIR_TIME     = 0.10       -- ignore floor flicker on slopes / steps
+
+local squash = {
+    model = nil, stage = 0,          -- stage: 0 idle, 1 going to peak, 2 returning to 1.0
+    value = 1.0, from = 1.0, to = 1.0,
+    t = 0.0, dur = 0.0, out_dur = 0.0,
+    sent = 1.0,
+}
+local was_on_floor = true
+local air_time     = 0.0
+
+local function squash_push(force)
+    if not force and m_abs(squash.value - squash.sent) < 0.0005 then return end
+    if shader:set_param(SQUASH_PARAM, squash.value) then squash.sent = squash.value end
+end
+
+-- Start a squash/stretch pulse: current value -> peak -> 1.0
+local function squash_play(peak, in_time)
+    squash.stage   = 1
+    squash.from    = squash.value
+    squash.to      = peak
+    squash.t       = 0.0
+    squash.dur     = in_time
+    squash.out_dur = in_time * SQUASH_RECOVER_MULT
+end
+
+local function update_squash(dt)
+    if not my_model then return end
+
+    -- new / respawned model: start clean
+    if squash.model ~= my_model then
+        squash.model = my_model
+        squash.stage = 0
+        squash.value = 1.0
+        squash_push(true)
+    end
+
+    if squash.stage == 0 then return end
+
+    squash.t = squash.t + dt
+    local k = clamp(squash.t / squash.dur, 0.0, 1.0)
+    squash.value = squash.from + (squash.to - squash.from) * k
+
+    if k >= 1.0 then
+        if squash.stage == 1 then
+            squash.stage = 2
+            squash.from  = squash.value
+            squash.to    = 1.0
+            squash.t     = 0.0
+            squash.dur   = squash.out_dur
+        else
+            squash.stage = 0
+            squash.value = 1.0
+        end
+    end
+
+    squash_push(squash.stage == 0) -- always land exactly on 1.0
+end
+
+local function squash_on_jump()
+    if JUMP_STRETCH ~= 1.0 then squash_play(JUMP_STRETCH, JUMP_STRETCH_TIME) end
+end
+
+-- Call right after move_and_slide, while `vel_y` still holds the speed we
+-- hit the ground with (it is only reset on the next physics tick).
+local function squash_track_landing(dt)
+    local on_floor = my_body:is_on_floor()
+    if on_floor then
+        if not was_on_floor and air_time >= LAND_MIN_AIR_TIME then
+            local impact = -vel_y
+            if impact > LAND_MIN_SPEED then
+                local k = clamp((impact - LAND_MIN_SPEED) / (LAND_FULL_SPEED - LAND_MIN_SPEED), 0.0, 1.0)
+                squash_play(1.0 - (1.0 - LAND_SQUASH) * k, LAND_SQUASH_TIME)
+            end
+        end
+        air_time = 0.0
+    else
+        air_time = air_time + dt
+    end
+    was_on_floor = on_floor
 end
 
 -- Allocate the tilt layers once at weight 0. The engine rebuilds its blend
@@ -536,6 +662,7 @@ util.event.on("sandbox:process", function(delta)
     body_was_moving = len > 0.001
 
     update_lean(delta, yaw_rate)
+    update_squash(delta)
     update_animation()
 
     local pos = my_body:get_global_position()
@@ -554,13 +681,21 @@ util.event.on("sandbox:physics_process", function(delta)
     if not my_body then return end
 
     if my_body:is_on_floor() then
-        vel_y = util.input.is_pressed(util.input.key.SPACE) and JUMP_SPEED or -1.0
+        if util.input.is_pressed(util.input.key.SPACE) then
+            vel_y = JUMP_SPEED
+            squash_on_jump()
+        else
+            vel_y = -1.0
+        end
     else
         vel_y = vel_y - GRAVITY * delta
     end
 
     my_body:set_velocity({ move_x, vel_y, move_z })
     my_body:move_and_slide()
+
+    -- Landing squash (needs vel_y as it was before touching the ground)
+    squash_track_landing(delta)
 
     -- Contact -> server impulse (server remains sole rigid-body sim)
     relay_rigid_impulses()
