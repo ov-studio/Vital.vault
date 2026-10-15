@@ -570,7 +570,7 @@ local hand_fx = { model = nil, list = {}, retry_at = 0.0 }
 
 local function hand_trails_destroy()
     for i = 1, #hand_fx.list do
-        pcall(function() hand_fx.list[i].fx:destroy() end)
+        pcall(function() hand_fx.list[i].trail:destroy() end)
     end
     hand_fx.list = {}
 end
