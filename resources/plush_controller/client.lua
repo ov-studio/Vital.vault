@@ -555,11 +555,10 @@ end
 -- ============================================================
 -- Hand trails
 -- ============================================================
--- One emitter per hand bone, moved onto the bone every frame with
--- model:get_bone_position() (world position). The emitter's motion trail draws
--- a single ribbon along the path the hand travelled: full width at the hand,
--- thinning out and fading to nothing at the far end. No particles are emitted.
--- Width comes from set_size and the colors from set_color_ramp.
+-- One trail per hand bone, moved onto the bone every frame with
+-- model:get_bone_position() (world position). A trail draws a single ribbon
+-- along the path it travelled: full width at the hand, thinning out and
+-- fading to nothing at the far end.
 
 local HAND_BONES        = { "DEF-hand.L", "DEF-hand.R" }
 local HAND_TRAIL_TIME   = 0.35    -- seconds the line takes to fade out: longer = longer line
