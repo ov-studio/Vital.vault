@@ -594,7 +594,7 @@ local function hand_trails_update()
     end
     if not my_model then return end
 
-    -- Build the emitters once every hand bone resolves (the model may still be streaming in)
+    -- Build the trails once every hand bone resolves (the model may still be streaming in)
     if #hand_fx.list == 0 then
         local t = now_sec()
         if t < hand_fx.retry_at then return end
@@ -611,7 +611,7 @@ local function hand_trails_update()
         end
 
         for i = 1, #HAND_BONES do
-            hand_fx.list[i] = { bone = HAND_BONES[i], fx = hand_trail_create(start[i]) }
+            hand_fx.list[i] = { bone = HAND_BONES[i], trail = hand_trail_create(start[i]) }
         end
         return
     end
@@ -619,7 +619,7 @@ local function hand_trails_update()
     for i = 1, #hand_fx.list do
         local h = hand_fx.list[i]
         local ok, pos = pcall(function() return my_model:get_bone_position(h.bone) end)
-        if ok and pos then h.fx:set_global_position(pos) end
+        if ok and pos then h.trail:set_global_position(pos) end
     end
 end
 
