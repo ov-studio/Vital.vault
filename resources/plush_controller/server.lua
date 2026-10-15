@@ -1,9 +1,9 @@
 util.event.on("entity:created", function(entity)
-    core.engine.print("info", "Server - Entity created:", entity:get_type())
+    --core.engine.print("info", "Server - Entity created:", entity:get_type())
 end)
 
 util.event.on("entity:destroyed", function(entity)
-    core.engine.print("info", "Server - Entity destroyed:", entity:get_type())
+    --core.engine.print("info", "Server - Entity destroyed:", entity:get_type())
 end)
 
 
@@ -13,9 +13,11 @@ end)
 
 util.timer.create(function()
     -- Visual + concave collision for the town mesh (single body)
-    local floor_model = core.model.create("assets/town.glb")
+    local floor_model = core.model.create("assets/backroom.glb")
     local floor_body  = physics.static.create(1) -- authority 1 = server
     local floor_shape = physics.collision_shape.create(floor_body)
+
+
     print("warn", floor_shape:set_shape_mesh(floor_model, {
         shape_type = "concave",
         include_children = true,
@@ -23,6 +25,10 @@ util.timer.create(function()
     }))
     floor_model:set_parent(floor_body)
     floor_body:set_global_position({0, 0, 0})
+
+    core.engine.iprint(floor_model:get_components())
+    --floor_model:set_component_visible("stair", false)
+
 end, 1, 1)
 
 
@@ -31,7 +37,7 @@ end, 1, 1)
 -- ============================================================
 
 util.timer.create(function()
-    for i = 1, 50, 1 do
+    for i = 1, 0, 1 do
         local ball_model = core.model.create("assets/basketball.glb")
         local ball_body  = physics.rigid.create(1) -- authority 1 = server
         local ball_shape = physics.collision_shape.create(ball_body)

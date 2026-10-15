@@ -13,10 +13,12 @@ end)
 gfx.adjustment.set_enabled(true)
 gfx.adjustment.set_brightness(1.05)
 gfx.adjustment.set_contrast(1.05)
-gfx.sky.set_mode(gfx.sky.sky_mode.PANORAMA)
-gfx.sky.panorama.set_texture("assets/skybox.exr")
+gfx.sky.set_mode(gfx.sky.sky_mode.PROCEDURAL)
+
+
+--gfx.sky.panorama.set_texture("assets/skybox.exr")
 gfx.env.set_background_mode(gfx.env.background_mode.SKY)
-physics.collision_shape.set_debug_all(true)
+physics.collision_shape.set_debug_all(false)
 
 -- Camera
 local camera = core.camera.create()
@@ -26,6 +28,26 @@ camera:set_far_clip(5000)
 camera:set_fov(70)
 camera:set_active()
 
+
+gfx.ssao.set_enabled(true)
+gfx.ssao.set_power(2.0)
+gfx.ssao.set_sharpness(0.00)
+gfx.ssao.set_intensity(1.0)
+gfx.ssao.set_radius(2.0)
+
+gfx.antialiasing.set_msaa_mode(gfx.antialiasing.msaa_mode.X4)
+
+-- 3D supersampling: renders the scene (and the outline post-process) at N x the window size and
+-- filters it down, which is what actually antialiases the outline lines.
+-- 1.0 = off, 1.5 = cheap, 2.0 = best (4x the pixels). Needs the engine build with set_scaling_3d_scale.
+gfx.antialiasing.set_scaling_3d_scale(1.15)
+
+gfx.vol_fog.set_enabled(true)
+gfx.vol_fog.set_density(0.001)
+--Lut successfully set to index #47 (assets/lut/Lutify/Film Print 2.png)
+
+gfx.glow.set_enabled(true)
+gfx.glow.set_strength(1.25)
 
 -- ============================================================
 -- Claim "my own" character body + model
@@ -152,7 +174,10 @@ util.event.on("entity:created", function(entity)
         pending_model_net_id = nil
         core.engine.print("info", "Client - Claimed own character model (late)")
         core.engine.iprint(my_model:get_bones())
-        shader:apply_to_material(my_model, "*", "*")
+        -- TODO: Add prioriiy order support so i can prioritiez this shader, later applied shaders calculate form priority whether to override
+        util.timer.create(function()
+            shader:apply_to_material(my_model, "*", "*")
+        end, 1000, 1)
     end
 end)
 
@@ -524,6 +549,79 @@ local function update_animation()
     tilt_send()
 end
 
+-- ============================================================
+-- Hand trails
+-- ============================================================
+-- One emitter per hand bone, moved onto the bone every frame with
+-- model:get_bone_position() (world position). The emitter's motion trail draws
+-- a single ribbon along the path the hand travelled: full width at the hand,
+-- thinning out and fading to nothing at the far end. No particles are emitted.
+-- Width comes from set_size and the colors from set_color_ramp.
+
+local HAND_BONES        = { "DEF-hand.L", "DEF-hand.R" }
+local HAND_TRAIL_TIME   = 0.35    -- seconds the line takes to fade out: longer = longer line
+local HAND_TRAIL_WIDTH  = 0.1   -- line thickness at the hand
+local HAND_COLOR_FROM   = { 27/255, 119/255, 208/255, 0.9 }  -- at the hand (your blue)
+local HAND_COLOR_TO     = { 0.55, 0.80, 1.0, 0.0 }           -- at the end of the line, alpha 0 = fully faded
+
+local hand_fx = { model = nil, list = {}, retry_at = 0.0 }
+
+local function hand_trails_destroy()
+    for i = 1, #hand_fx.list do
+        pcall(function() hand_fx.list[i].fx:destroy() end)
+    end
+    hand_fx.list = {}
+end
+
+local function hand_trail_create(pos)
+    local fx = particle.gpu.create()
+    fx:set_global_position(pos)
+    fx:stop() -- ribbon only
+
+    fx:set_size({HAND_TRAIL_WIDTH, HAND_TRAIL_WIDTH})
+    fx:set_color_ramp(HAND_COLOR_FROM, HAND_COLOR_TO)
+    fx:set_motion_trail(true, HAND_TRAIL_TIME)
+    return fx
+end
+
+-- Call every frame. Also cleans up when the model goes away.
+local function hand_trails_update()
+    if hand_fx.model ~= my_model then
+        hand_trails_destroy()
+        hand_fx.model    = my_model
+        hand_fx.retry_at = 0.0
+    end
+    if not my_model then return end
+
+    -- Build the emitters once every hand bone resolves (the model may still be streaming in)
+    if #hand_fx.list == 0 then
+        local t = now_sec()
+        if t < hand_fx.retry_at then return end
+
+        local start = {}
+        for i = 1, #HAND_BONES do
+            local bone = HAND_BONES[i]
+            local ok, pos = pcall(function() return my_model:get_bone_position(bone) end)
+            if not ok or not pos then
+                hand_fx.retry_at = t + 0.25
+                return
+            end
+            start[i] = pos
+        end
+
+        for i = 1, #HAND_BONES do
+            hand_fx.list[i] = { bone = HAND_BONES[i], fx = hand_trail_create(start[i]) }
+        end
+        return
+    end
+
+    for i = 1, #hand_fx.list do
+        local h = hand_fx.list[i]
+        local ok, pos = pcall(function() return my_model:get_bone_position(h.bone) end)
+        if ok and pos then h.fx:set_global_position(pos) end
+    end
+end
+
 -- After move_and_slide: report contacts against rigid bodies to the server.
 local function relay_rigid_impulses()
     if not my_body then return end
@@ -624,6 +722,8 @@ util.event.on("sandbox:process", function(delta)
     pitch = pitch - mv[2] * MOUSE_SENSITIVITY
     if pitch > 80  then pitch = 80  end
     if pitch < -60 then pitch = -60 end
+
+    hand_trails_update() -- before the early return, so it also cleans up when the model is gone
 
     if not my_body then return end
 
