@@ -577,14 +577,12 @@ local function hand_trails_destroy()
 end
 
 local function hand_trail_create(pos)
-    local fx = particle.gpu.create()
-    fx:set_global_position(pos)
-    fx:stop() -- ribbon only
-
-    fx:set_size({HAND_TRAIL_WIDTH, HAND_TRAIL_WIDTH})
-    fx:set_color_ramp(HAND_COLOR_FROM, HAND_COLOR_TO)
-    fx:set_motion_trail(true, HAND_TRAIL_TIME)
-    return fx
+    local trail = particle.trail.create()
+    trail:set_global_position(pos)
+    trail:set_width(HAND_TRAIL_WIDTH)
+    trail:set_lifetime(HAND_TRAIL_TIME)
+    trail:set_color(HAND_COLOR_FROM, HAND_COLOR_TO)
+    return trail
 end
 
 -- Call every frame. Also cleans up when the model goes away.
