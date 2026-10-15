@@ -15,6 +15,9 @@ description: |
 
 scripts:
   - { src: "client.lua", type: "client" }
+  - { src: "outline.lua", type: "client" }
+  - { src: "grid.lua", type: "client" }
+  - { src: "timecycle.lua", type: "client" }
   - { src: "server.lua", type: "server" }
 
 files:
