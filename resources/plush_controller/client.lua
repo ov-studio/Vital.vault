@@ -177,10 +177,7 @@ util.event.on("entity:created", function(entity)
         pending_model_net_id = nil
         core.engine.print("info", "Client - Claimed own character model (late)")
         core.engine.iprint(my_model:get_bones())
-        -- TODO: Add prioriiy order support so i can prioritiez this shader, later applied shaders calculate form priority whether to override
-        util.timer.create(function()
-            shader:apply_to_material(my_model, "*", "*")
-        end, 1000, 1)
+        shader:apply_to_material(my_model, "*", "*", 100)
     end
 end)
 
