@@ -36,7 +36,7 @@ function private.run(code)
     end
 
     private.env = private.env or setmetatable({}, { __index = _G })
-    local exec = (ok_expr and core.engine.load_string(try_expr, "runcode", false, true, private.env)) or core.engine.load_string(code, "runcode", false, true, private.env)
+    local exec = (ok_expr and core.engine.load_string(try_expr, "runcode", false, private.env)) or core.engine.load_string(code, "runcode", false, private.env)
     if not exec then return end
     local results = util.table.pack(pcall(exec))
     local success = util.table.remove(results, 1)
