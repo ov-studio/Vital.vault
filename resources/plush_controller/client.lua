@@ -201,6 +201,7 @@ local facing_dot     = 0.0
 
 local WALK_SPEED         = 4.0
 local RUN_SPEED          = 6.0
+local STRAFE_SPEED       = 2.5   -- speed while A or D is held (overrides walk/run)
 local JUMP_SPEED         = 18
 local GRAVITY            = 25.0
 local MOUSE_SENSITIVITY  = 0.01
@@ -227,6 +228,8 @@ local last_impulse_at    = {}    -- [net_id] = time
 local LAYER_TILT_L       = 7
 local LAYER_TILT_R       = 8
 local LAYER_UP           = 9     -- "up" pose, overlaid on fall while rising (see update_up_layer)
+local LAYER_STRAFE_L     = 10    -- strafe_l clip (A)
+local LAYER_STRAFE_R     = 11    -- strafe_r clip (D)
 
 local TILT_BONES         = { "DEF-head" }  -- NOTE: don't add arm bones here, layer 6 (wave) is below this layer
 local TILT_MAX_WEIGHT    = 0.85  -- pose blend at full lean (1.0 = the full authored pose)
@@ -403,7 +406,9 @@ local function tilt_warmup()
 
     if my_model:play_animation_layer(LAYER_UP,     "up",     true, 1.0, 0.0, 0.0)
     and my_model:play_animation_layer(LAYER_TILT_R, "tilt_r", true, 1.0, 0.0, 0.0)
-    and my_model:play_animation_layer(LAYER_TILT_L, "tilt_l", true, 1.0, 0.0, 0.0) then
+    and my_model:play_animation_layer(LAYER_TILT_L, "tilt_l", true, 1.0, 0.0, 0.0)
+    and my_model:play_animation_layer(LAYER_STRAFE_L, "strafe_l", true, 1.0, 0.0, 0.0)
+    and my_model:play_animation_layer(LAYER_STRAFE_R, "strafe_r", true, 1.0, 0.0, 0.0) then
         my_model:set_animation_layer_filter(LAYER_TILT_L, true, TILT_BONES)
         my_model:set_animation_layer_filter(LAYER_TILT_R, true, TILT_BONES)
         tilt.ready = true
@@ -500,6 +505,23 @@ local function update_animation()
 
     my_model:play_animation_layer(0, "idle", true, 1.0, 1, 0.25)
 
+    -- Strafe (A / D). Both held = cancel out, no strafe.
+    local strafe_l = util.input.is_pressed(util.input.key.A) and not util.input.is_pressed(util.input.key.D)
+    local strafe_r = util.input.is_pressed(util.input.key.D) and not util.input.is_pressed(util.input.key.A)
+    local strafing = strafe_l or strafe_r
+
+    if strafe_l and my_body and my_body:is_on_floor() then
+        my_model:play_animation_layer(LAYER_STRAFE_L, "strafe_l", true, 1, 1, 0.2)
+    else
+        my_model:stop_animation_layer(LAYER_STRAFE_L, 0.2)
+    end
+
+    if strafe_r and my_body and my_body:is_on_floor() then
+        my_model:play_animation_layer(LAYER_STRAFE_R, "strafe_r", true, 1, 1, 0.2)
+    else
+        my_model:stop_animation_layer(LAYER_STRAFE_R, 0.2)
+    end
+
     if util.input.is_pressed(util.input.key.W) then
         my_model:play_animation_layer(1, "walk", true, 1, 1, 0.25)
     else
@@ -512,7 +534,7 @@ local function update_animation()
         my_model:stop_animation_layer(2, 0.25)
     end
 
-    if util.input.is_pressed(util.input.key.W) and util.input.is_pressed(util.input.key.SHIFT) then
+    if util.input.is_pressed(util.input.key.W) and util.input.is_pressed(util.input.key.SHIFT) and not strafing then
         RUNNING = true
         my_model:play_animation_layer(3, "run", true, 1, 1, 0.25)
     else
@@ -520,7 +542,7 @@ local function update_animation()
         my_model:stop_animation_layer(3, 0.25)
     end
 
-    if util.input.is_pressed(util.input.key.S) and util.input.is_pressed(util.input.key.SHIFT) then
+    if util.input.is_pressed(util.input.key.S) and util.input.is_pressed(util.input.key.SHIFT) and not strafing then
         my_model:play_animation_layer(4, "run", true, -1, 1, 0.25)
     else
         my_model:stop_animation_layer(4, 0.25)
@@ -737,6 +759,10 @@ util.event.on("sandbox:process", function(delta)
     facing_dot = move_x * fwd_x + move_z * fwd_z
 
     local current_speed = util.input.is_pressed(util.input.key.SHIFT) and RUN_SPEED or WALK_SPEED
+    -- A or D held (not both): slow strafe speed, no running
+    if util.input.is_pressed(util.input.key.A) ~= util.input.is_pressed(util.input.key.D) then
+        current_speed = STRAFE_SPEED
+    end
     local len = util.math.sqrt(move_x * move_x + move_z * move_z)
     local yaw_rate = 0.0
     if len > 0.001 then
