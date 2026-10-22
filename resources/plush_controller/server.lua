@@ -14,7 +14,7 @@ end)
 util.timer.create(function()
     -- Visual + concave collision for the town mesh (single body)
     local floor_model = core.model.create("assets/backroom.glb")
-    local floor_body  = physics.static.create(1) -- authority 1 = server
+    local floor_body  = physics.static.create()
     local floor_shape = physics.collision_shape.create(floor_body)
 
 
@@ -39,7 +39,7 @@ end, 1, 1)
 util.timer.create(function()
     for i = 1, 0, 1 do
         local ball_model = core.model.create("assets/basketball.glb")
-        local ball_body  = physics.rigid.create(1) -- authority 1 = server
+        local ball_body  = physics.rigid.create()
         local ball_shape = physics.collision_shape.create(ball_body)
         ball_model:set_parent(ball_body)
         ball_model:set_position({0, 0, 0})
@@ -126,9 +126,9 @@ util.event.on("peer:resource:started", function(peer_id, resource)
     local spawn_pos = { (spawn_index - 1) * SPAWN_SPACING, 100, 0 }
 
     local model = core.model.create("assets/asset.glb", peer_id)
-    local body  = physics.character.create(peer_id)
+    local body  = physics.character.create()
     local shape = physics.collision_shape.create(body)
-
+    
     --[[
     core.engine.iprint(model:get_components())
     model:set_component_rendered("*hair_*", false)
@@ -137,16 +137,14 @@ util.event.on("peer:resource:started", function(peer_id, resource)
     ]]
 
     shape:set_shape_capsule(0.6, 1.8)
+    model:set_syncer(peer_id)
     model:set_parent(body)
     model:set_position({0, -1.8 * 0.5, 0})
     model:set_rotation({0, 180, 0})
 
+    body:set_syncer(peer_id)
     body:set_motion_mode(physics.character.motion_mode.GROUNDED)
     body:set_global_position(spawn_pos)
-    body:set_syncer(peer_id)
-
-    -- Animation layers live on the MODEL — peer must own it to broadcast.
-    model:set_syncer(peer_id)
 
     players[peer_id] = { body = body, shape = shape, model = model }
     core.engine.print("info", "Server - Spawned character for peer", peer_id, "at x =", spawn_pos[1])

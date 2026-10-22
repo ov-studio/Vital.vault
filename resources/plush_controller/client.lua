@@ -62,34 +62,6 @@ local my_model = nil
 local pending_body_net_id  = nil
 local pending_model_net_id = nil
 
-local function try_claim_body(net_id)
-    local entity = core.engine.get_entity_by_net_id(net_id)
-    if entity then
-        my_body = entity
-        core.engine.print("info", "Client - Claimed own character body")
-        return true
-    end
-    return false
-end
-
-local function try_claim_model(net_id)
-    local entity = core.engine.get_entity_by_net_id(net_id)
-    if entity then
-        my_model = entity
-        core.engine.print("info", "Client - Claimed own character model")
-        return true
-    end
-    return false
-end
-
-util.event.on("own_character:incoming", function(body_net_id, model_net_id)
-    if not try_claim_body(body_net_id) then
-        pending_body_net_id = body_net_id
-    end
-    if not try_claim_model(model_net_id) then
-        pending_model_net_id = model_net_id
-    end
-end)
 
 -- Create shader from raw GLSL
 local shader = core.shader.create_from_raw([[
@@ -165,6 +137,37 @@ local shader = core.shader.create_from_raw([[
 
 --shader:apply_to_material("*", "*", "*")
 --shader:apply_to_material("*", "*hair_1", "*")
+
+
+local function try_claim_body(net_id)
+    local entity = core.engine.get_entity_by_net_id(net_id)
+    if entity then
+        my_body = entity
+        core.engine.print("info", "Client - Claimed own character body")
+        return true
+    end
+    return false
+end
+
+local function try_claim_model(net_id)
+    local entity = core.engine.get_entity_by_net_id(net_id)
+    if entity then
+        my_model = entity
+        core.engine.print("info", "Client - Claimed own character model")
+        shader:apply_to_material(my_model, "*", "*", 100)
+        return true
+    end
+    return false
+end
+
+util.event.on("own_character:incoming", function(body_net_id, model_net_id)
+    if not try_claim_body(body_net_id) then
+        pending_body_net_id = body_net_id
+    end
+    if not try_claim_model(model_net_id) then
+        pending_model_net_id = model_net_id
+    end
+end)
 
 util.event.on("entity:created", function(entity)
     if pending_body_net_id and entity:get_net_id() == pending_body_net_id then
