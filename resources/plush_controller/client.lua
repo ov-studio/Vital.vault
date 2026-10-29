@@ -1,4 +1,4 @@
-util.event.on("entity:created", function(entity)
+util.event.on("entity:create", function(entity)
     if entity:get_type() == "physics.character" then
         core.engine.print("info", "Client - Character created:", entity:get_type(), entity:get_net_id(), core.engine.get_entity_by_net_id(entity:get_net_id()))
     else
@@ -6,7 +6,7 @@ util.event.on("entity:created", function(entity)
     end
 end)
 
-util.event.on("entity:destroyed", function(entity)
+util.event.on("entity:destroy", function(entity)
     core.engine.print("info", "Client - Entity destroyed:", entity:get_type())
 end)
 
@@ -169,7 +169,7 @@ util.event.on("own_character:incoming", function(body_net_id, model_net_id)
     end
 end)
 
-util.event.on("entity:created", function(entity)
+util.event.on("entity:create", function(entity)
     if pending_body_net_id and entity:get_net_id() == pending_body_net_id then
         my_body = entity
         pending_body_net_id = nil
@@ -184,7 +184,7 @@ util.event.on("entity:created", function(entity)
     end
 end)
 
-util.event.on("entity:destroyed", function(entity)
+util.event.on("entity:destroy", function(entity)
     if entity == my_body  then my_body  = nil end
     if entity == my_model then my_model = nil end
 end)
@@ -709,8 +709,8 @@ local function refresh_cam_exclude()
     cam_exclude_at    = now_sec() + 1.0 -- periodic safety refresh
 end
 
-util.event.on("entity:created",   function() cam_exclude_dirty = true end)
-util.event.on("entity:destroyed", function() cam_exclude_dirty = true end)
+util.event.on("entity:create",   function() cam_exclude_dirty = true end)
+util.event.on("entity:destroy", function() cam_exclude_dirty = true end)
 
 -- pos = character position, want = where the camera would like to be.
 -- Returns the position the camera should actually use.

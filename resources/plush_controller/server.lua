@@ -1,8 +1,8 @@
-util.event.on("entity:created", function(entity)
+util.event.on("entity:create", function(entity)
     --core.engine.print("info", "Server - Entity created:", entity:get_type())
 end)
 
-util.event.on("entity:destroyed", function(entity)
+util.event.on("entity:destroy", function(entity)
     --core.engine.print("info", "Server - Entity destroyed:", entity:get_type())
 end)
 
@@ -119,7 +119,7 @@ local players      = {} -- [peer_id] = { body, shape, model }
 local spawn_index  = 0
 local SPAWN_SPACING = 4.0
 
-util.event.on("peer:resource:started", function(peer_id, resource)
+util.event.on("peer:resource:start", function(peer_id, resource)
     if resource ~= util.resource.current() then return false end
 
     spawn_index = spawn_index + 1
@@ -152,7 +152,7 @@ util.event.on("peer:resource:started", function(peer_id, resource)
     util.event.emit("own_character:incoming", { remote = true, peer = peer_id }, body:get_net_id(), model:get_net_id())
 end)
 
-util.event.on("network:peer:leave", function(peer_id)
+util.event.on("peer:leave", function(peer_id)
     local data = players[peer_id]
     if data then
         data.body:destroy() -- despawns parented model on every client

@@ -163,7 +163,7 @@ end
 --[[ Events ]]--
 ----------------
 
-util.event.on("resource:started", function(name)
+util.event.on("resource:start", function(name)
     if name ~= util.resource.current() then return false end
     private.setup()
 end)
