@@ -99,7 +99,7 @@ end
 
 local function format_time(tod)
     local h, m = to_hm(tod)
-    return util.util.string.format("%02d:%02d", h, m)
+    return util.string.format("%02d:%02d", h, m)
 end
 
 
@@ -263,7 +263,7 @@ function TimeCycle.setDayLength(seconds)
     if seconds < 10 then seconds = 10 end
     TimeCycle.day_length_sec = seconds
     core.engine.print("info", "[TimeCycle] Day length set to", seconds, "real seconds (",
-        util.util.string.format("%.1f", seconds / 60), "min)")
+        util.string.format("%.1f", seconds / 60), "min)")
 end
 
 function TimeCycle.setAuto(state)
@@ -363,7 +363,7 @@ end)
 
 util.input.register("cycle", function(args)
     if args[1] then
-        local s = util.util.string.lower(tostring(args[1]))
+        local s = util.string.lower(tostring(args[1]))
         if s == "on" or s == "1" or s == "true" then
             TimeCycle.setAuto(true)
         elseif s == "off" or s == "0" or s == "false" then
