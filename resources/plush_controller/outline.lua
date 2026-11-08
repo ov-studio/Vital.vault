@@ -131,6 +131,7 @@ local OUTLINE_SHADER_SRC = [[
         }
 
         ALBEDO = mix(base, outline_color, mask);
+        ALPHA = (dc < 99999.0) ? 1.0 : 0.0;
     }
 ]]
 
