@@ -10,6 +10,7 @@ util.event.on("entity:destroy", function(entity)
     core.engine.print("info", "Client - Entity destroyed:", entity:get_type())
 end)
 
+--[[
 gfx.adjustment.set_enabled(true)
 gfx.adjustment.set_brightness(1.05)
 gfx.adjustment.set_contrast(1.05)
@@ -18,6 +19,8 @@ gfx.sky.set_mode(gfx.sky.sky_mode.PROCEDURAL)
 
 --gfx.sky.panorama.set_texture("assets/skybox.exr")
 gfx.env.set_background_mode(gfx.env.background_mode.SKY)
+]]
+
 physics.collision_shape.set_debug_all(false)
 
 -- Camera
