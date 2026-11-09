@@ -28,7 +28,6 @@
 --------------------------------------------------
 
 local OUTLINE_SHADER_SRC = [[
-    uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap;
     uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
     uniform sampler2D normal_tex : hint_normal_roughness_texture, filter_nearest;
 
@@ -81,7 +80,6 @@ local OUTLINE_SHADER_SRC = [[
 
     void fragment() {
         vec2 fragCoord = SCREEN_UV * buffer_size();
-        vec3 base = texture(screen_tex, SCREEN_UV).rgb;
         mat4 ip = INV_PROJECTION_MATRIX;
 
         // Buffer pixels per window pixel (1.0 normally, 2.0 with 2x supersampling),
@@ -130,8 +128,8 @@ local OUTLINE_SHADER_SRC = [[
             }
         }
 
-        ALBEDO = mix(base, outline_color, mask);
-        ALPHA = (dc < 99999.0) ? 1.0 : 0.0;
+        ALBEDO = outline_color;
+        ALPHA = mask;
     }
 ]]
 
@@ -288,7 +286,6 @@ util.event.on("sandbox:draw", function()
     s:set_param("edge_threshold",   Outline.edge_threshold)
     s:set_param("normal_threshold", Outline.normal_threshold)
     s:set_param("outline_color",    Outline.color)
-    s:set_param("screen_tex",    core.display.get_texture())
 
     core.engine.draw_material(
         {0, 0},          -- top-left corner

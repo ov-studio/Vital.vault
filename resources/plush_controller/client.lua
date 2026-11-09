@@ -49,11 +49,13 @@ gfx.vol_fog.set_enabled(true)
 gfx.vol_fog.set_density(0.001)
 --Lut successfully set to index #47 (assets/lut/Lutify/Film Print 2.png)
 
+--[[
 gfx.glow.set_enabled(true)
 gfx.glow.set_strength(1.75)
 
 gfx.ssil.set_enabled(true)
 gfx.ssil.set_intensity(1)
+]]
 
 -- ============================================================
 -- Claim "my own" character body + model
