@@ -23,12 +23,15 @@ description: |
   • Cloud scattering: L. G. Henyey, J. L. Greenstein (1941)
 
   **Exports (server):**
+  • `util.export.call("dynamic_sky", "get_time")` - returns the current hour
   • `util.export.call("dynamic_sky", "set_time", hour)` - sets the hour (0-24)
   • `util.export.call("dynamic_sky", "set_weather", name)` - sets the weather
   • `util.export.call("dynamic_sky", "set_timescale", scale)` - 1 = normal, 0 = freeze
-  • `util.export.call("dynamic_sky", "get_time")` - returns the current hour
 
   **Exports (client):**
+  • `util.export.call("dynamic_sky", "get_moon_phase")` - returns phase (0-1) and its name
+  • `util.export.call("dynamic_sky", "get_time")` - returns the local hour
+  • `util.export.call("dynamic_sky", "get_weather")` - returns the weather name
   • `util.export.call("dynamic_sky", "set_rain", value)` - rain intensity 0-1, nil = auto
   • `util.export.call("dynamic_sky", "set_snow", value)` - snow intensity 0-1, nil = auto
   • `util.export.call("dynamic_sky", "set_fog", value)` - fog intensity 0-1, nil = auto
@@ -39,9 +42,6 @@ description: |
   • `util.export.call("dynamic_sky", "set_sun_size", deg)` - apparent sun radius
   • `util.export.call("dynamic_sky", "set_moon_size", deg)` - apparent moon radius
   • `util.export.call("dynamic_sky", "set_moon_phase", phase)` - phase name or 0-1, nil = auto
-  • `util.export.call("dynamic_sky", "get_moon_phase")` - returns phase (0-1) and its name
-  • `util.export.call("dynamic_sky", "get_time")` - returns the local hour
-  • `util.export.call("dynamic_sky", "get_weather")` - returns the weather name
   • `util.export.call("dynamic_sky", "flash", strength)` - triggers a lightning flash
   • `util.export.call("dynamic_sky", "toggle")` - switches the sky on/off
 
