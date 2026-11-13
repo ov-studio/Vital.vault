@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
---[[ Resource: Skycycle
+--[[ Resource: Dynamic Sky
      Script: server.lua
      Author: ov-studio
      Developer(s): Аниса
@@ -44,7 +44,7 @@ local function push(peer)
     advance()
     local opts = { remote = true }
     if peer then opts.peer = peer end
-    util.event.emit("skycycle:sync", opts, state.time, state.day, state.scale, state.weather)
+    util.event.emit("dynamic_sky:sync", opts, state.time, state.day, state.scale, state.weather)
 end
 
 -- late joiners
@@ -80,11 +80,11 @@ util.export.register("set_timescale", set_timescale)
 util.export.register("get_time", function() advance(); return state.time end)
 
 -- client requests (/time /weather /timescale) --------------------------
-util.event.on("skycycle:request", function(kind, value)
+util.event.on("dynamic_sky:request", function(kind, value)
     if not cfg.allow_client_control then return end
     if kind == "time" then set_time(value)
     elseif kind == "weather" then set_weather(tostring(value))
     elseif kind == "timescale" then set_timescale(value) end
 end, { remote = true })
 
-core.engine.print("info", "[skycycle] server clock started at", state.time)
+core.engine.print("info", "[dynamic_sky] server clock started at", state.time)

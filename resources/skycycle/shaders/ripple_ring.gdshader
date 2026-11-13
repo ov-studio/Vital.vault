@@ -1,7 +1,7 @@
 shader_type spatial;
 render_mode unshaded, blend_add, depth_test_disabled, depth_draw_never, cull_disabled, fog_disabled;
 
-// skycycle: one raindrop ripple, spawned by the engine exactly where a drop lands (sub-emitter of the splash droplets).
+// Dynamic Sky: one raindrop ripple, spawned by the engine exactly where a drop lands (sub-emitter of the splash droplets).
 // The emitter is drawn only into a 3D rendertarget (particle:set_layer), never into the main view. The rendertarget
 // is a screen-space ripple buffer that snow_cover.gdshader reads at every puddle pixel:
 //   r = height, positive part      g = height, negative part       (added up, so they cannot be negative)

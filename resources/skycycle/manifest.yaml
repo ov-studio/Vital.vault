@@ -1,4 +1,4 @@
-name: "Skycycle"
+name: "Dynamic Sky"
 author: "ov-studio"
 author_url: "https://github.com/ov-studio"
 version: "1.0.0"
@@ -9,12 +9,11 @@ featured: false
 tags:
   - "gfx"
   - "vfx"
-  - "library"
 
 description: |
-  Skycycle is a dynamic sky for Vital.sandbox: a server-synced day/night
-  cycle with sun, moon, stars, volumetric clouds, god rays, sun bloom and
-  fourteen weather presets.
+  Dynamic Sky is a server-synced day/night cycle for Vital.sandbox with sun,
+  moon, stars, volumetric clouds, god rays, sun bloom and fourteen weather
+  presets.
 
   Rain and snow are GPU particles that collide with the level, so nothing
   falls indoors. Every raindrop splashes and ripples where it lands, wet
@@ -24,30 +23,33 @@ description: |
   rendertargets. Everything tunable lives in `config.lua`.
 
   **Credits:**
-  • Moon texture: NASA CGI Moon Kit `lroc_color_poles` - NASA/GSFC SVS, LRO/LOLA, LROC/ASU, Ernie Wright - https://svs.gsfc.nasa.gov/4720/
+  • Moon texture: NASA CGI Moon Kit (`lroc_color_poles`), NASA Scientific Visualization Studio - https://svs.gsfc.nasa.gov/4720/
+  • Clouds: A. Schneider, "The Real-Time Volumetric Cloudscapes of Horizon: Zero Dawn" (SIGGRAPH 2015)
+  • Sun color: F. Kasten and A. T. Young, "Revised optical air mass tables and approximation formula" (1989)
+  • Cloud scattering: L. G. Henyey and J. L. Greenstein, "Diffuse radiation in the Galaxy" (1941)
 
   **Exports (server):**
-  • `util.export.call("skycycle", "set_time", hour)` - sets the hour (0-24)
-  • `util.export.call("skycycle", "set_weather", name)` - sets the weather
-  • `util.export.call("skycycle", "set_timescale", scale)` - 1 = normal, 0 = freeze
-  • `util.export.call("skycycle", "get_time")` - returns the current hour
+  • `util.export.call("dynamic_sky", "set_time", hour)` - sets the hour (0-24)
+  • `util.export.call("dynamic_sky", "set_weather", name)` - sets the weather
+  • `util.export.call("dynamic_sky", "set_timescale", scale)` - 1 = normal, 0 = freeze
+  • `util.export.call("dynamic_sky", "get_time")` - returns the current hour
 
   **Exports (client):**
-  • `util.export.call("skycycle", "set_rain", value)` - rain intensity 0-1, nil = auto
-  • `util.export.call("skycycle", "set_snow", value)` - snow intensity 0-1, nil = auto
-  • `util.export.call("skycycle", "set_fog", value)` - fog intensity 0-1, nil = auto
-  • `util.export.call("skycycle", "set_lightning", value)` - lightning intensity 0-1, nil = auto
-  • `util.export.call("skycycle", "set_wind", value)` - wind multiplier 0-6, nil = auto
-  • `util.export.call("skycycle", "set_wind_dir", degrees)` - direction the wind blows towards
-  • `util.export.call("skycycle", "set_snow_cover", value)` - snow on surfaces 0-1, nil = auto
-  • `util.export.call("skycycle", "set_sun_size", degrees)` - apparent sun radius
-  • `util.export.call("skycycle", "set_moon_size", degrees)` - apparent moon radius
-  • `util.export.call("skycycle", "set_moon_phase", phase)` - phase name or 0-1, nil = auto
-  • `util.export.call("skycycle", "get_moon_phase")` - returns phase (0-1) and its name
-  • `util.export.call("skycycle", "get_time")` - returns the local hour
-  • `util.export.call("skycycle", "get_weather")` - returns the weather name
-  • `util.export.call("skycycle", "flash", strength)` - triggers a lightning flash
-  • `util.export.call("skycycle", "toggle")` - switches the sky on/off
+  • `util.export.call("dynamic_sky", "set_rain", value)` - rain intensity 0-1, nil = auto
+  • `util.export.call("dynamic_sky", "set_snow", value)` - snow intensity 0-1, nil = auto
+  • `util.export.call("dynamic_sky", "set_fog", value)` - fog intensity 0-1, nil = auto
+  • `util.export.call("dynamic_sky", "set_lightning", value)` - lightning intensity 0-1, nil = auto
+  • `util.export.call("dynamic_sky", "set_wind", value)` - wind multiplier 0-6, nil = auto
+  • `util.export.call("dynamic_sky", "set_wind_dir", deg)` - direction the wind blows towards
+  • `util.export.call("dynamic_sky", "set_snow_cover", value)` - snow on surfaces 0-1, nil = auto
+  • `util.export.call("dynamic_sky", "set_sun_size", deg)` - apparent sun radius
+  • `util.export.call("dynamic_sky", "set_moon_size", deg)` - apparent moon radius
+  • `util.export.call("dynamic_sky", "set_moon_phase", phase)` - phase name or 0-1, nil = auto
+  • `util.export.call("dynamic_sky", "get_moon_phase")` - returns phase (0-1) and its name
+  • `util.export.call("dynamic_sky", "get_time")` - returns the local hour
+  • `util.export.call("dynamic_sky", "get_weather")` - returns the weather name
+  • `util.export.call("dynamic_sky", "flash", strength)` - triggers a lightning flash
+  • `util.export.call("dynamic_sky", "toggle")` - switches the sky on/off
 
   **Commands:**
   • `/time <hour | HH:MM>` - sets the time of day
@@ -58,7 +60,7 @@ description: |
   • `/sky_fog <0-1 | auto>` - fog intensity
   • `/sky_lightning <0-1 | auto>` - lightning intensity
   • `/sky_wind <0-6 | auto>` - wind strength
-  • `/sky_winddir <degrees>` - wind direction
+  • `/sky_winddir <deg>` - wind direction
   • `/snow_cover <0-1 | auto>` - snow on surfaces
   • `/sky_quality <low|medium|high|ultra>` - cloud quality
   • `/sky_clouds [on|off]` - toggles the clouds

@@ -1,7 +1,7 @@
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
-// skycycle: rain splash droplets. Each particle is a small water bead thrown up from the impact.
+// Dynamic Sky: rain splash droplets. Each particle is a small water bead thrown up from the impact.
 // It is a camera-facing quad that stays upright and stretches along its (mostly vertical) motion:
 // long and thin while it is fast, round at the top of its arc, then it fades.
 

@@ -1,4 +1,4 @@
-# Bakes the tileable cloud noise used by skycycle (512x512 RGB PNG).
+# Bakes the tileable cloud noise used by Dynamic Sky (512x512 RGB PNG).
 #   R = perlin-worley base shape        (sampled at 1 cell / unit)
 #   G = worley fbm erosion              (same coordinates as R)
 #   B = fine detail fbm                 (sampled at ~7x frequency)
@@ -40,6 +40,6 @@ B = 0.65 * vnoise(16) + 0.35 * vnoise(37)
 img = np.stack([R, G, B], -1)
 img += (rng.random(img.shape) - 0.5) / 255.0               # dither against banding
 img = np.clip(img, 0, 1)
-Image.fromarray((img * 255 + 0.5).astype(np.uint8), 'RGB').save('/home/claude/skycycle/textures/cloud_noise.png', optimize=True)
+Image.fromarray((img * 255 + 0.5).astype(np.uint8), 'RGB').save('/home/claude/dynamic_sky/textures/cloud_noise.png', optimize=True)
 for n, c in zip('RGB', (R, G, B)):
     print(n, 'mean %.3f  min %.3f  max %.3f' % (c.mean(), c.min(), c.max()))

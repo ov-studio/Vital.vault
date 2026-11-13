@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
---[[ Resource: Skycycle
+--[[ Resource: Dynamic Sky
      Script: client.lua
      Author: ov-studio
      Developer(s): Аниса
@@ -207,7 +207,7 @@ local function ripple_buffer()
     end)
     S.rrt_rx, S.rrt_ry = rx, ry
     if not ok then
-        core.engine.print("warn", "[skycycle] ripple buffer unavailable, using procedural ripples: " .. tostring(err))
+        core.engine.print("warn", "[dynamic_sky] ripple buffer unavailable, using procedural ripples: " .. tostring(err))
         S.rip_hook, S.rrt = false, nil
         S.cshader:set_param("screen_rip_on", 0.0)
         pcall(function() S.gpu_rip:set_visible(false) end)
@@ -217,7 +217,7 @@ end
 local function init()
     local shader = core.shader.create("shaders/sky.gdshader", core.shader.shader_mode.POST_PROCESS)
     if not shader then
-        core.engine.print("error", "[skycycle] sky shader failed to compile")
+        core.engine.print("error", "[dynamic_sky] sky shader failed to compile")
         S.enabled = false
         return
     end
@@ -230,14 +230,14 @@ local function init()
     if ok and img then
         S.noise = img                                   -- keep a reference alive
     else
-        core.engine.print("error", "[skycycle] textures/cloud_noise.png could not be loaded, clouds disabled")
+        core.engine.print("error", "[dynamic_sky] textures/cloud_noise.png could not be loaded, clouds disabled")
     end
 
     -- world-space rain / snow particles + surface weather shader (all optional: the sky works without them)
     local function mk_shader(path)
         local ok, sh = pcall(core.shader.create, path, core.shader.shader_mode.SPATIAL)
         if ok and sh then return sh end
-        core.engine.print("warn", "[skycycle] " .. path .. " failed to compile")
+        core.engine.print("warn", "[dynamic_sky] " .. path .. " failed to compile")
         return nil
     end
     -- rain: real falling drops that collide with the world (they vanish on roofs and ground, so nothing rains indoors);
@@ -319,8 +319,8 @@ local function init()
             S.gpu_sub, S.gpu_car, S.gpu_lvl = sub, car, -1
         end)
         S.gpu_on = ok
-        if ok then core.engine.print("info", "[skycycle] rain active (real colliding drops, splashes = " .. (S.splash_on and "on" or "off") .. ")") end
-        if not ok then core.engine.print("warn", "[skycycle] rain needs the engine with the particle collision API: " .. tostring(err)) end
+        if ok then core.engine.print("info", "[dynamic_sky] rain active (real colliding drops, splashes = " .. (S.splash_on and "on" or "off") .. ")") end
+        if not ok then core.engine.print("warn", "[dynamic_sky] rain needs the engine with the particle collision API: " .. tostring(err)) end
     end
     -- snow: real falling flakes that collide with the world (they vanish on roofs and ground, nothing snows indoors)
     S.snow_on, S.snow_lvl = false, -1
@@ -349,7 +349,7 @@ local function init()
                 S.snow_car, S.snow_shader = car, sh
             end)
             S.snow_on = ok
-            if not ok then core.engine.print("warn", "[skycycle] snow particles unavailable: " .. tostring(err)) end
+            if not ok then core.engine.print("warn", "[dynamic_sky] snow particles unavailable: " .. tostring(err)) end
         end
     end
     if cfg.use_surface_weather then S.cshader = mk_shader("shaders/snow_cover.gdshader") end
@@ -379,7 +379,7 @@ local function init()
         S.light:set_shadow_enabled(cfg.shadows)
         S.light:set_sky_mode(light.directional.sky_mode.LIGHT_ONLY) -- our shader draws the sun disc
     end
-    core.engine.print("info", "[skycycle] sky shader created")
+    core.engine.print("info", "[dynamic_sky] sky shader created")
 end
 
 -------------------
@@ -776,6 +776,10 @@ local function cloud_setup(rx, ry)
             if not (S.cloud_sh and S.cblur_h and S.cblur_v) then error("cloud shaders failed to compile") end
             S.cloud_sh:set_param("noise_tex", S.noise)
         end
+        -- a resize makes new rendertargets, the old ones are freed
+        for _, rt in ipairs({ S.crt_a or false, S.crt_b or false, S.crt_c or false }) do
+            if rt then pcall(rt.destroy, rt) end
+        end
         -- every rendertarget gets ONE draw per frame: it is rendered once, with everything drawn to it
         S.crt_a = core.rendertarget.create({ w, h }, true, true)
         S.crt_b = core.rendertarget.create({ w, h }, true, true)
@@ -790,7 +794,7 @@ local function cloud_setup(rx, ry)
     end)
     if not ok then
         S.cloud_failed = true
-        core.engine.print("error", "[skycycle] clouds unavailable: " .. tostring(err))
+        core.engine.print("error", "[dynamic_sky] clouds unavailable: " .. tostring(err))
     end
     return ok
 end
@@ -857,7 +861,7 @@ end)
 ---------------------
 --[[ Server sync ]]--
 ---------------------
-util.event.on("skycycle:sync", function(time, day, scale, weather)
+util.event.on("dynamic_sky:sync", function(time, day, scale, weather)
     S.time, S.day, S.scale = time, day, scale
     if cfg.weather[weather] then S.weather = weather end
 end)
@@ -865,12 +869,12 @@ end)
 ----------------------------------------------------
 --[[ Console commands (forwarded to the server) ]]--
 ----------------------------------------------------
-local function request(kind, value) util.event.emit("skycycle:request", { remote = true }, kind, value) end
+local function request(kind, value) util.event.emit("dynamic_sky:request", { remote = true }, kind, value) end
 
 -- time 18.5   or   time 18:30
 util.input.register("time", function(args)
     local a = args[1]
-    if not a then return core.engine.print("info", util.string.format("[skycycle] time %.2f, weather %s", S.time, S.weather)) end
+    if not a then return core.engine.print("info", util.string.format("[dynamic_sky] time %.2f, weather %s", S.time, S.weather)) end
     local h, m = tostring(a):match("^(%d+):(%d+)$")
     local v = h and (tonumber(h) + tonumber(m) / 60) or tonumber(a)
     if not v then return core.engine.print("warn", "Usage: time <hour 0-24 | HH:MM>") end
@@ -895,17 +899,17 @@ end)
 util.input.register("sky_quality", function(args)
     if not cfg.qualities[args[1] or ""] then return core.engine.print("warn", "Usage: sky_quality <low|medium|high|ultra>") end
     S.quality = args[1]
-    core.engine.print("info", "[skycycle] cloud quality", S.quality)
+    core.engine.print("info", "[dynamic_sky] cloud quality", S.quality)
 end)
 
 -- sky_clouds on|off : toggle the clouds (no argument = flip)
 util.input.register("sky_clouds", function(args)
     local m = args[1]
     if m == "on" then S.clouds = true elseif m == "off" then S.clouds = false else S.clouds = not S.clouds end
-    core.engine.print("info", "[skycycle] clouds:", S.clouds and "on" or "off")
+    core.engine.print("info", "[dynamic_sky] clouds:", S.clouds and "on" or "off")
 end)
 
--- sun_size / moon_size <degrees> : apparent radius of the sun / moon (glow scales with it)
+-- sun_size / moon_size <deg> : apparent radius of the sun / moon (glow scales with it)
 local function set_sun_size(deg)
     deg = tonumber(deg); if not deg then return false end
     S.sun_deg = clamp(deg, 0.05, 15.0); return true
@@ -917,15 +921,15 @@ end
 
 util.input.register("sun_size", function(args)
     if not set_sun_size(args[1]) then
-        return core.engine.print("info", util.string.format("[skycycle] sun radius %.2f deg (usage: sun_size <0.05-15>, real sun 0.27)", S.sun_deg))
+        return core.engine.print("info", util.string.format("[dynamic_sky] sun radius %.2f deg (usage: sun_size <0.05-15>, real sun 0.27)", S.sun_deg))
     end
-    core.engine.print("info", util.string.format("[skycycle] sun radius %.2f deg", S.sun_deg))
+    core.engine.print("info", util.string.format("[dynamic_sky] sun radius %.2f deg", S.sun_deg))
 end)
 util.input.register("moon_size", function(args)
     if not set_moon_size(args[1]) then
-        return core.engine.print("info", util.string.format("[skycycle] moon radius %.2f deg (usage: moon_size <0.05-15>, real moon 0.26)", S.moon_deg))
+        return core.engine.print("info", util.string.format("[dynamic_sky] moon radius %.2f deg (usage: moon_size <0.05-15>, real moon 0.26)", S.moon_deg))
     end
-    core.engine.print("info", util.string.format("[skycycle] moon radius %.2f deg", S.moon_deg))
+    core.engine.print("info", util.string.format("[dynamic_sky] moon radius %.2f deg", S.moon_deg))
 end)
 
 -- moon phase ----------------------------------------------------------
@@ -960,7 +964,7 @@ local function cmd_moon_phase(args)
         return core.engine.print("warn", "Usage: moon_phase <new|waxing_crescent|first_quarter|waxing_gibbous|full|waning_gibbous|last_quarter|waning_crescent|0-1|auto>")
     end
     local p = S.phase or cfg.moon_phase
-    core.engine.print("info", util.string.format("[skycycle] moon: %s, %d%% lit%s", phase_name(p), floor(phase_lit(p) * 100 + 0.5), S.moon_phase_manual and " (manual)" or " (auto cycle)"))
+    core.engine.print("info", util.string.format("[dynamic_sky] moon: %s, %d%% lit%s", phase_name(p), floor(phase_lit(p) * 100 + 0.5), S.moon_phase_manual and " (manual)" or " (auto cycle)"))
 end
 util.input.register("moon_phase", cmd_moon_phase)
 
@@ -968,20 +972,20 @@ util.input.register("moon_phase", cmd_moon_phase)
 util.input.register("sky_precip", function(args)
     local m = args[1]
     if m == "on" then S.precip = true elseif m == "off" then S.precip = false else S.precip = not S.precip end
-    core.engine.print("info", "[skycycle] precipitation particles:", S.precip and "on" or "off")
+    core.engine.print("info", "[dynamic_sky] precipitation particles:", S.precip and "on" or "off")
 end)
 
 -- snowcover <0..1 | auto> : force how much snow lies on surfaces (auto = follows the weather)
 local function cmd_snow_cover(args)
     local a = args[1]
-    if not a then return core.engine.print("info", util.string.format("[skycycle] snow cover %.2f, wet %.2f%s", S.cover, S.wet, S.cover_manual and " (manual)" or " (auto)")) end
+    if not a then return core.engine.print("info", util.string.format("[dynamic_sky] snow cover %.2f, wet %.2f%s", S.cover, S.wet, S.cover_manual and " (manual)" or " (auto)")) end
     if a == "auto" then S.cover_manual = nil
     else
         local v = tonumber(a)
         if not v then return core.engine.print("warn", "Usage: snow_cover <0..1 | auto>") end
         S.cover_manual = clamp(v, 0.0, 1.0)
     end
-    core.engine.print("info", "[skycycle] snow cover:", S.cover_manual or "auto")
+    core.engine.print("info", "[dynamic_sky] snow cover:", S.cover_manual or "auto")
 end
 util.input.register("snow_cover", cmd_snow_cover)
 
@@ -990,14 +994,14 @@ util.input.register("snow_cover", cmd_snow_cover)
 local function make_override(cmd, key, lo, hi)
     util.input.register(cmd, function(args)
         local a = args[1]
-        if not a then return core.engine.print("info", util.string.format("[skycycle] %s = %.2f%s", key, S.cur[key], S.over[key] and " (manual)" or " (auto)")) end
+        if not a then return core.engine.print("info", util.string.format("[dynamic_sky] %s = %.2f%s", key, S.cur[key], S.over[key] and " (manual)" or " (auto)")) end
         if a == "auto" then S.over[key] = nil
         else
             local v = tonumber(a)
             if not v then return core.engine.print("warn", "Usage: " .. cmd .. " <" .. lo .. ".." .. hi .. " | auto>") end
             S.over[key] = clamp(v, lo, hi)
         end
-        core.engine.print("info", "[skycycle] " .. key .. ":", S.over[key] or "auto")
+        core.engine.print("info", "[dynamic_sky] " .. key .. ":", S.over[key] or "auto")
     end)
     util.export.register("set_" .. key, function(v) S.over[key] = tonumber(v) and clamp(tonumber(v), lo, hi) or nil end)
 end
@@ -1006,16 +1010,16 @@ make_override("sky_snow", "snow", 0, 1)
 make_override("sky_fog", "fog", 0, 1)
 make_override("sky_wind", "wind", 0, 6)
 
--- sky_winddir <degrees>: direction the wind blows TOWARDS (0 = +Z, 90 = +X, 180 = -Z, 270 = -X); rain, snow and clouds follow
+-- sky_winddir <deg>: direction the wind blows TOWARDS (0 = +Z, 90 = +X, 180 = -Z, 270 = -X); rain, snow and clouds follow
 util.input.register("sky_winddir", function(args)
-    local d = tonumber(args[1])
-    if not d then
-        return core.engine.print("info", util.string.format("[skycycle] wind blows towards (%.2f, %.2f)", S.wdir_t[1], S.wdir_t[2]))
+    local deg = tonumber(args[1])
+    if not deg then
+        return core.engine.print("info", util.string.format("[dynamic_sky] wind blows towards (%.2f, %.2f)", S.wdir_t[1], S.wdir_t[2]))
     end
-    S.wdir_t = { sin(rad(d)), cos(rad(d)) }
-    core.engine.print("info", "[skycycle] wind direction:", d)
+    S.wdir_t = { sin(rad(deg)), cos(rad(deg)) }
+    core.engine.print("info", "[dynamic_sky] wind direction:", deg, "deg")
 end)
-util.export.register("set_wind_dir", function(d) d = tonumber(d) or 0; S.wdir_t = { sin(rad(d)), cos(rad(d)) } end)
+util.export.register("set_wind_dir", function(deg) deg = tonumber(deg) or 0; S.wdir_t = { sin(rad(deg)), cos(rad(deg)) } end)
 make_override("sky_lightning", "lightning", 0, 1)
 
 -- sky_glow [on|off] : bloom around the sun (uses the engine glow)
@@ -1023,20 +1027,20 @@ util.input.register("sky_glow", function(args)
     local m = args[1]
     S.glow = (m == "on") and true or ((m == "off") and false or not S.glow)
     apply_glow(S.glow)
-    core.engine.print("info", "[skycycle] sun bloom:", S.glow and "on" or "off")
+    core.engine.print("info", "[dynamic_sky] sun bloom:", S.glow and "on" or "off")
 end)
 
 -- sky_godrays [on|off] : crepuscular rays through gaps in trees / buildings
 util.input.register("sky_godrays", function(args)
     local m = args[1]
     S.rays = (m == "on") and true or ((m == "off") and false or not S.rays)
-    core.engine.print("info", "[skycycle] god rays:", S.rays and "on" or "off")
+    core.engine.print("info", "[dynamic_sky] god rays:", S.rays and "on" or "off")
 end)
 
 -- sky_splash [on|off] : droplet splashes where rain hits the ground
 util.input.register("sky_splash", function(args)
     local m = args[1]
-    if not S.gpu_on then return core.engine.print("warn", "[skycycle] rain is not active (needs the engine with the particle collision API)") end
+    if not S.gpu_on then return core.engine.print("warn", "[dynamic_sky] rain is not active (needs the engine with the particle collision API)") end
     S.splash_on = (m == "on") and true or ((m == "off") and false or not S.splash_on)
     if not S.rip_hook then                                                     -- with the ripple hook the droplets keep spawning (the rings hang on them), they just stay invisible
         pcall(function()
@@ -1044,13 +1048,13 @@ util.input.register("sky_splash", function(args)
             else S.gpu_car:reset_sub_emitter() end
         end)
     end
-    core.engine.print("info", "[skycycle] rain splashes:", S.splash_on and "on" or "off")
+    core.engine.print("info", "[dynamic_sky] rain splashes:", S.splash_on and "on" or "off")
 end)
 
 -- sky_toggle: switch the whole sky shader on/off
 util.input.register("sky_toggle", function()
     S.enabled = not S.enabled
-    core.engine.print("info", "[skycycle] enabled:", S.enabled)
+    core.engine.print("info", "[dynamic_sky] enabled:", S.enabled)
 end)
 
 init()
@@ -1064,7 +1068,7 @@ util.export.register("get_time", function() return S.time end)
 util.export.register("get_weather", function() return S.weather end)
 util.export.register("set_snow_cover", function(v) S.cover_manual = tonumber(v) and clamp(tonumber(v), 0.0, 1.0) or nil end)
 util.export.register("flash", function(v) S.flash = clamp(tonumber(v) or 1.0, 0.0, 1.0) end)     -- trigger a lightning flash by hand
-util.export.register("set_sun_size", set_sun_size)                  -- degrees of apparent radius
+util.export.register("set_sun_size", set_sun_size)                  -- apparent radius in deg
 util.export.register("set_moon_size", set_moon_size)
 util.export.register("set_moon_phase", set_moon_phase)              -- 0..1, a phase name, or nil/"auto"
 util.export.register("get_moon_phase", function() return S.phase or cfg.moon_phase, phase_name(S.phase or cfg.moon_phase) end)

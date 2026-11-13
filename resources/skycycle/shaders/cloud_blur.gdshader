@@ -1,7 +1,7 @@
 shader_type canvas_item;
 render_mode blend_disabled;
 
-// skycycle: one direction of a separable gaussian blur for the small cloud rendertarget (call it twice: horizontal,
+// Dynamic Sky: one direction of a separable gaussian blur for the small cloud rendertarget (call it twice: horizontal,
 // then vertical). Clouds are soft, so this hides the dither noise of the cloud pass and the low resolution.
 // NOTE: never write the text of the entry point signatures inside comments (the engine injects code there).
 

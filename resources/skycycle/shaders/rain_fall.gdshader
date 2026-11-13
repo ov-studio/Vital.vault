@@ -1,7 +1,7 @@
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
-// skycycle: rain streaks drawn on REAL falling particles (rain_real mode).
+// Dynamic Sky: rain streaks drawn on REAL falling particles (rain_real mode).
 // Each streak is one particle of an emitter that has world collision: it falls with the particle's own motion and
 // disappears the moment it touches the ground, where the engine spawns the splash from that very particle.
 // The quad sits at the particle position

@@ -2,7 +2,7 @@ shader_type spatial;
 render_mode unshaded, cull_disabled, depth_test_disabled, depth_draw_never, fog_disabled;
 
 // ============================================================================
-//  skycycle - volumetric sky shader (Vital.sandbox / Godot spatial POST_PROCESS)
+//  Dynamic Sky - volumetric sky shader (Vital.sandbox / Godot spatial POST_PROCESS)
 //
 //  Screen-space sky: runs on a camera-following quad and only paints pixels
 //  whose depth is "sky" (nothing drawn there), so no dome / model is needed.

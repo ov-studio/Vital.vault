@@ -2,7 +2,7 @@ shader_type canvas_item;
 render_mode blend_disabled;
 
 // ============================================================================
-//  skycycle - cloud pass
+//  Dynamic Sky - cloud pass
 //
 //  Marches the volumetric clouds into a SMALL rendertarget (a fraction of the screen size), the rendertarget is blurred
 //  by cloud_blur.gdshader and sky.gdshader then reads it with one texture fetch per pixel instead of marching the clouds

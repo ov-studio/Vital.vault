@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
---[[ Resource: Skycycle
+--[[ Resource: Dynamic Sky
      Script: config.lua
      Author: ov-studio
      Developer(s): Аниса
@@ -20,8 +20,8 @@ SkyConfig = {
     -- sun / moon -------------------------------------------------
     sun_tilt_deg      = 25.0,   -- tilt of the sun path (0 = straight east->west over the top)
     moon_phase        = 0.5,    -- 0 new, 0.5 full, 1 new
-    sun_radius_deg    = 0.50,   -- apparent sun radius in degrees (real sun: 0.27). change live with: sun_size <deg>
-    moon_radius_deg   = 0.85,   -- apparent moon radius in degrees (real moon: 0.26). change live with: moon_size <deg>
+    sun_radius_deg    = 0.50,   -- apparent sun radius in deg (real sun: 0.27). change live with: sun_size <deg>
+    moon_radius_deg   = 0.85,   -- apparent moon radius in deg (real moon: 0.26). change live with: moon_size <deg>
     moon_phase_cycle  = true,   -- advance the phase 1 step every 29.5 days
 
     -- clouds -----------------------------------------------------
@@ -81,7 +81,7 @@ SkyConfig.weather = {
     smog      = { coverage = 0.18, density = 0.0040, type = 0.60, dark = 0.18, desat = 0.50, haze = 1.50, fog = 0.30, wind = 0.3, tint = { 0.93, 0.85, 0.62 } },
 }
 SkyConfig.fog_density_max = 0.016   -- gfx.fog density at fog = 1 (set use_fog = false to leave scene fog alone)
-SkyConfig.use_fog         = true      -- skycycle owns the scene fog: off in clear weather, weather-coloured otherwise
+SkyConfig.use_fog         = true      -- Dynamic Sky owns the scene fog: off in clear weather, weather-coloured otherwise
 SkyConfig.use_precipitation = true  -- world-space rain / snow particles
 SkyConfig.snow_rate         = 420   -- real flakes falling per second at full snow (420 x snow_life = 6720 flakes in the air); raise it for denser snow
 SkyConfig.snow_size         = 0.038 -- typical flake size up close (m)

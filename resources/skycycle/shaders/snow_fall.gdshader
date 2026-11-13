@@ -1,7 +1,7 @@
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
-// skycycle: snow drawn on REAL falling particles.
+// Dynamic Sky: snow drawn on REAL falling particles.
 // Each flake is one particle of an emitter that has world collision: it falls with the particle's own motion and
 // disappears the moment it touches a surface (roofs, ground), so nothing snows indoors or through solid objects.
 // The quad sits at the particle position (MODEL_MATRIX origin) and always faces the camera. Each flake also gets a
