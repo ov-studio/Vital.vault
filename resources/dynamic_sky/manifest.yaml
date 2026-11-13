@@ -3,7 +3,7 @@ author: "ov-studio"
 author_url: "https://github.com/ov-studio"
 version: "1.0.0"
 
-tagline: "Dynamic volumetric sky, weather and day/night cycle"
+tagline: "Dynamic sky, day/night cycle and 14 weather presets"
 featured: true
 
 tags:
