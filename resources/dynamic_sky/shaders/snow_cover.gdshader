@@ -70,13 +70,6 @@ void vertex() {
 }
 
 void fragment() {
-	// this layer is a full lit extra pass over every surface, so a pixel that gets nothing from it must stop here:
-	// out of wet range and no snow = invisible, no texture fetch, no lighting
-	float cd = length(VERTEX);
-	float wfade = 1.0 - smoothstep(wet_fade_start, max(wet_fade_end, wet_fade_start + 1.0), cd);
-	float wt = clamp(wet, 0.0, 1.0) * wfade;
-	if (snow_amount < 0.004 && wt < 0.05) discard;
-
 	vec2 uv = UV * uv1_scale.xy + uv1_offset.xy;
 	vec4 tex = texture(albedo_texture, uv) * albedo_color;
 	if (tex.a < alpha_cut) {
@@ -101,7 +94,10 @@ void fragment() {
 	// ---- rain ----
 	// everything wet gets milder with distance and is switched off completely at wet_fade_end,
 	// the fine ripples first (they only alias into speckle when far away)
+	float cd = length(VERTEX);
+	float wfade = 1.0 - smoothstep(wet_fade_start, max(wet_fade_end, wet_fade_start + 1.0), cd);
 	float rfade = 1.0 - smoothstep(wet_fade_start * 0.45, wet_fade_end * 0.40, cd);
+	float wt = clamp(wet, 0.0, 1.0) * wfade;
 	float flat_w = smoothstep(0.80, 0.96, ny);
 	float pud = smoothstep(0.50, 0.72, nl * 0.7 + nm * 0.3) * flat_w * smoothstep(0.40, 0.95, wt);
 	pud *= (1.0 - snow);
@@ -146,7 +142,6 @@ void fragment() {
 	float a_pud  = pud * clamp(puddle_strength, 0.0, 1.0);
 	float a_film = sheen * 0.30;
 	float a = max(a_snow, max(a_pud, a_film));
-	if (a < 0.01) discard;                                           // nothing visible: skip the lighting too
 
 	vec3 col_w = vec3(0.012, 0.014, 0.018);                          // water layer: dark, the reflection supplies the colour
 	vec3 col = (a_snow >= max(a_pud, a_film)) ? snow_color * (0.97 + 0.03 * nm) : col_w;
