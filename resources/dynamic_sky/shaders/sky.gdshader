@@ -31,7 +31,6 @@ uniform float sun_intensity    = 25.0;    // 25 = full strength (weather dims it
 uniform float sun_hdr          = 6.0;     // disc HDR brightness (bloom above the engine glow threshold)
 uniform float moon_intensity   = 1.5;
 uniform float star_visibility  = 0.0;     // 0 = day, 1 = full night sky
-uniform float star_brightness  = 1.0;
 uniform float exposure         = 1.0;
 
 // ---- lighting for clouds (blended sun/moon "key light") ---------------------
@@ -282,7 +281,7 @@ void fragment() {
 		float above = smoothstep(-0.02, 0.18, d.y);
 		if (star_visibility > 0.005 && d.y > -0.05) {
 			float moon_wash = 1.0 - clamp(pow(max(dot(d, moon_dir), 0.0), 60.0) * 2.0, 0.0, 1.0);
-			col += sk_stars(d, fw, TIME) * star_visibility * star_brightness * above * moon_wash;
+			col += sk_stars(d, fw, TIME) * star_visibility * above * moon_wash;
 		}
 		vec4 moon = sk_moon(d, fw);
 		col = mix(col, moon.rgb, moon.a * smoothstep(-0.01, 0.03, d.y));

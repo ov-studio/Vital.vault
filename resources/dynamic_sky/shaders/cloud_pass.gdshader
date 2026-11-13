@@ -17,7 +17,6 @@ uniform vec3  light_dir        = vec3(0.0, 1.0, 0.0);
 uniform vec3  light_color      = vec3(1.0, 0.95, 0.85);
 uniform vec3  cloud_ambient_top    = vec3(0.45, 0.58, 0.80);
 uniform vec3  cloud_ambient_bottom = vec3(0.30, 0.34, 0.42);
-uniform float cloud_silver     = 1.0;
 uniform float cloud_coverage   = 0.40;
 uniform float cloud_density    = 0.004;
 uniform float cloud_type       = 0.75;
@@ -27,7 +26,6 @@ uniform float cloud_scale      = 2600.0;
 uniform float cloud_detail     = 0.55;
 uniform float cloud_steps      = 40.0;
 uniform float cloud_light_steps= 4.0;
-uniform float cloud_opacity    = 1.0;
 uniform vec3  wind_offset      = vec3(0.0);
 uniform float cloud_time       = 0.0;
 uniform float haze_density     = 0.000012;
@@ -138,7 +136,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 	float lss = cloud_thickness / 30.0;
 	float cos_t = dot(d, light_dir);
 	float phase = mix(sk_hg(cos_t, -0.25) * 0.55, sk_hg(cos_t, 0.55), 0.45) * 4.0 * PI_ * 0.5;
-	float silver = pow(max(cos_t, 0.0), 12.0) * cloud_silver * 0.9;
+	float silver = pow(max(cos_t, 0.0), 12.0) * 0.9;
 
 	vec3 L = vec3(0.0);
 	float T = 1.0;
@@ -209,8 +207,8 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 
 	// blend far clouds into the horizon haze
 	float haze = clamp(1.0 - exp(-t0 * haze_density), 0.0, 1.0);
-	float a = (1.0 - T) * cloud_opacity;
-	L = mix(L, horizon_color * a, haze * 0.85) * cloud_opacity;
+	float a = (1.0 - T);
+	L = mix(L, horizon_color * a, haze * 0.85);
 	// thin out toward the horizon
 	float far_fade = 1.0 - 0.8 * smoothstep(12000.0, 60000.0, t0);
 	return vec4(L * far_fade, a * far_fade);
