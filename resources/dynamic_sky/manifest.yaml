@@ -16,10 +16,10 @@ description: |
   Fourteen weather presets from drizzle to blizzard. Rain and snow fall for real and never indoors, every drop splashes and ripples where it lands, puddles form on wet ground, and snow piles up on every surface, then melts away.
 
   **Credits:**
-  • Moon texture: NASA CGI Moon Kit (`lroc_color_poles`), NASA Scientific Visualization Studio - https://svs.gsfc.nasa.gov/4720/
-  • Clouds: A. Schneider, "The Real-Time Volumetric Cloudscapes of Horizon: Zero Dawn" (SIGGRAPH 2015)
-  • Sun color: F. Kasten and A. T. Young, "Revised optical air mass tables and approximation formula" (1989)
-  • Cloud scattering: L. G. Henyey and J. L. Greenstein, "Diffuse radiation in the Galaxy" (1941)
+  • Moon texture: NASA CGI Moon Kit - https://svs.gsfc.nasa.gov/4720/
+  • Clouds: A. Schneider, "Horizon: Zero Dawn" (2015)
+  • Sun color: F. Kasten, A. T. Young (1989)
+  • Cloud scattering: L. G. Henyey, J. L. Greenstein (1941)
 
   **Exports (server):**
   • `util.export.call("dynamic_sky", "set_time", hour)` - sets the hour (0-24)
