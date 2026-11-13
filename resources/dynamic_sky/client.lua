@@ -989,6 +989,7 @@ util.input.register("snow_cover", cmd_snow_cover)
 
 -- sky_rain / sky_snow / sky_fog / sky_wind / sky_lightning <value | auto>
 -- rain, snow, fog, lightning: 0..1 level reached WHILE the weather has it (clear weather still has none); wind: multiplier, 1 = preset
+local overrides = {}
 local function make_override(cmd, key, lo, hi)
     util.input.register(cmd, function(args)
         local a = args[1]
@@ -1001,7 +1002,7 @@ local function make_override(cmd, key, lo, hi)
         end
         core.engine.print("info", "[dynamic_sky] " .. key .. ":", S.over[key] or "auto")
     end)
-    util.export.register("set_" .. key, function(v) S.over[key] = tonumber(v) and clamp(tonumber(v), lo, hi) or nil end)
+    overrides[#overrides + 1] = { key = key, lo = lo, hi = hi }
 end
 make_override("sky_rain", "rain", 0, 1)
 make_override("sky_snow", "snow", 0, 1)
@@ -1009,15 +1010,18 @@ make_override("sky_fog", "fog", 0, 1)
 make_override("sky_wind", "wind", 0, 6)
 
 -- sky_winddir <deg>: direction the wind blows TOWARDS (0 = +Z, 90 = +X, 180 = -Z, 270 = -X); rain, snow and clouds follow
+local function set_wind_dir(deg)
+    deg = tonumber(deg) or 0
+    S.wdir_t = { sin(rad(deg)), cos(rad(deg)) }
+end
 util.input.register("sky_winddir", function(args)
     local deg = tonumber(args[1])
     if not deg then
         return core.engine.print("info", util.string.format("[dynamic_sky] wind blows towards (%.2f, %.2f)", S.wdir_t[1], S.wdir_t[2]))
     end
-    S.wdir_t = { sin(rad(deg)), cos(rad(deg)) }
+    set_wind_dir(deg)
     core.engine.print("info", "[dynamic_sky] wind direction:", deg, "deg")
 end)
-util.export.register("set_wind_dir", function(deg) deg = tonumber(deg) or 0; S.wdir_t = { sin(rad(deg)), cos(rad(deg)) } end)
 make_override("sky_lightning", "lightning", 0, 1)
 
 -- sky_glow [on|off] : bloom around the sun (uses the engine glow)
@@ -1061,12 +1065,18 @@ init()
 --[[ Exports ]]--
 -----------------
 
-util.export.register("toggle", function() S.enabled = not S.enabled end)
+util.export.register("get_moon_phase", function() return S.phase or Config.moon_phase, phase_name(S.phase or Config.moon_phase) end)
 util.export.register("get_time", function() return S.time end)
 util.export.register("get_weather", function() return S.weather end)
+
+for _, o in ipairs(overrides) do
+    util.export.register("set_" .. o.key, function(v) S.over[o.key] = tonumber(v) and clamp(tonumber(v), o.lo, o.hi) or nil end)
+end
+util.export.register("set_wind_dir", set_wind_dir)
 util.export.register("set_snow_cover", function(v) S.cover_manual = tonumber(v) and clamp(tonumber(v), 0.0, 1.0) or nil end)
-util.export.register("flash", function(v) S.flash = clamp(tonumber(v) or 1.0, 0.0, 1.0) end)     -- trigger a lightning flash by hand
 util.export.register("set_sun_size", set_sun_size)                  -- apparent radius in deg
 util.export.register("set_moon_size", set_moon_size)
 util.export.register("set_moon_phase", set_moon_phase)              -- 0..1, a phase name, or nil/"auto"
-util.export.register("get_moon_phase", function() return S.phase or Config.moon_phase, phase_name(S.phase or Config.moon_phase) end)
+
+util.export.register("flash", function(v) S.flash = clamp(tonumber(v) or 1.0, 0.0, 1.0) end)     -- trigger a lightning flash by hand
+util.export.register("toggle", function() S.enabled = not S.enabled end)
