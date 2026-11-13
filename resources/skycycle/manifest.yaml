@@ -1,0 +1,59 @@
+name: "Skycycle"
+author: "ov-studio"
+author_url: "https://github.com/ov-studio"
+version: "1.0.0"
+
+tagline: "Dynamic volumetric sky, weather and day/night cycle"
+featured: false
+
+tags:
+  - "gfx"
+  - "vfx"
+
+description: |
+  Skycycle is a complete dynamic sky for Vital.sandbox: a server-synced
+  day/night cycle with a physically inspired sun and moon, volumetric
+  clouds, stars, god rays, sun bloom and fourteen weather presets.
+
+  Rain and snow are real GPU particles that collide with the level, so
+  nothing falls indoors. Every raindrop that lands splashes and rings a
+  ripple exactly where it hits, ground gets wet and forms puddles, and
+  snow settles on up-facing surfaces and melts again. Lightning, fog,
+  wind and the scene light and ambient follow the weather.
+
+  Needs an engine with GPU particle collision, `particle:set_layer` and
+  HDR rendertargets. Everything tunable lives in `config.lua`.
+
+  **Credits:**
+  • Moon texture: derived from NASA's CGI Moon Kit "lroc_color_poles" (2019), downsampled to 2048x1024 - NASA/GSFC/Scientific Visualization Studio, LRO/LOLA, LROC/ASU, visualizations by Ernie Wright - https://svs.gsfc.nasa.gov/4720/
+
+  **Exports (server):**
+  • `util.export.call("skycycle", "set_time", hour)` - sets the hour (0-24)
+  • `util.export.call("skycycle", "set_weather", name)` - changes the weather
+  • `util.export.call("skycycle", "set_timescale", scale)` - 1 = normal, 0 = freeze
+  • `util.export.call("skycycle", "get_time")` - returns the current hour
+
+  **Exports (client):**
+  • `set_rain`, `set_snow`, `set_fog`, `set_lightning`, `set_wind`, `set_wind_dir`
+  • `set_snow_cover`, `set_sun_size`, `set_moon_size`, `set_moon_phase`, `get_moon_phase`
+  • `get_time`, `get_weather`, `flash`, `toggle`
+
+  **Commands:**
+  • `/time <hour | HH:MM>` - sets the time of day
+  • `/weather <name>` - clear, partly, cloudy, overcast, storm, hazy, drizzle, rain, thunder, snow, blizzard, fog, sandstorm, smog
+  • `/timescale <n>` - 1 = normal, 0 = freeze, 60 = fast
+  • `/sky_rain`, `/sky_snow`, `/sky_fog`, `/sky_lightning <0-1 | auto>` - intensity while the weather has it
+  • `/sky_wind <0-6 | auto>` and `/sky_winddir <degrees>` - wind strength and direction
+  • `/snow_cover <0-1 | auto>` - snow on surfaces
+  • `/sky_quality <low|medium|high|ultra>` - cloud quality
+  • `/sky_clouds`, `/sky_precip`, `/sky_splash`, `/sky_glow`, `/sky_godrays`, `/sky_toggle [on|off]`
+  • `/sun_size <deg>`, `/moon_size <deg>`, `/moon_phase <name | 0-1 | auto>`
+
+scripts:
+  - { src: "config.lua", type: "shared" }
+  - { src: "server.lua", type: "server" }
+  - { src: "client.lua", type: "client" }
+
+files:
+  - "shaders/**"
+  - "textures/**"
