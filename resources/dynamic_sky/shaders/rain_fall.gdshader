@@ -1,14 +1,12 @@
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
-// Dynamic Sky: rain streaks drawn on REAL falling particles (rain_real mode).
-// Each streak is one particle of an emitter that has world collision: it falls with the particle's own motion and
-// disappears the moment it touches the ground, where the engine spawns the splash from that very particle.
-// The quad sits at the particle position
-// (MODEL_MATRIX origin) and is stretched along the fall direction and turned to face the camera around that axis.
+// Dynamic Sky: rain streaks on real falling particles. A particle disappears on contact with the world, where the
+// engine spawns the splash. The quad sits at the particle position, stretched along the fall direction and turned
+// to face the camera around that axis.
 
-uniform vec3  fall_vel     = vec3(0.0, -13.0, 0.0);   // average rain velocity (m/s), sets the streak direction (Lua)
-uniform float spawn_half   = 17.0;                    // half size of the spawn box (m), for the horizontal edge fade
+uniform vec3  fall_vel     = vec3(0.0, -13.0, 0.0);   // average velocity (m/s), sets the streak direction (Lua)
+uniform float spawn_half   = 17.0;                    // half size of the spawn box (m), for the edge fade
 uniform float density      = 1.0;                     // 0..1 share of the streaks that are drawn
 uniform float streak_len   = 0.85;                    // streak length at 13 m/s (m)
 uniform float streak_w     = 0.010;                   // streak width up close (m)
@@ -36,8 +34,8 @@ void vertex() {
 	float r_len  = rnd(id * 7u + 5u);
 	float r_alp  = rnd(id * 7u + 6u);
 
-	vec3 wp  = MODEL_MATRIX[3].xyz;                   // the particle: world position (emitter is not local)
-	float age = clamp(INSTANCE_CUSTOM.y, 0.0, 1.0);   // 0 at spawn .. 1 at the end of its life
+	vec3 wp  = MODEL_MATRIX[3].xyz;                   // particle world position
+	float age = clamp(INSTANCE_CUSTOM.y, 0.0, 1.0);   // 0 at spawn .. 1 at end of life
 
 	vec3 cam = INV_VIEW_MATRIX[3].xyz;
 	float spd  = max(length(fall_vel), 0.001);
@@ -52,11 +50,11 @@ void vertex() {
 	float len = streak_len * mix(0.65, 1.35, r_len) * clamp(spd / 13.0, 0.4, 3.0);
 	float w   = streak_w + dist * 0.0011;             // never thinner than ~1 pixel
 
-	// the head leads: the particle position is the leading tip, the tail trails behind it
+	// the particle position is the leading tip
 	vec3 world = wp - d * (0.5 - VERTEX.y) * len + side * (VERTEX.x * w);
 	POSITION = PROJECTION_MATRIX * (VIEW_MATRIX * vec4(world, 1.0));
 
-	float hq = max(abs(to_p.x), abs(to_p.z)) / spawn_half;          // horizontal distance from the camera in spawn-box units
+	float hq = max(abs(to_p.x), abs(to_p.z)) / spawn_half;          // horizontal distance in spawn-box units
 	float edge = 1.0 - smoothstep(0.62, 1.0, hq);
 	float life = smoothstep(0.0, 0.04, age) * (1.0 - smoothstep(0.80, 1.0, age));
 	float nfade = smoothstep(0.6, 2.2, dist);

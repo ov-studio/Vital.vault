@@ -10,7 +10,7 @@
 -- All colours are LINEAR rgb (0..1, can exceed 1 for HDR), converted from real-world sRGB sky colours.
 -- Keyframe hours follow the sun's elevation: sunrise 6:00, sunset 18:00, civil/nautical twilight either side.
 
-SkyConfig = {
+Config = {
     -- clock ------------------------------------------------------
     start_time        = 9.0,    -- hour of day at resource start (0-24)
     day_length_min    = 24.0,   -- real minutes for a full 24h day (0 = frozen)
@@ -46,7 +46,7 @@ SkyConfig = {
     exposure          = 1.0,
 }
 
-SkyConfig.qualities = {
+Config.qualities = {
     low    = { steps = 12, light = 2 },
     medium = { steps = 20, light = 3 },
     high   = { steps = 28, light = 4 },
@@ -59,11 +59,11 @@ SkyConfig.qualities = {
 --   dark    0..1   storm darkness (dims sun, light, stars)        desat 0..1  greys the sky out
 --   haze    0..2   horizon haze, redder low sun, fades far clouds
 --   rain / snow 0..1   precipitation overlay intensity (world-space particles: rain_fall.gdshader / snow_fall.gdshader)
---   fog     0..1   scene fog (gfx.fog), scaled by SkyConfig.fog_density_max
+--   fog     0..1   scene fog (gfx.fog), scaled by Config.fog_density_max
 --   wind    x      multiplier on cloud wind + rain slant / snow drift
 --   lightning 0..1 thunder flashes (rate and strength)
 --   tint = {r,g,b} multiplies the whole sky colour (sand / smog)
-SkyConfig.weather = {
+Config.weather = {
     clear     = { coverage = 0.12, density = 0.0030, type = 0.85, dark = 0.00, desat = 0.00, haze = 0.00 },
     partly    = { coverage = 0.27, density = 0.0029, type = 0.80, dark = 0.04, desat = 0.05, haze = 0.05 },
     cloudy    = { coverage = 0.38, density = 0.0048, type = 0.60, dark = 0.16, desat = 0.28, haze = 0.15 },
@@ -80,45 +80,45 @@ SkyConfig.weather = {
     sandstorm = { coverage = 0.20, density = 0.0040, type = 0.40, dark = 0.30, desat = 0.20, haze = 2.00, fog = 0.70, wind = 3.0, tint = { 1.00, 0.72, 0.42 } },
     smog      = { coverage = 0.18, density = 0.0040, type = 0.60, dark = 0.18, desat = 0.50, haze = 1.50, fog = 0.30, wind = 0.3, tint = { 0.93, 0.85, 0.62 } },
 }
-SkyConfig.fog_density_max = 0.016   -- gfx.fog density at fog = 1 (set use_fog = false to leave scene fog alone)
-SkyConfig.use_fog         = true      -- Dynamic Sky owns the scene fog: off in clear weather, weather-coloured otherwise
-SkyConfig.use_precipitation = true  -- world-space rain / snow particles
-SkyConfig.snow_rate         = 420   -- real flakes falling per second at full snow (420 x snow_life = 6720 flakes in the air); raise it for denser snow
-SkyConfig.snow_size         = 0.038 -- typical flake size up close (m)
-SkyConfig.snow_life         = 16.0  -- seconds a flake can fall before it fades (enough to reach the ground from 12 m above the camera)
-SkyConfig.rain_wind_mps    = 2.4   -- horizontal rain speed per unit of wind (m/s); higher = more slanted rain
-SkyConfig.use_engine_glow   = true  -- bloom the sun / moon with the engine glow (gfx.glow); needs a bright HDR disc
-SkyConfig.sun_hdr           = 6.0   -- sun disc HDR brightness (bloom strength follows it)
-SkyConfig.glow_threshold    = 2.0   -- only HDR values above this bloom; keep it above normal scene brightness
-SkyConfig.glow_intensity    = 0.9
-SkyConfig.glow_scale        = 1.0
-SkyConfig.glow_strength     = 1.0
-SkyConfig.glow_cap          = 24.0  -- HDR luminance cap of the glow
-SkyConfig.glow_levels       = { 0.0, 0.25, 0.55, 0.85, 1.0, 0.9, 0.7 }   -- intensity of each glow level
-SkyConfig.use_godrays       = true  -- crepuscular rays through gaps in geometry (screen-space)
-SkyConfig.use_splash        = true  -- a droplet splash wherever a rain drop lands (engine sub-emitter on the colliding rain)
-SkyConfig.rain_real_rate    = 3500  -- real drops falling per second at full rain (rain needs the engine with the particle collision API)
-SkyConfig.splash_gpu_burst  = 3     -- droplets spawned per landing
-SkyConfig.splash_gpu_amount = 0     -- minimum droplet particle budget (0 = automatic: enough slots for every landing)
-SkyConfig.splash_gpu_res    = 512   -- height map resolution of the world collider (256 .. 8192); the collider only exists while it rains or snows
-SkyConfig.ripple_rt_div     = 2     -- ripple buffer size: screen size / this (1 = sharper rings, 2 = half size)
-SkyConfig.ripple_buffer_gamma = 1.0 -- 2.2 only if the rings look wrong (buffer turns out to be sRGB encoded)
-SkyConfig.ripple_glow       = 1.0   -- sky light the ripples catch with no sun/moon on them (0 = only sun/moon lit, higher = more visible)
-SkyConfig.ripple_gain       = 0.16  -- ripple bump strength
-SkyConfig.dry_time         = 120   -- seconds the ground takes to dry after rain (the wet layer costs FPS until it is gone)
-SkyConfig.splash_opacity    = 1.0
-SkyConfig.lightning_intensity = 1.0  -- strength of thunderstorm flashes (0 = none, 2 = blinding)
-SkyConfig.godray_strength   = 0.55  -- 0..~1.5 (1.0 = strong)
-SkyConfig.rain_opacity      = 1.0   -- rain streak transparency multiplier (lower = fainter)
-SkyConfig.use_surface_weather = true -- snow cover + wet surfaces: drawn as a translucent layer on top of every model's material (needs apply_to_material layered support)
-SkyConfig.snow_accum_sec    = 150.0 -- seconds of full snowfall until the ground is fully covered
-SkyConfig.snow_melt_sec     = 300.0 -- seconds for a full cover to melt away
-SkyConfig.puddle_gloss      = 0.30  -- puddle roughness: higher = blurrier reflection
-SkyConfig.puddle_strength   = 0.55  -- puddle opacity 0..1: lower = fainter sky reflection
-SkyConfig.wet_fade_start    = 22.0  -- metres: puddles / wetness begin to thin out with distance
-SkyConfig.wet_fade_end      = 75.0  -- metres: completely gone (ripples fade out earlier)
-SkyConfig.surface_alpha_cut = 0.5   -- texels below this alpha are discarded by the surface shader (0 = never)
-SkyConfig.default_weather = "partly"
+Config.fog_density_max = 0.016   -- gfx.fog density at fog = 1 (set use_fog = false to leave scene fog alone)
+Config.use_fog         = true      -- Dynamic Sky owns the scene fog: off in clear weather, weather-coloured otherwise
+Config.use_precipitation = true  -- world-space rain / snow particles
+Config.snow_rate         = 420   -- real flakes falling per second at full snow (420 x snow_life = 6720 flakes in the air); raise it for denser snow
+Config.snow_size         = 0.038 -- typical flake size up close (m)
+Config.snow_life         = 16.0  -- seconds a flake can fall before it fades (enough to reach the ground from 12 m above the camera)
+Config.rain_wind_mps    = 2.4   -- horizontal rain speed per unit of wind (m/s); higher = more slanted rain
+Config.use_engine_glow   = true  -- bloom the sun / moon with the engine glow (gfx.glow); needs a bright HDR disc
+Config.sun_hdr           = 6.0   -- sun disc HDR brightness (bloom strength follows it)
+Config.glow_threshold    = 2.0   -- only HDR values above this bloom; keep it above normal scene brightness
+Config.glow_intensity    = 0.9
+Config.glow_scale        = 1.0
+Config.glow_strength     = 1.0
+Config.glow_cap          = 24.0  -- HDR luminance cap of the glow
+Config.glow_levels       = { 0.0, 0.25, 0.55, 0.85, 1.0, 0.9, 0.7 }   -- intensity of each glow level
+Config.use_godrays       = true  -- crepuscular rays through gaps in geometry (screen-space)
+Config.use_splash        = true  -- a droplet splash wherever a rain drop lands (engine sub-emitter on the colliding rain)
+Config.rain_real_rate    = 3500  -- real drops falling per second at full rain (rain needs the engine with the particle collision API)
+Config.splash_gpu_burst  = 3     -- droplets spawned per landing
+Config.splash_gpu_amount = 0     -- minimum droplet particle budget (0 = automatic: enough slots for every landing)
+Config.splash_gpu_res    = 512   -- height map resolution of the world collider (256 .. 8192); the collider only exists while it rains or snows
+Config.ripple_rt_div     = 2     -- ripple buffer size: screen size / this (1 = sharper rings, 2 = half size)
+Config.ripple_buffer_gamma = 1.0 -- 2.2 only if the rings look wrong (buffer turns out to be sRGB encoded)
+Config.ripple_glow       = 1.0   -- sky light the ripples catch with no sun/moon on them (0 = only sun/moon lit, higher = more visible)
+Config.ripple_gain       = 0.16  -- ripple bump strength
+Config.dry_time         = 120   -- seconds the ground takes to dry after rain (the wet layer costs FPS until it is gone)
+Config.splash_opacity    = 1.0
+Config.lightning_intensity = 1.0  -- strength of thunderstorm flashes (0 = none, 2 = blinding)
+Config.godray_strength   = 0.55  -- 0..~1.5 (1.0 = strong)
+Config.rain_opacity      = 1.0   -- rain streak transparency multiplier (lower = fainter)
+Config.use_surface_weather = true -- snow cover + wet surfaces: drawn as a translucent layer on top of every model's material (needs apply_to_material layered support)
+Config.snow_accum_sec    = 150.0 -- seconds of full snowfall until the ground is fully covered
+Config.snow_melt_sec     = 300.0 -- seconds for a full cover to melt away
+Config.puddle_gloss      = 0.30  -- puddle roughness: higher = blurrier reflection
+Config.puddle_strength   = 0.55  -- puddle opacity 0..1: lower = fainter sky reflection
+Config.wet_fade_start    = 22.0  -- metres: puddles / wetness begin to thin out with distance
+Config.wet_fade_end      = 75.0  -- metres: completely gone (ripples fade out earlier)
+Config.surface_alpha_cut = 0.5   -- texels below this alpha are discarded by the surface shader (0 = never)
+Config.default_weather = "partly"
 
 -- timecycle -----------------------------------------------------
 -- Keyframes by hour, smoothstep-interpolated, wraps at 24.
@@ -138,7 +138,7 @@ local NIGHT = {
     stars = 1.0, exposure = 1.0,
 }
 
-SkyConfig.timecycle = {
+Config.timecycle = {
     { hour = 0.0, NIGHT },
     { hour = 4.6, NIGHT },
     { hour = 5.1, {   -- nautical dawn
@@ -217,7 +217,7 @@ SkyConfig.timecycle = {
     { hour = 24.0, NIGHT },
 }
 
-SkyConfig.night_ambient_boost = 0.6   -- extra ambient strength from dusk to night (0 = off, 1 = double)
-SkyConfig.night_ambient_floor = 0.45 -- extra scene ambient from dusk to night (fades in as the sunlight fades) so shadows are dark blue instead of pure black (0 = off)
-SkyConfig.night_cloud_glow = { 0.030, 0.038, 0.066 } -- extra cloud ambient at night (overcast / rainy nights stay dim grey-blue instead of black); {0,0,0} = off
-SkyConfig.night_light = { color = {0.55, 0.65, 1.0}, energy = 0.12 } -- moon as scene light
+Config.night_ambient_boost = 0.6   -- extra ambient strength from dusk to night (0 = off, 1 = double)
+Config.night_ambient_floor = 0.45 -- extra scene ambient from dusk to night (fades in as the sunlight fades) so shadows are dark blue instead of pure black (0 = off)
+Config.night_cloud_glow = { 0.030, 0.038, 0.066 } -- extra cloud ambient at night (overcast / rainy nights stay dim grey-blue instead of black); {0,0,0} = off
+Config.night_light = { color = {0.55, 0.65, 1.0}, energy = 0.12 } -- moon as scene light

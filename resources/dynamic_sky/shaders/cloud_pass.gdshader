@@ -1,26 +1,16 @@
 shader_type canvas_item;
 render_mode blend_disabled;
 
-// ============================================================================
-//  Dynamic Sky - cloud pass
-//
-//  Marches the volumetric clouds into a SMALL rendertarget (a fraction of the screen size), the rendertarget is blurred
-//  by cloud_blur.gdshader and sky.gdshader then reads it with one texture fetch per pixel instead of marching the clouds
-//  at full resolution. The maths is the same as the cloud code in sky.gdshader (this part is copied from it).
-//
-//  Cloud model credit: A. Schneider, "The Real-Time Volumetric Cloudscapes of Horizon: Zero Dawn", SIGGRAPH 2015
-//  (noise textures baked into textures/cloud_noise.png).
-//
-//  Output (hdr rendertarget): rgb = in-scattered light, a = 1 - transmittance
-//  NOTE: never write the text of the entry point signatures inside comments (the engine injects code there).
-// ============================================================================
+// Dynamic Sky: volumetric cloud march into a small HDR rendertarget (cloud_blur.gdshader blurs it, sky.gdshader reads it).
+// Output: rgb = in-scattered light, a = 1 - transmittance.
+// NOTE: never write the text of the entry point signatures inside comments (the engine injects code there).
 
-uniform sampler2D noise_tex : filter_linear_mipmap, repeat_enable;   // textures/cloud_noise.png (R shape, G erosion, B detail)
-uniform vec3  cam_x   = vec3(1.0, 0.0, 0.0);      // camera axes in world space (right, up, back), driven from Lua
+uniform sampler2D noise_tex : filter_linear_mipmap, repeat_enable;   // R shape, G erosion, B detail
+uniform vec3  cam_x   = vec3(1.0, 0.0, 0.0);      // camera axes (right, up, back), from Lua
 uniform vec3  cam_y   = vec3(0.0, 1.0, 0.0);
 uniform vec3  cam_z   = vec3(0.0, 0.0, 1.0);
 uniform vec3  cam_pos = vec3(0.0);
-uniform vec2  tan_xy  = vec2(1.0, 0.5625);        // tan of the half field of view, horizontal and vertical
+uniform vec2  tan_xy  = vec2(1.0, 0.5625);        // tan of the half fov
 
 uniform vec3  horizon_color    = vec3(0.55, 0.70, 0.88);
 uniform vec3  light_dir        = vec3(0.0, 1.0, 0.0);
@@ -64,8 +54,7 @@ float sk_height_gradient(float hf, float ctype) {
 	return smoothstep(g.x, g.y, hf) - smoothstep(g.z, g.w, hf);
 }
 
-// 3D noise from a tileable 2D texture: two bilinear fetches from two slices,
-// blended along z. p is in "cell" units, the texture tile covers 16 cells.
+// 3D noise from a tileable 2D texture (two slices blended along z), p in cells, one tile = 16 cells
 vec3 sk_tex3l(vec3 p, float lod) {
 	float zi = floor(p.z);
 	float zf = p.z - zi;
@@ -83,7 +72,6 @@ vec3 sk_tex3(vec3 p) {
 }
 
 // lod 0 = full detail, 1 = shape only (light march, far steps)
-// The early rejects below are exact upper bounds, they never change the picture.
 float sk_cloud_density(vec3 q, float hf, float lod) {
 	float cov = cloud_coverage;
 	float grad = sk_height_gradient(hf, cloud_type);
@@ -96,7 +84,7 @@ float sk_cloud_density(vec3 q, float hf, float lod) {
 	vec3 n = sk_tex3(pw);                                 // R perlin-worley, G worley fbm
 	float shape = n.r;
 
-	// upper bound of the final value (erosion term wfbm can only lower it)
+	// upper bound of the result, erosion can only lower it
 	float bound = clamp(sk_remap((shape + 1.0) * 0.5 * grad, 1.0 - cov, 1.0, 0.0, 1.0), 0.0, 1.0);
 	if (bound <= 0.0) {
 		return 0.0;
@@ -135,8 +123,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 	float t0 = sk_ray_sphere_far(ro, d, rb);
 	float t1 = sk_ray_sphere_far(ro, d, rt);
 	float shell = min(t1 - t0, 40000.0);
-	// looking up the cloud layer is thin, so far fewer steps give the same picture: never finer than one step per ~170 m
-	// (the quality setting is the maximum, horizon views keep all of it)
+	// fewer steps when looking up (thin layer), never finer than one step per ~170 m
 	float steps = clamp(shell / 170.0, min(8.0, cloud_steps), max(cloud_steps, 6.0));
 	float dt = shell / steps;
 
@@ -156,9 +143,9 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 	vec3 L = vec3(0.0);
 	float T = 1.0;
 	int nl = int(clamp(cloud_light_steps, 1.0, 6.0));
-	bool light_on = dot(light_color, vec3(1.0)) > 0.03;      // at night skip the light march entirely
-	float lit_c = 0.8;                                        // light of the last marched step: the lighting changes slowly
-	float beers_c = 0.8;                                      // along the ray, so every second dense step reuses it (half the light marches)
+	bool light_on = dot(light_color, vec3(1.0)) > 0.03;      // no light march at night
+	float lit_c = 0.8;                                        // light of the last step, reused every second step
+	float beers_c = 0.8;
 	int lcount = 0;
 
 	for (int i = 0; i < 160; i++) {
@@ -179,7 +166,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 
 		float lit = lit_c;
 		float beers = beers_c;
-		// light march (cone of samples toward the key light), skipped on thin edges / at night
+		// light march toward the key light, skipped on thin edges / at night
 		if (light_on && dn > 0.03 && far_lod < 0.5) {
 			if ((lcount & 1) == 0) {
 				float cd = 0.0;
@@ -224,7 +211,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 	float haze = clamp(1.0 - exp(-t0 * haze_density), 0.0, 1.0);
 	float a = (1.0 - T) * cloud_opacity;
 	L = mix(L, horizon_color * a, haze * 0.85) * cloud_opacity;
-	// far clouds thin out toward the horizon instead of piling up into a flat grey wall
+	// thin out toward the horizon
 	float far_fade = 1.0 - 0.8 * smoothstep(12000.0, 60000.0, t0);
 	return vec4(L * far_fade, a * far_fade);
 }

@@ -7,8 +7,6 @@
      Desc: Dynamic sky, weather and surface weather ]]--
 ----------------------------------------------------------------
 
-
-local cfg  = SkyConfig
 local sin, cos, floor = util.math.sin, util.math.cos, util.math.floor
 local PI = util.math.pi
 local function rad(d) return d * PI / 180.0 end
@@ -35,10 +33,10 @@ end
 --[[ State ]]--
 ---------------
 local S = {
-    time     = cfg.start_time,
+    time     = Config.start_time,
     day      = 0,
     scale    = 1.0,
-    weather  = cfg.default_weather,
+    weather  = Config.default_weather,
     cur      = { coverage = 0.45, density = 0.004, type = 0.75, dark = 0.0, desat = 0.0, haze = 0.0,
                  rain = 0.0, snow = 0.0, fog = 0.0, wind = 1.0, lightning = 0.0, tr = 1.0, tg = 1.0, tb = 1.0 },  -- blended weather
     flash    = 0.0,             -- lightning flash 0..1
@@ -47,13 +45,13 @@ local S = {
     wdir_t   = nil,             -- wind direction target
     bolt_cd  = 4.0,
     seed     = 12345,
-    precip   = cfg.use_precipitation,
+    precip   = Config.use_precipitation,
     wind     = { 0, 0, 0 },
     cloud_t  = 0.0,
-    quality  = cfg.quality,
+    quality  = Config.quality,
     clouds = true,
-    sun_deg  = cfg.sun_radius_deg,
-    moon_deg = cfg.moon_radius_deg,
+    sun_deg  = Config.sun_radius_deg,
+    moon_deg = Config.moon_radius_deg,
     moon_phase_manual = nil,    -- set by the moon_phase command / the set_moon_phase export (nil = automatic)
     shader   = nil,
     snow_shader = nil, cshader = nil,   -- rain / snow particle shaders, surface weather shader
@@ -69,8 +67,8 @@ local S = {
 local WRAP = 5.0e6
 S.base = {}
 for k, v in pairs(S.cur) do S.base[k] = v end
-S.wdir   = { cfg.wind_dir[1], cfg.wind_dir[2] }
-S.wdir_t = { cfg.wind_dir[1], cfg.wind_dir[2] }
+S.wdir   = { Config.wind_dir[1], Config.wind_dir[2] }
+S.wdir_t = { Config.wind_dir[1], Config.wind_dir[2] }
 
 -- tiny deterministic PRNG (0..1), so we do not depend on a random() in the sandbox
 local function rnd() S.seed = (S.seed * 1664525 + 1013904223) % 4294967296; return S.seed / 4294967296 end
@@ -82,7 +80,7 @@ local FIELDS3 = { "zenith", "horizon", "ground", "glow", "sun_color", "light", "
 local FIELDS1 = { "glow_strength", "light_energy", "stars", "exposure" }
 
 local function sample_timecycle(hour)
-    local tc = cfg.timecycle
+    local tc = Config.timecycle
     local a, b = tc[1], tc[#tc]
     for i = 1, #tc - 1 do
         if hour >= tc[i].hour and hour <= tc[i + 1].hour then a, b = tc[i], tc[i + 1]; break end
@@ -100,15 +98,15 @@ end
 --[[ Celestial positions ]]--
 -----------------------------
 local function celestial(hour, day)
-    local tilt = cfg.sun_tilt_deg * PI / 180
+    local tilt = Config.sun_tilt_deg * PI / 180
     local axis = { 0, -sin(tilt), cos(tilt) }                   -- rotation axis of the sky
     local a = (hour - 6.0) / 24.0 * 2 * PI                      -- 0 = east horizon (06:00)
     local sun = rotate({ 1, 0, 0 }, axis, a)
 
     local phase = S.moon_phase_manual
     if phase == nil then
-        phase = cfg.moon_phase
-        if cfg.moon_phase_cycle then phase = (phase + day / 29.5) % 1.0 end
+        phase = Config.moon_phase
+        if Config.moon_phase_cycle then phase = (phase + day / 29.5) % 1.0 end
     end
     S.phase = phase
     -- the moon trails the sun's apparent motion: waxing moon (phase 0..0.5) sits EAST of the sun
@@ -137,15 +135,15 @@ local function apply_glow(on)
     pcall(function()
         gfx.glow.set_enabled(on)
         if not on then return end
-        gfx.glow.set_hdr_bleed_threshold(cfg.glow_threshold)
-        gfx.glow.set_hdr_bleed_scale(cfg.glow_scale)
-        gfx.glow.set_hdr_luminance_cap(cfg.glow_cap)
-        gfx.glow.set_intensity(cfg.glow_intensity)
-        gfx.glow.set_strength(cfg.glow_strength)
+        gfx.glow.set_hdr_bleed_threshold(Config.glow_threshold)
+        gfx.glow.set_hdr_bleed_scale(Config.glow_scale)
+        gfx.glow.set_hdr_luminance_cap(Config.glow_cap)
+        gfx.glow.set_intensity(Config.glow_intensity)
+        gfx.glow.set_strength(Config.glow_strength)
         gfx.glow.set_bloom(0.0)
         gfx.glow.set_normalized(true)
         gfx.glow.set_blend_mode(gfx.glow.blend_mode.ADDITIVE)
-        local lv = cfg.glow_levels
+        local lv = Config.glow_levels
         for i = 1, #lv do gfx.glow.set_level_intensity(i - 1, lv[i]) end
     end)
 end
@@ -196,7 +194,7 @@ local function ripple_buffer()
     if not (rx and ry and ry > 0) then return end
     if S.rrt and util.math.abs(rx - S.rrt_rx) <= 2 and util.math.abs(ry - S.rrt_ry) <= 2 then return end
     ripple_buffer_free()
-    local div = cfg.ripple_rt_div
+    local div = Config.ripple_rt_div
     local ok, err = pcall(function()
         local rt = core.rendertarget.create({ util.math.max(64, floor(rx / div)), util.math.max(64, floor(ry / div)) }, true, true)
         S.gpu_rip:set_layer(rt)
@@ -221,7 +219,7 @@ local function init()
         S.enabled = false
         return
     end
-    S.glow = cfg.use_engine_glow
+    S.glow = Config.use_engine_glow
     S.shader = shader
     if S.glow then apply_glow(true) end
 
@@ -242,27 +240,27 @@ local function init()
     end
     -- rain: real falling drops that collide with the world (they vanish on roofs and ground, so nothing rains indoors);
     -- every drop that lands spawns a small droplet burst through a sub-emitter. Needs the engine's particle collision API.
-    S.rays = cfg.use_godrays
-    S.splash_on = cfg.use_splash
+    S.rays = Config.use_godrays
+    S.splash_on = Config.use_splash
     S.gpu_on = false
-    if cfg.use_precipitation then
+    if Config.use_precipitation then
         local ok, err = pcall(function()
             local rr = mk_shader("shaders/rain_fall.gdshader")
             if not rr then error("shaders/rain_fall.gdshader failed to compile") end
             -- ripples exactly where each drop lands: the droplets spawn a flat ring emitter that is drawn into a screen-space buffer
             -- (needs particle:set_layer). Without it the puddles use procedural ripples.
-            local ring_sh = cfg.use_surface_weather and mk_shader("shaders/ripple_ring.gdshader") or nil
+            local ring_sh = Config.use_surface_weather and mk_shader("shaders/ripple_ring.gdshader") or nil
             S.sdrop = (S.splash_on or ring_sh) and mk_shader("shaders/splash_drop.gdshader") or nil
             if not particle.gpu.set_world_collision then error("particle.gpu.set_world_collision is missing") end
             local life = 3.6
-            S.gpu_rate = cfg.rain_real_rate
+            S.gpu_rate = Config.rain_real_rate
             S.gpu_full = floor(S.gpu_rate * life)
-            S.gpu_burst = cfg.splash_gpu_burst
+            S.gpu_burst = Config.splash_gpu_burst
             S.rrshader = rr
             -- enough droplet slots for EVERY landing: landings per second x droplets per landing x droplet lifetime (+25%).
             -- A full budget silently drops new splashes, which looks like drops that hit the ground without splashing
             local sub = particle.gpu.create()                         -- the droplets: the engine spawns them where a drop lands
-            sub:set_amount(util.math.max(cfg.splash_gpu_amount, floor(S.gpu_rate * S.gpu_burst * 0.46 * 1.25) + 16))
+            sub:set_amount(util.math.max(Config.splash_gpu_amount, floor(S.gpu_rate * S.gpu_burst * 0.46 * 1.25) + 16))
             sub:set_lifetime(0.46)
             sub:set_one_shot(false)
             sub:set_explosiveness(0.0)
@@ -324,12 +322,12 @@ local function init()
     end
     -- snow: real falling flakes that collide with the world (they vanish on roofs and ground, nothing snows indoors)
     S.snow_on, S.snow_lvl = false, -1
-    if cfg.use_precipitation then
+    if Config.use_precipitation then
         local sh = mk_shader("shaders/snow_fall.gdshader")
         if sh then
             local ok, err = pcall(function()
-                local life = cfg.snow_life
-                S.snow_rate = cfg.snow_rate
+                local life = Config.snow_life
+                S.snow_rate = Config.snow_rate
                 S.snow_full = floor(S.snow_rate * life)
                 local car = particle.gpu.create()
                 car:set_amount(S.snow_full)
@@ -352,20 +350,20 @@ local function init()
             if not ok then core.engine.print("warn", "[dynamic_sky] snow particles unavailable: " .. tostring(err)) end
         end
     end
-    if cfg.use_surface_weather then S.cshader = mk_shader("shaders/snow_cover.gdshader") end
+    if Config.use_surface_weather then S.cshader = mk_shader("shaders/snow_cover.gdshader") end
 
     S.rip_hook = S.gpu_rip ~= nil and S.cshader ~= nil              -- ripples from the landed drops (else procedural ripples in the puddle layer)
     if S.cshader then
-        S.cshader:set_param("ripple_gain", cfg.ripple_gain)
+        S.cshader:set_param("ripple_gain", Config.ripple_gain)
         S.cshader:set_param("screen_rip_depth", RIP_DEPTH)
-        S.cshader:set_param("screen_rip_gamma", cfg.ripple_buffer_gamma)
+        S.cshader:set_param("screen_rip_gamma", Config.ripple_buffer_gamma)
     end
 
     -- NASA LROC moon colour map
     S.moon = core.image.create("textures/moon.png", true)       -- keep a reference so the texture is not freed while the shader uses it
     shader:set_param("moon_tex", S.moon)
 
-    if cfg.control_environment then
+    if Config.control_environment then
         gfx.sky.set_mode(gfx.sky.sky_mode.PROCEDURAL)
         gfx.env.set_background_mode(gfx.env.background_mode.SKY)
         gfx.env.set_ambient_source(gfx.env.ambient_source.SKY)
@@ -373,10 +371,10 @@ local function init()
         gfx.sky.procedural.set_sun_angle_max(0.0)
     end
 
-    if cfg.control_light then
+    if Config.control_light then
         S.light = light.directional.create()
         S.light:set_position({ 0, 5, 0 })
-        S.light:set_shadow_enabled(cfg.shadows)
+        S.light:set_shadow_enabled(Config.shadows)
         S.light:set_sky_mode(light.directional.sky_mode.LIGHT_ONLY) -- our shader draws the sun disc
     end
     core.engine.print("info", "[dynamic_sky] sky shader created")
@@ -394,14 +392,14 @@ local function update(dt)
     end
 
     -- local clock (corrected by server syncs)
-    if cfg.day_length_min > 0 and S.scale > 0 then
-        S.time = S.time + dt * S.scale * (24.0 / (cfg.day_length_min * 60.0))
+    if Config.day_length_min > 0 and S.scale > 0 then
+        S.time = S.time + dt * S.scale * (24.0 / (Config.day_length_min * 60.0))
         if S.time >= 24 then S.time = S.time - 24; S.day = S.day + 1 end
     end
 
     -- weather blending
-    local target = cfg.weather[S.weather] or cfg.weather.partly
-    local k = clamp(dt * cfg.weather_blend_per_sec, 0, 1)
+    local target = Config.weather[S.weather] or Config.weather.partly
+    local k = clamp(dt * Config.weather_blend_per_sec, 0, 1)
     local tint = target.tint or { 1.0, 1.0, 1.0 }
     local want = { rain = 0.0, snow = 0.0, fog = 0.0, wind = 1.0, lightning = 0.0, haze = 0.0,
                    tr = tint[1], tg = tint[2], tb = tint[3] }
@@ -422,7 +420,7 @@ local function update(dt)
         S.wdir[1] = lerp(S.wdir[1], S.wdir_t[1], kd); S.wdir[2] = lerp(S.wdir[2], S.wdir_t[2], kd)
     end
     local wd = norm({ S.wdir[1], 0, S.wdir[2] })
-    for i = 1, 3 do S.wind[i] = (S.wind[i] + wd[i] * cfg.wind_speed * S.cur.wind * dt) % WRAP end
+    for i = 1, 3 do S.wind[i] = (S.wind[i] + wd[i] * Config.wind_speed * S.cur.wind * dt) % WRAP end
     S.cloud_t = (S.cloud_t + dt) % WRAP
 
     local tc = sample_timecycle(S.time)
@@ -492,7 +490,7 @@ local function update(dt)
     if S.after < 0.01 then S.after = 0.0 end
     S.flash = util.math.max(S.flash * (0.0004 ^ dt), 0.0)           -- manual skyFlash() decays on its own
     if S.flash < 0.01 then S.flash = 0.0 end
-    local fl_boost = cfg.lightning_intensity
+    local fl_boost = Config.lightning_intensity
     local FL = S.flash + (S.fast + 0.32 * S.after) * fl_boost        -- effective flash used everywhere below (can exceed 1)
     local sun, moon, axis, ang = celestial(S.time, S.day)
 
@@ -503,15 +501,15 @@ local function update(dt)
     local dark = 1.0 - S.cur.dark
     local sun_energy = tc.light_energy * dark
     local moon_up = smoothstep(-0.05, 0.2, moon[2])
-    local night_energy = cfg.night_light.energy * moon_up * (1.0 - day_w)
+    local night_energy = Config.night_light.energy * moon_up * (1.0 - day_w)
 
     local cloud_light = {
-        tc.light[1] * sun_energy * 1.6 * day_w + cfg.night_light.color[1] * night_energy * 2.0,
-        tc.light[2] * sun_energy * 1.6 * day_w + cfg.night_light.color[2] * night_energy * 2.0,
-        tc.light[3] * sun_energy * 1.6 * day_w + cfg.night_light.color[3] * night_energy * 2.0,
+        tc.light[1] * sun_energy * 1.6 * day_w + Config.night_light.color[1] * night_energy * 2.0,
+        tc.light[2] * sun_energy * 1.6 * day_w + Config.night_light.color[2] * night_energy * 2.0,
+        tc.light[3] * sun_energy * 1.6 * day_w + Config.night_light.color[3] * night_energy * 2.0,
     }
     local grey = 1.0 - S.cur.dark * 0.55          -- storm clouds look flatter / darker
-    local q = cfg.qualities[S.quality] or cfg.qualities.medium
+    local q = Config.qualities[S.quality] or Config.qualities.medium
 
     -- shader uniforms
     sh:set_param("sun_dir", sun)
@@ -545,7 +543,7 @@ local function update(dt)
         S.sun_rgb = { r / m, g / m, b / m }
     end
     sh:set_param("sun_intensity", 25.0 * dark)
-    sh:set_param("sun_hdr", cfg.sun_hdr)
+    sh:set_param("sun_hdr", Config.sun_hdr)
 
     -- god rays: strongest with a low sun and some haze, gone under heavy overcast, at night and in precipitation
     do
@@ -554,21 +552,21 @@ local function update(dt)
         local up = smoothstep(-0.02, 0.10, el)
         local cloudy = 1.0 - clamp(S.cur.dark * 1.6, 0.0, 1.0)
         local precip = 1.0 - clamp(S.cur.rain * 0.8 + S.cur.snow * 0.5, 0.0, 0.9)
-        local amt = S.rays and cfg.godray_strength * up * cloudy * precip * (0.65 + 0.35 * low) * (0.8 + 0.4 * clamp(S.cur.haze, 0.0, 1.0)) or 0.0
+        local amt = S.rays and Config.godray_strength * up * cloudy * precip * (0.65 + 0.35 * low) * (0.8 + 0.4 * clamp(S.cur.haze, 0.0, 1.0)) or 0.0
         local rc = S.sun_rgb or { 1.0, 0.88, 0.65 }
         sh:set_param("ray_color", { rc[1], rc[2] * 0.97, rc[3] * 0.85 })
         sh:set_param("ray_strength", clamp(amt, 0.0, 1.5))
         sh:set_param("ray_decay", 0.955 + 0.02 * low)
     end
-    sh:set_param("moon_color", cfg.night_light.color)
+    sh:set_param("moon_color", Config.night_light.color)
     sh:set_param("star_visibility", tc.stars * (1.0 - S.cur.dark * 0.7))
-    sh:set_param("exposure", tc.exposure * cfg.exposure * (1.0 + FL * 1.7))
+    sh:set_param("exposure", tc.exposure * Config.exposure * (1.0 + FL * 1.7))
 
 
     cset("light_dir", key_dir)
     cset("light_color", cloud_light)
     -- night: clouds still catch scattered moon / sky glow, so an overcast or rainy night is dim grey-blue, not pitch black
-    local ng = cfg.night_cloud_glow
+    local ng = Config.night_cloud_glow
     local nk = clamp(tc.stars, 0.0, 1.0) * (0.35 + 0.65 * S.cur.dark)
     cset("cloud_ambient_top", { tc.ambient_top[1] * grey + ng[1] * nk + FL * 2.2, tc.ambient_top[2] * grey + ng[2] * nk + FL * 2.4, tc.ambient_top[3] * grey + ng[3] * nk + FL * 3.2 })
     cset("cloud_ambient_bottom", { tc.ambient_bottom[1] + ng[1] * nk * 0.6, tc.ambient_bottom[2] + ng[2] * nk * 0.6, tc.ambient_bottom[3] + ng[3] * nk * 0.6 })
@@ -578,10 +576,10 @@ local function update(dt)
     cset("cloud_coverage", coverage)
     cset("cloud_density", S.cur.density)
     cset("cloud_type", S.cur.type)
-    cset("cloud_base", cfg.cloud_base)
-    cset("cloud_thickness", cfg.cloud_thickness)
-    cset("cloud_scale", cfg.cloud_scale)
-    cset("cloud_detail", cfg.cloud_detail)
+    cset("cloud_base", Config.cloud_base)
+    cset("cloud_thickness", Config.cloud_thickness)
+    cset("cloud_scale", Config.cloud_scale)
+    cset("cloud_detail", Config.cloud_detail)
     cset("cloud_steps", q.steps)
     cset("cloud_light_steps", q.light)
     cset("wind_offset", S.wind)
@@ -590,29 +588,29 @@ local function update(dt)
     -- real scene light + ambient
     if S.light then
         aim_light(S.light, key_dir)
-        local lc = lerp3(cfg.night_light.color, tc.light, day_w)
+        local lc = lerp3(Config.night_light.color, tc.light, day_w)
         S.light:set_color({ lc[1], lc[2], lc[3], 1.0 })
         S.light:set_energy(sun_energy * day_w + night_energy * 3.0 + FL * 4.5)
     end
-    if cfg.control_environment then
+    if Config.control_environment then
         local t, h, g = tc.ambient_top, tc.horizon, tc.ground
         -- shadow fill: lift the ambient by a daylight-scaled floor so shaded areas never go black
         -- (sky light bounces around; at sunset the sky colours alone are too dim for that)
-        local fl = cfg.ambient_floor * clamp(tc.light_energy, 0.0, 1.0) ^ 0.5
+        local fl = Config.ambient_floor * clamp(tc.light_energy, 0.0, 1.0) ^ 0.5
         local nw = clamp(1.0 - clamp(tc.light_energy * 1.5, 0.0, 1.0) * (1.0 - clamp(tc.stars, 0.0, 1.0)), 0.0, 1.0)     -- 0 by day .. 1 at night, rising through twilight
-        fl = fl + cfg.night_ambient_floor * nw     -- night: shadowed ground is dark blue, not pure black
-        local fc = cfg.ambient_floor_color
+        fl = fl + Config.night_ambient_floor * nw     -- night: shadowed ground is dark blue, not pure black
+        local fc = Config.ambient_floor_color
         local function lift(c3, k) return { c3[1] + fc[1] * fl * k, c3[2] + fc[2] * fl * k, c3[3] + fc[3] * fl * k } end
         local t2, h2, g2 = lift(t, 1.0), lift(h, 0.8), lift(g, 0.7)
         gfx.sky.procedural.set_sky_top_color({ t2[1], t2[2], t2[3], 1.0 })
         gfx.sky.procedural.set_sky_horizon_color({ h2[1] * 0.8 * grey, h2[2] * 0.8 * grey, h2[3] * 0.8 * grey, 1.0 })
         gfx.sky.procedural.set_ground_horizon_color({ h2[1] * 0.6, h2[2] * 0.6, h2[3] * 0.6, 1.0 })
         gfx.sky.procedural.set_ground_bottom_color({ g2[1], g2[2], g2[3], 1.0 })
-        gfx.env.set_ambient_energy(cfg.ambient_energy * (1.0 + cfg.night_ambient_boost * nw) * (1.0 + FL * 2.4))
+        gfx.env.set_ambient_energy(Config.ambient_energy * (1.0 + Config.night_ambient_boost * nw) * (1.0 + FL * 2.4))
     end
 
     -- scene fog from the weather (fog, rain, blizzard, sandstorm ...)
-    if cfg.use_fog and gfx.fog then
+    if Config.use_fog and gfx.fog then
         local fg = S.cur.fog
         local want = fg > 0.01
         if want ~= S.fog_on then
@@ -625,7 +623,7 @@ local function update(dt)
             local h = tc.horizon
             local k = 0.85 * (1.0 - 0.35 * S.cur.dark)
             local fc = { h[1] * k, h[2] * k, h[3] * k }
-            pcall(gfx.fog.set_density, fg * cfg.fog_density_max)
+            pcall(gfx.fog.set_density, fg * Config.fog_density_max)
             pcall(gfx.fog.set_light_color, { fc[1], fc[2], fc[3], 1.0 })
             pcall(gfx.fog.set_light_energy, 1.0 + FL * 3.2)
         end
@@ -643,11 +641,11 @@ local function update(dt)
     local pmx = util.math.max(ph[1], util.math.max(ph[2], util.math.max(ph[3], 1e-3)))
     local pr, pg, pb = lerp(ph[1] / pmx, 1.0, 0.45), lerp(ph[2] / pmx, 1.0, 0.45), lerp(ph[3] / pmx, 1.0, 0.45)
     local gust = 1.0 + 0.25 * sin(S.cloud_t * 0.35) * sin(S.cloud_t * 0.113 + 1.7)
-    local wmps = S.cur.wind * cfg.rain_wind_mps * gust          -- horizontal speed of the falling precipitation
+    local wmps = S.cur.wind * Config.rain_wind_mps * gust          -- horizontal speed of the falling precipitation
     local wx, wz = wd[1] * wmps, wd[3] * wmps
     local R, SN = S.cur.rain, S.cur.snow
     local rfall = { wx * (0.75 + 0.5 * R), -(8.5 + 9.5 * R ^ 0.9), wz * (0.75 + 0.5 * R) }
-    local rtint = { pr * daylight, pg * daylight, pb * daylight, (0.15 - 0.05 * clamp(R, 0, 1)) * cfg.rain_opacity }
+    local rtint = { pr * daylight, pg * daylight, pb * daylight, (0.15 - 0.05 * clamp(R, 0, 1)) * Config.rain_opacity }
     S.flt = (S.flt + dt) % 50.26548
     if S.snow_on then
         local car, sh = S.snow_car, S.snow_shader
@@ -664,7 +662,7 @@ local function update(dt)
             -- in front of scenery the shader takes the colour of what is behind (the ground snow) instead
             local lf = 0.55 + 0.4 * clamp(daylight, 0.0, 1.0)
             sh:set_param("fall_vel", { fx, fy, fz })
-            sh:set_param("flake_size", cfg.snow_size)
+            sh:set_param("flake_size", Config.snow_size)
             sh:set_param("flutter_t", S.flt)
             sh:set_param("sway", 0.45 / (1.0 + util.math.max(S.cur.wind - 1.0, 0.0) * 0.6))
             sh:set_param("density", dens)
@@ -674,7 +672,7 @@ local function update(dt)
 
     -- ---------------- rain: real drops, the amount follows the weather ----------------
     if S.gpu_on then
-        local stint = { pr * daylight, pg * daylight, pb * daylight, S.splash_on and (0.30 + 0.45 * clamp(R, 0, 1)) * cfg.splash_opacity or 0.0 }   -- same colour source as the rain
+        local stint = { pr * daylight, pg * daylight, pb * daylight, S.splash_on and (0.30 + 0.45 * clamp(R, 0, 1)) * Config.splash_opacity or 0.0 }   -- same colour source as the rain
         if S.sdrop then S.sdrop:set_param("tint", stint) end
         local snowk = (S.cur.snow > 0.2) and (1.0 - clamp(S.cur.snow, 0.0, 1.0)) or 1.0
         local reff = clamp(R * snowk, 0.0, 1.0)
@@ -716,7 +714,7 @@ local function update(dt)
         local want = need or S.col_idle < 8.0
         if want ~= (S.col_on or false) and particle.gpu.set_world_collision then
             S.col_on = want
-            pcall(particle.gpu.set_world_collision, want, { 48, 60, 48 }, cfg.splash_gpu_res)
+            pcall(particle.gpu.set_world_collision, want, { 48, 60, 48 }, Config.splash_gpu_res)
         end
     end
 
@@ -725,13 +723,13 @@ local function update(dt)
         if S.cover_manual then
             S.cover = lerp(S.cover, S.cover_manual, clamp(dt * 1.5, 0, 1))
         else
-            local up = cfg.snow_accum_sec
-            local down = cfg.snow_melt_sec
+            local up = Config.snow_accum_sec
+            local down = Config.snow_melt_sec
             if SN > 0.2 then S.cover = util.math.min(1.0, S.cover + dt / up * SN)
             else S.cover = util.math.max(0.0, S.cover - dt / down * (1.0 + R * 3.0)) end
         end
         if R > 0.05 and S.cover < 0.3 then S.wet = util.math.min(1.0, S.wet + dt / 25.0 * R)
-        else S.wet = util.math.max(0.0, S.wet - dt / (S.cover > 0.3 and 20.0 or cfg.dry_time)) end
+        else S.wet = util.math.max(0.0, S.wet - dt / (S.cover > 0.3 and 20.0 or Config.dry_time)) end
 
         local active = (S.cover > 0.004 or S.wet > 0.01)
         if active ~= S.cover_on then
@@ -743,14 +741,14 @@ local function update(dt)
             S.cshader:set_param("snow_amount", S.cover)
             S.cshader:set_param("wet", S.wet)
             S.cshader:set_param("rain_amt", clamp(R, 0.0, 1.0))
-            S.cshader:set_param("puddle_gloss", cfg.puddle_gloss)
-            S.cshader:set_param("puddle_strength", cfg.puddle_strength)
-            S.cshader:set_param("wet_fade_start", cfg.wet_fade_start)
-            S.cshader:set_param("wet_fade_end", cfg.wet_fade_end)
-            S.cshader:set_param("alpha_cut", cfg.surface_alpha_cut)
+            S.cshader:set_param("puddle_gloss", Config.puddle_gloss)
+            S.cshader:set_param("puddle_strength", Config.puddle_strength)
+            S.cshader:set_param("wet_fade_start", Config.wet_fade_start)
+            S.cshader:set_param("wet_fade_end", Config.wet_fade_end)
+            S.cshader:set_param("alpha_cut", Config.surface_alpha_cut)
             -- light the ripples pick up from the sky (independent of sun/moon): horizon + ambient colour, with a night floor
             do
-                local g, f = cfg.ripple_glow, 0.015 + FL * 0.8
+                local g, f = Config.ripple_glow, 0.015 + FL * 0.8
                 local h, a = tc.horizon, tc.ambient_top
                 -- mostly the horizon colour: that is what a flat water surface mirrors at a grazing angle
                 S.cshader:set_param("ripple_light", { (h[1] * 0.85 + a[1] * 0.15 + f * 0.8) * g, (h[2] * 0.85 + a[2] * 0.15 + f * 0.9) * g, (h[3] * 0.85 + a[3] * 0.15 + f * 1.2) * g })
@@ -765,7 +763,7 @@ util.event.on("sandbox:process", update)
 -- passes (horizontal, vertical) and sky.gdshader reads the result with one texture fetch per pixel.
 -- The rendertargets are hdr (16 bit float): the cloud light is above 1 and 8 bits would band.
 local function cloud_setup(rx, ry)
-    local div = cfg.cloud_rt_div
+    local div = Config.cloud_rt_div
     local w, h = util.math.max(64, util.math.floor(rx / div)), util.math.max(64, util.math.floor(ry / div))
     local ok, err = pcall(function()
         local mode = core.shader.shader_mode.CANVAS_ITEM
@@ -789,7 +787,7 @@ local function cloud_setup(rx, ry)
         S.cblur_h:set_param("step_uv", { 1.0 / w, 0.0 })
         S.cblur_v:set_param("src", S.crt_b)
         S.cblur_v:set_param("step_uv", { 0.0, 1.0 / h })
-        S.shader:set_param("cloud_tex", cfg.cloud_blur and S.crt_c or S.crt_a)
+        S.shader:set_param("cloud_tex", Config.cloud_blur and S.crt_c or S.crt_a)
         S.crt_w, S.crt_h, S.crt_rx, S.crt_ry = w, h, rx, ry
     end)
     if not ok then
@@ -840,7 +838,7 @@ local function cloud_pass()
     core.rendertarget.set_active(S.crt_a, true)
     core.engine.draw_material({ 0, 0 }, size, cs, 0, { 0, 0 }, { 1, 1, 1, 1 })
     core.rendertarget.set_active(nil)
-    if cfg.cloud_blur then
+    if Config.cloud_blur then
         core.rendertarget.set_active(S.crt_b, true)
         core.engine.draw_material({ 0, 0 }, size, S.cblur_h, 0, { 0, 0 }, { 1, 1, 1, 1 })
         core.rendertarget.set_active(nil)
@@ -863,7 +861,7 @@ end)
 ---------------------
 util.event.on("dynamic_sky:sync", function(time, day, scale, weather)
     S.time, S.day, S.scale = time, day, scale
-    if cfg.weather[weather] then S.weather = weather end
+    if Config.weather[weather] then S.weather = weather end
 end)
 
 ----------------------------------------------------
@@ -882,9 +880,9 @@ util.input.register("time", function(args)
 end)
 
 util.input.register("weather", function(args)
-    if not args[1] or not cfg.weather[args[1]] then
+    if not args[1] or not Config.weather[args[1]] then
         local names = {}
-        for n in pairs(cfg.weather) do names[#names + 1] = n end
+        for n in pairs(Config.weather) do names[#names + 1] = n end
         return core.engine.print("warn", "Usage: weather <" .. util.table.concat(names, "|") .. ">")
     end
     request("weather", args[1])
@@ -897,7 +895,7 @@ end)
 
 -- sky_quality low|medium|high|ultra   (client side, fps vs. cloud quality)
 util.input.register("sky_quality", function(args)
-    if not cfg.qualities[args[1] or ""] then return core.engine.print("warn", "Usage: sky_quality <low|medium|high|ultra>") end
+    if not Config.qualities[args[1] or ""] then return core.engine.print("warn", "Usage: sky_quality <low|medium|high|ultra>") end
     S.quality = args[1]
     core.engine.print("info", "[dynamic_sky] cloud quality", S.quality)
 end)
@@ -963,7 +961,7 @@ local function cmd_moon_phase(args)
     if args[1] and not set_moon_phase(args[1]) then
         return core.engine.print("warn", "Usage: moon_phase <new|waxing_crescent|first_quarter|waxing_gibbous|full|waning_gibbous|last_quarter|waning_crescent|0-1|auto>")
     end
-    local p = S.phase or cfg.moon_phase
+    local p = S.phase or Config.moon_phase
     core.engine.print("info", util.string.format("[dynamic_sky] moon: %s, %d%% lit%s", phase_name(p), floor(phase_lit(p) * 100 + 0.5), S.moon_phase_manual and " (manual)" or " (auto cycle)"))
 end
 util.input.register("moon_phase", cmd_moon_phase)
@@ -1071,4 +1069,4 @@ util.export.register("flash", function(v) S.flash = clamp(tonumber(v) or 1.0, 0.
 util.export.register("set_sun_size", set_sun_size)                  -- apparent radius in deg
 util.export.register("set_moon_size", set_moon_size)
 util.export.register("set_moon_phase", set_moon_phase)              -- 0..1, a phase name, or nil/"auto"
-util.export.register("get_moon_phase", function() return S.phase or cfg.moon_phase, phase_name(S.phase or cfg.moon_phase) end)
+util.export.register("get_moon_phase", function() return S.phase or Config.moon_phase, phase_name(S.phase or Config.moon_phase) end)

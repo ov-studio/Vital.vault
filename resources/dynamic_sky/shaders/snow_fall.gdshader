@@ -1,16 +1,13 @@
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
-// Dynamic Sky: snow drawn on REAL falling particles.
-// Each flake is one particle of an emitter that has world collision: it falls with the particle's own motion and
-// disappears the moment it touches a surface (roofs, ground), so nothing snows indoors or through solid objects.
-// The quad sits at the particle position (MODEL_MATRIX origin) and always faces the camera. Each flake also gets a
-// small per-flake flutter on top of the real path (visual only, the collision uses the real position).
-// Flakes are soft round sprites that stretch into short streaks when the wind is strong (blizzards).
+// Dynamic Sky: snow on real falling particles. A flake disappears on contact with the world, so nothing snows
+// indoors. The quad sits at the particle position and faces the camera, with a visual-only flutter on top.
+// Flakes are soft round sprites that stretch into short streaks in strong wind.
 
-uniform vec3  fall_vel     = vec3(0.0, -1.3, 0.0);    // average flake velocity (m/s), sets the streak direction (Lua)
-uniform float spawn_half   = 17.0;                    // half size of the spawn box (m), for the horizontal edge fade
-uniform float flutter_t    = 0.0;                     // 0..50.2655 (seamless wrap), driven from Lua
+uniform vec3  fall_vel     = vec3(0.0, -1.3, 0.0);    // average velocity (m/s), sets the streak direction (Lua)
+uniform float spawn_half   = 17.0;                    // half size of the spawn box (m), for the edge fade
+uniform float flutter_t    = 0.0;                     // 0..50.2655 (seamless wrap), from Lua
 uniform float sway         = 0.45;                    // horizontal flutter amplitude (m)
 uniform float density      = 1.0;                     // 0..1 share of the flakes that are drawn
 uniform float flake_size   = 0.038;                   // typical flake size up close (m)
@@ -40,10 +37,10 @@ void vertex() {
 	float r_p1   = rnd(id * 11u + 9u);
 	float r_p2   = rnd(id * 11u + 10u);
 
-	vec3 wp  = MODEL_MATRIX[3].xyz;                   // the particle: world position (emitter is not local)
-	float age = clamp(INSTANCE_CUSTOM.y, 0.0, 1.0);   // 0 at spawn .. 1 at the end of its life
+	vec3 wp  = MODEL_MATRIX[3].xyz;                   // particle world position
+	float age = clamp(INSTANCE_CUSTOM.y, 0.0, 1.0);   // 0 at spawn .. 1 at end of life
 
-	// flutter: integer multiples of 1/8 rad/s so the wrap of flutter_t is seamless
+	// integer multiples of 1/8 rad/s keep the flutter_t wrap seamless
 	float f1 = floor(mix(6.0, 20.0, r_f1)) / 8.0;
 	float f2 = floor(mix(6.0, 20.0, r_f2)) / 8.0;
 	float p1 = r_p1 * 6.2831853;
@@ -70,7 +67,7 @@ void vertex() {
 	float hq = max(abs(to_p.x), abs(to_p.z)) / spawn_half;
 	float edge = 1.0 - smoothstep(0.62, 1.0, hq);
 	float life = smoothstep(0.0, 0.04, age) * (1.0 - smoothstep(0.90, 1.0, age));
-	float nfade = smoothstep(0.25, 1.4, dist);        // out-of-focus flakes right at the lens fade away
+	float nfade = smoothstep(0.25, 1.4, dist);        // flakes right at the lens fade away
 	float keep = step(r_keep, density);
 	v_a = edge * life * nfade * keep * mix(0.55, 1.0, r_a);
 	v_s = vec2(VERTEX.x, VERTEX.y) * 2.0;
@@ -83,9 +80,7 @@ void vertex() {
 void fragment() {
 	float rr = length(v_s);
 	float disc = 1.0 - smoothstep(0.30, 1.0, rr);
-	// in front of scenery the flake is the colour of what is behind it, a little lighter, so it matches the snow on the
-	// ground whatever the light (never darker than the plain tint, so it stays visible on dark walls); against the open
-	// sky it keeps the plain tint
+	// in front of scenery: the colour behind it, a little lighter (never darker than the tint); against sky: the tint
 	vec3 bg  = texture(screen_tex, SCREEN_UV).rgb;
 	float sky = step(texture(depth_tex, SCREEN_UV).r, 0.00001);
 	ALBEDO = mix(max(bg * 1.25, tint.rgb * 0.6), tint.rgb, sky);

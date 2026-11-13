@@ -7,20 +7,17 @@
      Desc: Authoritative clock and weather, synced to every client ]]--
 ----------------------------------------------------------------
 
-
-local cfg = SkyConfig
-
 local state = {
-    time    = cfg.start_time,                 -- hour of day, 0..24
+    time    = Config.start_time,                 -- hour of day, 0..24
     day     = 0,                              -- day counter (moon phase)
     scale   = 1.0,                            -- timescale multiplier
-    weather = cfg.default_weather,
+    weather = Config.default_weather,
 }
 local last_tick = core.engine.get_tick()
 
 local function day_seconds()
-    if cfg.day_length_min <= 0 then return 0 end
-    return cfg.day_length_min * 60.0
+    if Config.day_length_min <= 0 then return 0 end
+    return Config.day_length_min * 60.0
 end
 
 local function advance()
@@ -54,7 +51,7 @@ util.event.on("peer:resource:started", function(peer_id, resource)
 end)
 
 -- periodic drift correction
-util.timer.create(function() push() end, cfg.sync_interval_ms, 0)
+util.timer.create(function() push() end, Config.sync_interval_ms, 0)
 
 -- exports for other server scripts / resources ------------------------
 local function set_time(hour)
@@ -65,7 +62,7 @@ local function set_time(hour)
 end
 
 local function set_weather(name)
-    if not cfg.weather[name] then return false end
+    if not Config.weather[name] then return false end
     state.weather = name; push(); return true
 end
 
@@ -81,7 +78,7 @@ util.export.register("get_time", function() advance(); return state.time end)
 
 -- client requests (/time /weather /timescale) --------------------------
 util.event.on("dynamic_sky:request", function(kind, value)
-    if not cfg.allow_client_control then return end
+    if not Config.allow_client_control then return end
     if kind == "time" then set_time(value)
     elseif kind == "weather" then set_weather(tostring(value))
     elseif kind == "timescale" then set_timescale(value) end
