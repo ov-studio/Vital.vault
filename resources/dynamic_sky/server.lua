@@ -71,10 +71,10 @@ local function set_timescale(scale)
     advance(); state.scale = util.math.max(0.0, util.math.min(scale, 1000.0)); push(); return true
 end
 
+util.export.register("get_time", function() advance(); return state.time end)
 util.export.register("set_time", set_time)
 util.export.register("set_weather", set_weather)
 util.export.register("set_timescale", set_timescale)
-util.export.register("get_time", function() advance(); return state.time end)
 
 -- client requests (/time /weather /timescale) --------------------------
 util.event.on("dynamic_sky:request", function(kind, value)
