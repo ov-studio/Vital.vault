@@ -11,16 +11,9 @@ tags:
   - "vfx"
 
 description: |
-  Dynamic Sky is a server-synced day/night cycle for Vital.sandbox with sun,
-  moon, stars, volumetric clouds, god rays, sun bloom and fourteen weather
-  presets.
+  Dynamic Sky ft. a living day/night cycle with a glowing sun, a moon with real phases, twinkling stars, volumetric clouds and cinematic god rays, all synced from the server to every player.
 
-  Rain and snow are GPU particles that collide with the level, so nothing
-  falls indoors. Every raindrop splashes and ripples where it lands, wet
-  ground forms puddles, and snow settles on surfaces and melts again.
-
-  Requires GPU particle collision, `particle:set_layer` and HDR
-  rendertargets. Everything tunable lives in `config.lua`.
+  Fourteen weather presets from drizzle to blizzard. Rain and snow fall for real and never indoors, every drop splashes and ripples where it lands, puddles form on wet ground, and snow piles up on every surface, then melts away.
 
   **Credits:**
   • Moon texture: NASA CGI Moon Kit (`lroc_color_poles`), NASA Scientific Visualization Studio - https://svs.gsfc.nasa.gov/4720/
