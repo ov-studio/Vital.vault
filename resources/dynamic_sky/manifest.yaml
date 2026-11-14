@@ -68,12 +68,12 @@ description: |
   • `/moon_phase <name | 0-1 | auto>` - sets the moon phase
 
 scripts:
-  # shared
+  # configs & utils
   - { src: "utils/index.lua", type: "shared" }
   - { src: "configs/**.lua", type: "shared" }
-
-  # client
   - { src: "utils/state.lua", type: "client" }
+
+  # handlers
   - { src: "handlers/sync.lua", type: "server" }
   - { src: "handlers/clock.lua", type: "client" }
   - { src: "handlers/weather.lua", type: "client" }
