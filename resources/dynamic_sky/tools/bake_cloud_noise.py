@@ -2,6 +2,7 @@
 #   R = perlin-worley base shape        (sampled at 1 cell / unit)
 #   G = worley fbm erosion              (same coordinates as R)
 #   B = fine detail fbm                 (sampled at ~7x frequency)
+
 import os
 import numpy as np
 from PIL import Image
