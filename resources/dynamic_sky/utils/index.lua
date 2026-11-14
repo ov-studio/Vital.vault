@@ -14,7 +14,7 @@
 
 Config = {}
 Math = {}
-Sky = { stage = { init = {}, update = {}, draw = {} } }
+Sky = { stage = {} }
 
 
 ----------------
@@ -22,13 +22,16 @@ Sky = { stage = { init = {}, update = {}, draw = {} } }
 ----------------
 
 function Sky.on(stage, fn)
+    Sky.stage[stage] = Sky.stage[stage] or {}
     local list = Sky.stage[stage]
     list[#list + 1] = fn
 end
 
 function Sky.run(stage, ...)
-    for _, fn in ipairs(Sky.stage[stage]) do
-        if fn(...) == false then return false end
+    if then Sky.stage[stage] then
+        for _, fn in ipairs(Sky.stage[stage]) do
+            if fn(...) == false then return false end
+        end
     end
     return true
 end
