@@ -16,9 +16,9 @@ local function vec3_of(v)
 end
 
 
-----------------
+--------------
 --[[ Init ]]--
-----------------
+--------------
 
 -- baked cloud noise (see tools/bake_cloud_noise.py), sampled instead of computing noise per pixel
 Sky.on("init", function()
@@ -121,9 +121,9 @@ Sky.on("draw", function()
 end)
 
 
------------------
+----------------
 --[[ Update ]]--
------------------
+----------------
 
 Sky.on("update", function(F)
     local csh = state.cloud_sh                                  -- the cloud pass is created on the first draw

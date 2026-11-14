@@ -49,9 +49,9 @@ local function set_moon_size(deg)
 end
 
 
------------------
+----------------
 --[[ Update ]]--
------------------
+----------------
 
 local function celestial(hour, day)
     local tilt = Config.sun_tilt_deg * PI / 180

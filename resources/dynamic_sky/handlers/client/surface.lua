@@ -12,9 +12,9 @@ local min, max = util.math.min, util.math.max
 local lerp, clamp = Math.lerp, Math.clamp
 
 
-----------------
+--------------
 --[[ Init ]]--
-----------------
+--------------
 
 Sky.on("init", function()
     if not Config.use_surface_weather then return end
@@ -26,9 +26,9 @@ Sky.on("init", function()
 end)
 
 
------------------
+----------------
 --[[ Update ]]--
------------------
+----------------
 
 Sky.on("update", function(F)
     local sh = state.cshader

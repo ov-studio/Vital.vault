@@ -12,9 +12,9 @@ local floor, max, sqrt = util.math.floor, util.math.max, util.math.sqrt
 local lerp, clamp = Math.lerp, Math.clamp
 
 
-----------------
+--------------
 --[[ Init ]]--
-----------------
+--------------
 
 -- flakes vanish on roofs and ground, so nothing snows indoors
 Sky.on("init", function()
@@ -46,9 +46,9 @@ Sky.on("init", function()
 end)
 
 
------------------
+----------------
 --[[ Update ]]--
------------------
+----------------
 
 Sky.on("update", function(F)
     state.flt = (state.flt + F.dt) % 50.26548

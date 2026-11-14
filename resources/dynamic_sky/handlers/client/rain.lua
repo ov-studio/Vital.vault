@@ -57,9 +57,9 @@ local function buffer()
 end
 
 
-----------------
+--------------
 --[[ Init ]]--
-----------------
+--------------
 
 -- real falling drops that collide with the world (they vanish on roofs and ground, so nothing rains indoors);
 -- every drop that lands spawns a small droplet burst through a sub-emitter. Needs the engine's particle collision API.
@@ -145,9 +145,9 @@ Sky.on("init", function()
 end)
 
 
------------------
+----------------
 --[[ Update ]]--
------------------
+----------------
 
 Sky.on("update", function(F)
     if state.gpu_on then

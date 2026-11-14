@@ -12,9 +12,9 @@ local max, PI = util.math.max, util.math.pi
 local clamp, rad = Math.clamp, Math.rad
 
 
-----------------
+--------------
 --[[ Init ]]--
-----------------
+--------------
 
 Sky.on("init", function()
     local shader = core.shader.create("files/shaders/sky.gdshader", core.shader.shader_mode.POST_PROCESS)
@@ -32,9 +32,9 @@ Sky.on("init", function()
 end)
 
 
------------------
+----------------
 --[[ Update ]]--
------------------
+----------------
 
 Sky.on("update", function(F)
     local sh, tc, sun, FL = state.shader, F.tc, F.sun, F.FL

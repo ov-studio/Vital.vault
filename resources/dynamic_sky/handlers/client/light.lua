@@ -11,9 +11,9 @@ local state = Sky.state
 local clamp, lerp3 = Math.clamp, Math.lerp3
 
 
-----------------
+--------------
 --[[ Init ]]--
-----------------
+--------------
 
 Sky.on("init", function()
     if Config.control_environment then
@@ -33,9 +33,9 @@ Sky.on("init", function()
 end)
 
 
------------------
+----------------
 --[[ Update ]]--
------------------
+----------------
 
 -- light travels away from the sun / moon
 local function aim(l, dir)
