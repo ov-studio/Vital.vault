@@ -70,19 +70,7 @@ description: |
 scripts:
   # shared
   - { src: "utils/index.lua", type: "shared" }
-  - { src: "configs/clock.lua", type: "shared" }
-  - { src: "configs/celestial.lua", type: "shared" }
-  - { src: "configs/sky.lua", type: "shared" }
-  - { src: "configs/clouds.lua", type: "shared" }
-  - { src: "configs/environment.lua", type: "shared" }
-  - { src: "configs/glow.lua", type: "shared" }
-  - { src: "configs/godrays.lua", type: "shared" }
-  - { src: "configs/precipitation.lua", type: "shared" }
-  - { src: "configs/rain.lua", type: "shared" }
-  - { src: "configs/snow.lua", type: "shared" }
-  - { src: "configs/surface.lua", type: "shared" }
-  - { src: "configs/weather.lua", type: "shared" }
-  - { src: "configs/timecycle.lua", type: "shared" }
+  - { src: "configs/**.lua", type: "shared" }
 
   # client
   - { src: "utils/state.lua", type: "client" }
