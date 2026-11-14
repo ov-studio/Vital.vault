@@ -15,12 +15,17 @@ local FIELDS1 = { "glow_strength", "light_energy", "stars", "exposure" }
 
 local function sample(hour)
     local tc = Config.timecycle
-    local a, b = tc[1], tc[#tc]
-    for i = 1, #tc - 1 do
-        if hour >= tc[i].hour and hour <= tc[i + 1].hour then a, b = tc[i], tc[i + 1]; break end
+    local first, last = tc[1], tc[#tc]
+    local a, b, a_hour, b_hour = last, first, last.hour - 24, first.hour    -- before the first row: wrap from the last one
+    if hour >= last.hour then
+        a_hour, b_hour = last.hour, first.hour + 24                         -- after the last row: wrap to the first one
+    elseif hour >= first.hour then
+        for i = 1, #tc - 1 do
+            if hour <= tc[i + 1].hour then a, b, a_hour, b_hour = tc[i], tc[i + 1], tc[i].hour, tc[i + 1].hour; break end
+        end
     end
-    local span = b.hour - a.hour
-    local t = span > 0 and (hour - a.hour) / span or 0
+    local span = b_hour - a_hour
+    local t = span > 0 and (hour - a_hour) / span or 0
     t = t * t * (3 - 2 * t)
     local out = {}
     for _, f in ipairs(FIELDS3) do out[f] = lerp3(a.template[f], b.template[f], t) end
