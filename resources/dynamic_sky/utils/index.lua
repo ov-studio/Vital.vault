@@ -23,8 +23,7 @@ Sky = { stage = {} }
 
 function Sky.on(stage, fn)
     Sky.stage[stage] = Sky.stage[stage] or {}
-    local list = Sky.stage[stage]
-    list[#list + 1] = fn
+    Sky.stage[stage][#Sky.stage[stage] + 1] = fn
 end
 
 function Sky.run(stage, ...)
