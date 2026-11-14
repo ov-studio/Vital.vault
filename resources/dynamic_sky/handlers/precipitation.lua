@@ -12,21 +12,21 @@ local sin, floor, min, max = util.math.sin, util.math.floor, util.math.min, util
 local lerp, clamp = Math.lerp, Math.clamp
 
 
--- rain and snow share this: the carrier emitter shows more or fewer particles in 8 steps (changing the amount restarts
+-- rain and snow share this: the emitter shows more or fewer particles in 8 steps (changing the amount restarts
 -- the pool, so only step changes do it) and the shader's density smooths between the steps. Returns the density for
--- the shader, or nil (carrier hidden) when there is none.
-function Sky.level(car, key, full, inten, on)
+-- the shader, or nil (emitter hidden) when there is none.
+function Sky.level(emitter, key, full, inten, on)
     local steps = 8.0
     local lvl = on and min(steps, floor(inten * steps) + 1) or 0
     if lvl <= 0 then
-        if state[key] ~= 0 then state[key] = 0; car:set_visible(false); car:stop() end   -- a hidden emitter must not keep simulating
+        if state[key] ~= 0 then state[key] = 0; emitter:set_visible(false); emitter:stop() end   -- a hidden emitter must not keep simulating
         return nil
     end
     if state[key] ~= lvl then
         state[key] = lvl
-        car:set_amount(max(40, floor(full * lvl / steps)))
-        car:set_visible(true)
-        car:emit()
+        emitter:set_amount(max(40, floor(full * lvl / steps)))
+        emitter:set_visible(true)
+        emitter:emit()
     end
     return clamp(inten * steps / lvl, 0.0, 1.0) ^ 0.8
 end

@@ -22,22 +22,22 @@ Sky.on("init", function()
     local sh = core.shader.create("files/shaders/snow_fall.gdshader", core.shader.shader_mode.SPATIAL)
     local life = Config.snow_life
     state.snow_full = floor(Config.snow_rate * life)
-    local car = particle.gpu.create()
-    car:set_amount(state.snow_full)
-    car:set_lifetime(life)
-    car:set_one_shot(false)
-    car:set_explosiveness(0.0)
-    car:set_randomness(0.0)
-    car:set_local_coords(false)
-    car:set_emission_shape(particle.gpu.emission_shape.BOX, { 17.0, 0.2, 17.0 })
-    car:set_direction({ 0, -1, 0 })
-    car:set_spread(0)
-    car:set_gravity({ 0, 0, 0 })
-    car:set_visibility_aabb({ -30, -30, -30 }, { 60, 60, 60 })
-    car:set_material(sh)
-    car:set_collision(particle.gpu.collision_mode.HIDE, 0.0, 1.0)
-    car:set_visible(false)
-    state.snow_car, state.snow_shader = car, sh
+    local emitter = particle.gpu.create()
+    emitter:set_amount(state.snow_full)
+    emitter:set_lifetime(life)
+    emitter:set_one_shot(false)
+    emitter:set_explosiveness(0.0)
+    emitter:set_randomness(0.0)
+    emitter:set_local_coords(false)
+    emitter:set_emission_shape(particle.gpu.emission_shape.BOX, { 17.0, 0.2, 17.0 })
+    emitter:set_direction({ 0, -1, 0 })
+    emitter:set_spread(0)
+    emitter:set_gravity({ 0, 0, 0 })
+    emitter:set_visibility_aabb({ -30, -30, -30 }, { 60, 60, 60 })
+    emitter:set_material(sh)
+    emitter:set_collision(particle.gpu.collision_mode.HIDE, 0.0, 1.0)
+    emitter:set_visible(false)
+    state.snow_emitter, state.snow_shader = emitter, sh
     state.snow_on = true
 end)
 
@@ -49,15 +49,15 @@ end)
 Sky.on("update", function(F)
     state.flt = (state.flt + F.dt) % 50.26548
     if not state.snow_on then return end
-    local car, sh, cpos, SN = state.snow_car, state.snow_shader, F.cpos, F.SN
-    local dens = Sky.level(car, "snow_lvl", state.snow_full, SN, state.precip and cpos ~= nil and SN > 0.02)
+    local emitter, sh, cpos, SN = state.snow_emitter, state.snow_shader, F.cpos, F.SN
+    local dens = Sky.level(emitter, "snow_lvl", state.snow_full, SN, state.precip and cpos ~= nil and SN > 0.02)
     if not dens then return end
 
     local fx, fy, fz = F.wx * 0.85, -(0.9 + 0.7 * SN), F.wz * 0.85
     local fl = sqrt(fx * fx + fy * fy + fz * fz)
-    car:set_global_position({ cpos[1], cpos[2] + 12.0, cpos[3] })
-    car:set_direction({ fx / fl, fy / fl, fz / fl })
-    car:set_param(particle.gpu.param.VELOCITY, fl * 0.8, fl * 1.2)
+    emitter:set_global_position({ cpos[1], cpos[2] + 12.0, cpos[3] })
+    emitter:set_direction({ fx / fl, fy / fl, fz / fl })
+    emitter:set_param(particle.gpu.param.VELOCITY, fl * 0.8, fl * 1.2)
     -- flake colour against the open sky: the scene's colour (horizon tint), kept bright at night so flakes are not dark specks;
     -- in front of scenery the shader takes the colour of what is behind (the ground snow) instead
     local lf = 0.55 + 0.4 * clamp(F.daylight, 0.0, 1.0)
