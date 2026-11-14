@@ -119,9 +119,9 @@ util.input.register("moon_phase", function(args)
 end)
 
 
-------------------
+-----------------
 --[[ Exports ]]--
-------------------
+-----------------
 
 util.export.register("get_moon_phase", function() return state.phase or Config.moon_phase, phase_name(state.phase or Config.moon_phase) end)
 

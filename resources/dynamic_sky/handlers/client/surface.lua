@@ -87,8 +87,8 @@ util.input.register("snow_cover", function(args)
 end)
 
 
-------------------
+-----------------
 --[[ Exports ]]--
-------------------
+-----------------
 
 util.export.register("set_snow_cover", function(v) state.cover_manual = tonumber(v) and clamp(tonumber(v), 0.0, 1.0) or nil end)

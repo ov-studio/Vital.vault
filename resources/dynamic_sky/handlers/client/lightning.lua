@@ -63,8 +63,8 @@ Sky.on("update", function(F)
 end)
 
 
-------------------
+-----------------
 --[[ Exports ]]--
-------------------
+-----------------
 
 util.export.register("flash", function(v) state.flash = clamp(tonumber(v) or 1.0, 0.0, 1.0) end)

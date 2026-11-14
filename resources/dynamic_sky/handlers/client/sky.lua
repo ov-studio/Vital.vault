@@ -97,8 +97,8 @@ util.input.register("sky_toggle", function()
 end)
 
 
-------------------
+-----------------
 --[[ Exports ]]--
-------------------
+-----------------
 
 util.export.register("toggle", function() state.enabled = not state.enabled end)

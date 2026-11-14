@@ -88,9 +88,9 @@ util.input.register("sky_winddir", function(args)
 end)
 
 
-------------------
+-----------------
 --[[ Exports ]]--
-------------------
+-----------------
 
 for _, o in ipairs(overrides) do
     util.export.register("set_" .. o.key, function(v) state.over[o.key] = tonumber(v) and clamp(tonumber(v), o.lo, o.hi) or nil end)

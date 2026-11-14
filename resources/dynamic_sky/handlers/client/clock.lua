@@ -60,9 +60,9 @@ util.input.register("timescale", function(args)
 end)
 
 
-------------------
+-----------------
 --[[ Exports ]]--
-------------------
+-----------------
 
 util.export.register("get_time", function() return state.time end)
 util.export.register("get_weather", function() return state.weather end)
