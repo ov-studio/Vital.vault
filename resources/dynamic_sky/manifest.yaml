@@ -84,11 +84,9 @@ scripts:
   - { src: "configs/weather.lua", type: "shared" }
   - { src: "configs/timecycle.lua", type: "shared" }
 
-  # server
-  - { src: "handlers/server/sync.lua", type: "server" }
-
   # client
   - { src: "utils/state.lua", type: "client" }
+  - { src: "handlers/server/sync.lua", type: "server" }
   - { src: "handlers/client/clock.lua", type: "client" }
   - { src: "handlers/client/weather.lua", type: "client" }
   - { src: "handlers/client/timecycle.lua", type: "client" }
