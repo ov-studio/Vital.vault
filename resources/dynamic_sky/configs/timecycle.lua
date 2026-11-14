@@ -12,8 +12,13 @@
 --[[ Configs ]]--
 -----------------
 
--- timecycle -----------------------------------------------------
--- Keyframes by hour, smoothstep-interpolated, wraps at 24.
+Config.night_ambient_boost = 0.6                                           -- extra ambient strength from dusk to night (0 = off, 1 = double)
+Config.night_ambient_floor = 0.45                                          -- extra scene ambient from dusk to night (fades in as the sunlight fades) so shadows are dark blue instead of pure black (0 = off)
+Config.night_cloud_glow    = { 0.030, 0.038, 0.066 }                       -- extra cloud ambient at night (overcast / rainy nights stay dim grey-blue instead of black); {0,0,0} = off
+Config.night_light         = { color = {0.55, 0.65, 1.0}, energy = 0.12 }  -- moon as scene light
+
+
+-- Timecycle keyframes by hour, smoothstep-interpolated, wraps at 24.
 -- Add / remove / edit rows freely (keep them sorted by hour, first at 0 and last at 24).
 --   zenith         : sky colour at the top
 --   horizon        : sky colour at the horizon
@@ -332,8 +337,3 @@ Config.timecycle = {
         }
     }
 }
-
-Config.night_ambient_boost = 0.6                                           -- extra ambient strength from dusk to night (0 = off, 1 = double)
-Config.night_ambient_floor = 0.45                                          -- extra scene ambient from dusk to night (fades in as the sunlight fades) so shadows are dark blue instead of pure black (0 = off)
-Config.night_cloud_glow    = { 0.030, 0.038, 0.066 }                       -- extra cloud ambient at night (overcast / rainy nights stay dim grey-blue instead of black); {0,0,0} = off
-Config.night_light         = { color = {0.55, 0.65, 1.0}, energy = 0.12 }  -- moon as scene light

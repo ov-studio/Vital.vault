@@ -19,7 +19,7 @@ Config.wind_speed            = 6.0            -- metres / second
 Config.lightning_intensity   = 1.0            -- strength of thunderstorm flashes (0 = none, 2 = blinding)
 
 
--- weather presets: target values, blended smoothly on the client
+-- Weather presets: target values, blended smoothly on the client
 -- Every preset blends smoothly into the next one. Keys (all optional, missing = off / neutral):
 --   coverage, density, type   cloud cover / thickness / shape (0 flat stratus .. 1 puffy cumulus)
 --   dark    0..1   storm darkness (dims sun, light, stars)        desat 0..1  greys the sky out
