@@ -7,6 +7,11 @@
      Desc: Sun and moon ]]--
 ----------------------------------------------------------------
 
+
+-----------------
+--[[ Configs ]]--
+-----------------
+
 Config.sun_tilt_deg     = 25.0  -- tilt of the sun path (0 = straight east->west over the top)
 Config.sun_radius_deg   = 0.50  -- apparent sun radius in deg (real sun: 0.27). change live with: sun_size <deg>
 Config.moon_radius_deg  = 0.85  -- apparent moon radius in deg (real moon: 0.26). change live with: moon_size <deg>
