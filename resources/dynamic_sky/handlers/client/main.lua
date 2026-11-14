@@ -7,13 +7,13 @@
      Desc: Runs every handler: init once, then update and draw each frame ]]--
 ----------------------------------------------------------------
 
-local S = Sky.state
+local state = Sky.state
 
 
 Sky.run("init")
 
 util.event.on("sandbox:process", function(dt)
-    if not S.enabled or not S.shader then return end
+    if not state.enabled or not state.shader then return end
     Sky.run("update", { dt = dt })
 end)
 

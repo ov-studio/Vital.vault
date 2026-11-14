@@ -7,7 +7,7 @@
      Desc: Scene directional light and ambient environment ]]--
 ----------------------------------------------------------------
 
-local S = Sky.state
+local state = Sky.state
 local clamp, lerp3 = Math.clamp, Math.lerp3
 
 
@@ -25,10 +25,10 @@ Sky.on("init", function()
     end
 
     if Config.control_light then
-        S.light = light.directional.create()
-        S.light:set_position({ 0, 5, 0 })
-        S.light:set_shadow_enabled(Config.shadows)
-        S.light:set_sky_mode(light.directional.sky_mode.LIGHT_ONLY) -- our shader draws the sun disc
+        state.light = light.directional.create()
+        state.light:set_position({ 0, 5, 0 })
+        state.light:set_shadow_enabled(Config.shadows)
+        state.light:set_sky_mode(light.directional.sky_mode.LIGHT_ONLY) -- our shader draws the sun disc
     end
 end)
 
@@ -46,11 +46,11 @@ end
 Sky.on("update", function(F)
     local tc, FL = F.tc, F.FL
 
-    if S.light then
-        aim(S.light, F.key_dir)
+    if state.light then
+        aim(state.light, F.key_dir)
         local lc = lerp3(Config.night_light.color, tc.light, F.day_w)
-        S.light:set_color({ lc[1], lc[2], lc[3], 1.0 })
-        S.light:set_energy(F.sun_energy * F.day_w + F.night_energy * 3.0 + FL * 4.5)
+        state.light:set_color({ lc[1], lc[2], lc[3], 1.0 })
+        state.light:set_energy(F.sun_energy * F.day_w + F.night_energy * 3.0 + FL * 4.5)
     end
 
     if Config.control_environment then

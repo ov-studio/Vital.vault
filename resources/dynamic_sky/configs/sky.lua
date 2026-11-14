@@ -7,5 +7,10 @@
      Desc: Sky shader and exposure ]]--
 ----------------------------------------------------------------
 
-Config.exposure = 1.0
+
+-----------------
+--[[ Configs ]]--
+-----------------
+
+Config.exposure = 1.0  -- global sky brightness multiplier
 Config.sun_hdr  = 6.0  -- sun disc HDR brightness (bloom strength follows it)

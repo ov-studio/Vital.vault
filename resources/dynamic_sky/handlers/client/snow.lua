@@ -7,7 +7,7 @@
      Desc: Snowfall: real flakes that collide with the world ]]--
 ----------------------------------------------------------------
 
-local S = Sky.state
+local state = Sky.state
 local floor, max, sqrt = util.math.floor, util.math.max, util.math.sqrt
 local lerp, clamp = Math.lerp, Math.clamp
 
@@ -23,9 +23,9 @@ Sky.on("init", function()
     if not sh then return end
     local ok, err = pcall(function()
         local life = Config.snow_life
-        S.snow_full = floor(Config.snow_rate * life)
+        state.snow_full = floor(Config.snow_rate * life)
         local car = particle.gpu.create()
-        car:set_amount(S.snow_full)
+        car:set_amount(state.snow_full)
         car:set_lifetime(life)
         car:set_one_shot(false)
         car:set_explosiveness(0.0)
@@ -39,9 +39,9 @@ Sky.on("init", function()
         car:set_material(sh)
         pcall(car.set_collision, car, particle.gpu.collision_mode.HIDE, 0.0, 1.0)      -- older engines: flakes just fall through
         car:set_visible(false)
-        S.snow_car, S.snow_shader = car, sh
+        state.snow_car, state.snow_shader = car, sh
     end)
-    S.snow_on = ok
+    state.snow_on = ok
     if not ok then core.engine.print("warn", "[dynamic_sky] snow particles unavailable: " .. tostring(err)) end
 end)
 
@@ -51,10 +51,10 @@ end)
 -----------------
 
 Sky.on("update", function(F)
-    S.flt = (S.flt + F.dt) % 50.26548
-    if not S.snow_on then return end
-    local car, sh, cpos, SN = S.snow_car, S.snow_shader, F.cpos, F.SN
-    local dens = Sky.level(car, "snow_lvl", S.snow_full, SN, S.precip and cpos ~= nil and SN > 0.02)
+    state.flt = (state.flt + F.dt) % 50.26548
+    if not state.snow_on then return end
+    local car, sh, cpos, SN = state.snow_car, state.snow_shader, F.cpos, F.SN
+    local dens = Sky.level(car, "snow_lvl", state.snow_full, SN, state.precip and cpos ~= nil and SN > 0.02)
     if not dens then return end
 
     local fx, fy, fz = F.wx * 0.85, -(0.9 + 0.7 * SN), F.wz * 0.85
@@ -69,8 +69,8 @@ Sky.on("update", function(F)
     local lf = 0.55 + 0.4 * clamp(F.daylight, 0.0, 1.0)
     sh:set_param("fall_vel", { fx, fy, fz })
     sh:set_param("flake_size", Config.snow_size)
-    sh:set_param("flutter_t", S.flt)
-    sh:set_param("sway", 0.45 / (1.0 + max(S.cur.wind - 1.0, 0.0) * 0.6))
+    sh:set_param("flutter_t", state.flt)
+    sh:set_param("sway", 0.45 / (1.0 + max(state.cur.wind - 1.0, 0.0) * 0.6))
     sh:set_param("density", dens)
     sh:set_param("tint", { lerp(F.pr, 1.0, 0.6) * lf, lerp(F.pg, 1.0, 0.6) * lf, lerp(F.pb, 1.0, 0.6) * lf, 0.85 })
 end)

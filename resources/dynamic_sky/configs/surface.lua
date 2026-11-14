@@ -7,6 +7,11 @@
      Desc: Snow cover, wet surfaces and puddles ]]--
 ----------------------------------------------------------------
 
+
+-----------------
+--[[ Configs ]]--
+-----------------
+
 Config.use_surface_weather = true   -- snow cover + wet surfaces: drawn as a translucent layer on top of every model's material (needs apply_to_material layered support)
 Config.snow_accum_sec      = 150.0  -- seconds of full snowfall until the ground is fully covered
 Config.snow_melt_sec       = 300.0  -- seconds for a full cover to melt away

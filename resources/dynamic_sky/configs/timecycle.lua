@@ -7,6 +7,11 @@
      Desc: Sky colour keyframes and night lighting ]]--
 ----------------------------------------------------------------
 
+
+-----------------
+--[[ Configs ]]--
+-----------------
+
 -- timecycle -----------------------------------------------------
 -- Keyframes by hour, smoothstep-interpolated, wraps at 24.
 -- Add / remove / edit rows freely (keep them sorted by hour, first at 0 and last at 24).

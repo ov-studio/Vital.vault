@@ -7,10 +7,15 @@
      Desc: Rain, splashes and ripples ]]--
 ----------------------------------------------------------------
 
+
+-----------------
+--[[ Configs ]]--
+-----------------
+
 Config.rain_real_rate      = 3500  -- real drops falling per second at full rain (rain needs the engine with the particle collision API)
 Config.rain_opacity        = 1.0   -- rain streak transparency multiplier (lower = fainter)
 Config.use_splash          = true  -- a droplet splash wherever a rain drop lands (engine sub-emitter on the colliding rain)
-Config.splash_opacity      = 1.0
+Config.splash_opacity      = 1.0   -- splash droplet opacity multiplier (lower = fainter)
 Config.splash_gpu_burst    = 3     -- droplets spawned per landing
 Config.splash_gpu_amount   = 0     -- minimum droplet particle budget (0 = automatic: enough slots for every landing)
 Config.ripple_rt_div       = 2     -- ripple buffer size: screen size / this (1 = sharper rings, 2 = half size)

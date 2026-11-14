@@ -7,9 +7,14 @@
      Desc: Scene light, ambient and fog ]]--
 ----------------------------------------------------------------
 
+
+-----------------
+--[[ Configs ]]--
+-----------------
+
 Config.control_light       = true                  -- drive a directional light (sun by day, moon at night)
 Config.control_environment = true                  -- drive ambient / reflections through the procedural sky
-Config.shadows             = true
+Config.shadows             = true                  -- the scene light casts shadows
 Config.ambient_energy      = 2.2                   -- strength of sky ambient light on the scene (raise = lighter shadows)
 Config.ambient_floor       = 0.16                  -- extra daylight fill so shaded areas never turn black (0 = off)
 Config.ambient_floor_color = { 0.60, 0.68, 0.90 }  -- tint of that fill (cool sky bounce)

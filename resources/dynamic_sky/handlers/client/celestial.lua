@@ -7,7 +7,7 @@
      Desc: Sun and moon positions, moon phase, key light and their commands ]]--
 ----------------------------------------------------------------
 
-local S = Sky.state
+local state = Sky.state
 local sin, cos, floor, PI = util.math.sin, util.math.cos, util.math.floor, util.math.pi
 local lerp, clamp, smoothstep, norm, rotate = Math.lerp, Math.clamp, Math.smoothstep, Math.norm, Math.rotate
 
@@ -24,7 +24,7 @@ local function phase_name(p) return PHASES[(floor((p % 1.0) * 8 + 0.5) % 8) + 1]
 local function phase_lit(p) return (1.0 - cos(p * 2 * PI)) * 0.5 end
 
 local function set_moon_phase(v)
-    if v == nil or v == "auto" then S.moon_phase_manual = nil; return true end
+    if v == nil or v == "auto" then state.moon_phase_manual = nil; return true end
     local n = tonumber(v)
     if not n then
         local key = tostring(v):lower():gsub("[%s%-]", "_")
@@ -34,18 +34,18 @@ local function set_moon_phase(v)
         if key == "full" then n = 0.5 elseif key == "new" then n = 0.0 end
     end
     if not n then return false end
-    S.moon_phase_manual = n % 1.0
+    state.moon_phase_manual = n % 1.0
     return true
 end
 
 local function set_sun_size(deg)
     deg = tonumber(deg); if not deg then return false end
-    S.sun_deg = clamp(deg, 0.05, 15.0); return true
+    state.sun_deg = clamp(deg, 0.05, 15.0); return true
 end
 
 local function set_moon_size(deg)
     deg = tonumber(deg); if not deg then return false end
-    S.moon_deg = clamp(deg, 0.05, 15.0); return true
+    state.moon_deg = clamp(deg, 0.05, 15.0); return true
 end
 
 
@@ -59,12 +59,12 @@ local function celestial(hour, day)
     local a = (hour - 6.0) / 24.0 * 2 * PI                      -- 0 = east horizon (06:00)
     local sun = rotate({ 1, 0, 0 }, axis, a)
 
-    local phase = S.moon_phase_manual
+    local phase = state.moon_phase_manual
     if phase == nil then
         phase = Config.moon_phase
         if Config.moon_phase_cycle then phase = (phase + day / 29.5) % 1.0 end
     end
-    S.phase = phase
+    state.phase = phase
     -- the moon trails the sun's apparent motion: waxing moon (phase 0..0.5) sits EAST of the sun
     -- (earlier in the sky's east-to-west rotation), so it is highest at sunset around first quarter
     local elong = phase * 2 * PI                                -- 0 new, 0.25 first quarter, 0.5 full
@@ -74,7 +74,7 @@ local function celestial(hour, day)
 end
 
 Sky.on("update", function(F)
-    F.sun, F.moon, F.axis, F.ang = celestial(S.time, S.day)
+    F.sun, F.moon, F.axis, F.ang = celestial(state.time, state.day)
     local sun, moon = F.sun, F.moon
 
     -- key light: sun by day, moon by night
@@ -94,16 +94,16 @@ end)
 -- sun_size / moon_size <deg> : apparent radius of the sun / moon (glow scales with it)
 util.input.register("sun_size", function(args)
     if not set_sun_size(args[1]) then
-        return core.engine.print("info", util.string.format("[dynamic_sky] sun radius %.2f deg (usage: sun_size <0.05-15>, real sun 0.27)", S.sun_deg))
+        return core.engine.print("info", util.string.format("[dynamic_sky] sun radius %.2f deg (usage: sun_size <0.05-15>, real sun 0.27)", state.sun_deg))
     end
-    core.engine.print("info", util.string.format("[dynamic_sky] sun radius %.2f deg", S.sun_deg))
+    core.engine.print("info", util.string.format("[dynamic_sky] sun radius %.2f deg", state.sun_deg))
 end)
 
 util.input.register("moon_size", function(args)
     if not set_moon_size(args[1]) then
-        return core.engine.print("info", util.string.format("[dynamic_sky] moon radius %.2f deg (usage: moon_size <0.05-15>, real moon 0.26)", S.moon_deg))
+        return core.engine.print("info", util.string.format("[dynamic_sky] moon radius %.2f deg (usage: moon_size <0.05-15>, real moon 0.26)", state.moon_deg))
     end
-    core.engine.print("info", util.string.format("[dynamic_sky] moon radius %.2f deg", S.moon_deg))
+    core.engine.print("info", util.string.format("[dynamic_sky] moon radius %.2f deg", state.moon_deg))
 end)
 
 -- moon_phase                      show the current phase
@@ -114,8 +114,8 @@ util.input.register("moon_phase", function(args)
     if args[1] and not set_moon_phase(args[1]) then
         return core.engine.print("warn", "Usage: moon_phase <new|waxing_crescent|first_quarter|waxing_gibbous|full|waning_gibbous|last_quarter|waning_crescent|0-1|auto>")
     end
-    local p = S.phase or Config.moon_phase
-    core.engine.print("info", util.string.format("[dynamic_sky] moon: %s, %d%% lit%s", phase_name(p), floor(phase_lit(p) * 100 + 0.5), S.moon_phase_manual and " (manual)" or " (auto cycle)"))
+    local p = state.phase or Config.moon_phase
+    core.engine.print("info", util.string.format("[dynamic_sky] moon: %s, %d%% lit%s", phase_name(p), floor(phase_lit(p) * 100 + 0.5), state.moon_phase_manual and " (manual)" or " (auto cycle)"))
 end)
 
 
@@ -123,7 +123,7 @@ end)
 --[[ Exports ]]--
 ------------------
 
-util.export.register("get_moon_phase", function() return S.phase or Config.moon_phase, phase_name(S.phase or Config.moon_phase) end)
+util.export.register("get_moon_phase", function() return state.phase or Config.moon_phase, phase_name(state.phase or Config.moon_phase) end)
 
 util.export.register("set_sun_size", set_sun_size)                  -- apparent radius in deg
 util.export.register("set_moon_size", set_moon_size)

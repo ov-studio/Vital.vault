@@ -7,7 +7,7 @@
      Desc: Sun bloom through the engine glow ]]--
 ----------------------------------------------------------------
 
-local S = Sky.state
+local state = Sky.state
 
 
 -- The sun disc is rendered HDR, so the engine's own glow (gfx.glow) blooms it. The glow works on the finished
@@ -32,7 +32,7 @@ local function apply(on)
 end
 
 Sky.on("init", function()
-    if S.glow then apply(true) end
+    if state.glow then apply(true) end
 end)
 
 
@@ -42,7 +42,7 @@ end)
 
 -- sky_glow [on|off] : bloom around the sun (uses the engine glow)
 util.input.register("sky_glow", function(args)
-    S.glow = Sky.switch(args[1], S.glow)
-    apply(S.glow)
-    core.engine.print("info", "[dynamic_sky] sun bloom:", S.glow and "on" or "off")
+    state.glow = Sky.switch(args[1], state.glow)
+    apply(state.glow)
+    core.engine.print("info", "[dynamic_sky] sun bloom:", state.glow and "on" or "off")
 end)

@@ -7,7 +7,7 @@
      Desc: What rain and snow share: camera, wind, light colour and particle level ]]--
 ----------------------------------------------------------------
 
-local S = Sky.state
+local state = Sky.state
 local sin, floor, min, max = util.math.sin, util.math.floor, util.math.min, util.math.max
 local lerp, clamp = Math.lerp, Math.clamp
 
@@ -19,11 +19,11 @@ function Sky.level(car, key, full, inten, on)
     local steps = 8.0
     local lvl = on and min(steps, floor(inten * steps) + 1) or 0
     if lvl <= 0 then
-        if S[key] ~= 0 then S[key] = 0; pcall(function() car:set_visible(false); car:stop() end) end   -- a hidden emitter must not keep simulating
+        if state[key] ~= 0 then state[key] = 0; pcall(function() car:set_visible(false); car:stop() end) end   -- a hidden emitter must not keep simulating
         return nil
     end
-    if S[key] ~= lvl then
-        S[key] = lvl
+    if state[key] ~= lvl then
+        state[key] = lvl
         pcall(function()
             car:set_amount(max(40, floor(full * lvl / steps)))
             car:set_visible(true)
@@ -48,10 +48,10 @@ Sky.on("update", function(F)
     F.pr, F.pg, F.pb = lerp(ph[1] / pmx, 1.0, 0.45), lerp(ph[2] / pmx, 1.0, 0.45), lerp(ph[3] / pmx, 1.0, 0.45)
 
     -- horizontal speed of the falling precipitation
-    local gust = 1.0 + 0.25 * sin(S.cloud_t * 0.35) * sin(S.cloud_t * 0.113 + 1.7)
-    local wmps = S.cur.wind * Config.rain_wind_mps * gust
+    local gust = 1.0 + 0.25 * sin(state.cloud_t * 0.35) * sin(state.cloud_t * 0.113 + 1.7)
+    local wmps = state.cur.wind * Config.rain_wind_mps * gust
     F.wx, F.wz = F.wd[1] * wmps, F.wd[3] * wmps
-    F.R, F.SN = S.cur.rain, S.cur.snow
+    F.R, F.SN = state.cur.rain, state.cur.snow
 end)
 
 
@@ -61,6 +61,6 @@ end)
 
 -- sky_precip on|off : toggle the rain / snow particles (no argument = flip)
 util.input.register("sky_precip", function(args)
-    S.precip = Sky.switch(args[1], S.precip)
-    core.engine.print("info", "[dynamic_sky] precipitation particles:", S.precip and "on" or "off")
+    state.precip = Sky.switch(args[1], state.precip)
+    core.engine.print("info", "[dynamic_sky] precipitation particles:", state.precip and "on" or "off")
 end)

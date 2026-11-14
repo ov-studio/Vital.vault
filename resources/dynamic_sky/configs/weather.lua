@@ -7,11 +7,16 @@
      Desc: Weather presets and wind ]]--
 ----------------------------------------------------------------
 
-Config.default_weather       = "partly"
-Config.weather_blend_per_sec = 0.35  -- how fast weather changes are blended
-Config.wind_dir              = { 1.0, 0.35 }
-Config.wind_speed            = 6.0   -- metres / second
-Config.lightning_intensity   = 1.0   -- strength of thunderstorm flashes (0 = none, 2 = blinding)
+
+-----------------
+--[[ Configs ]]--
+-----------------
+
+Config.default_weather       = "partly"       -- weather at resource start (a name from Config.weather)
+Config.weather_blend_per_sec = 0.35           -- how fast weather changes are blended
+Config.wind_dir              = { 1.0, 0.35 }  -- start wind direction {x, z}, the wind blows towards it (change live with: sky_winddir <deg>)
+Config.wind_speed            = 6.0            -- metres / second
+Config.lightning_intensity   = 1.0            -- strength of thunderstorm flashes (0 = none, 2 = blinding)
 
 -- weather presets: target values, blended smoothly on the client
 -- Every preset blends smoothly into the next one. Keys (all optional, missing = off / neutral):
@@ -38,5 +43,5 @@ Config.weather = {
     blizzard  = { coverage = 0.72, density = 0.0100, type = 0.20, dark = 0.55, desat = 0.90, haze = 0.90, snow = 1.00, fog = 0.55, wind = 2.8, tint = { 0.92, 0.96, 1.05 } },
     fog       = { coverage = 0.30, density = 0.0040, type = 0.30, dark = 0.12, desat = 0.85, haze = 1.60, fog = 1.00, wind = 0.4 },
     sandstorm = { coverage = 0.20, density = 0.0040, type = 0.40, dark = 0.30, desat = 0.20, haze = 2.00, fog = 0.70, wind = 3.0, tint = { 1.00, 0.72, 0.42 } },
-    smog      = { coverage = 0.18, density = 0.0040, type = 0.60, dark = 0.18, desat = 0.50, haze = 1.50, fog = 0.30, wind = 0.3, tint = { 0.93, 0.85, 0.62 } },
+    smog      = { coverage = 0.18, density = 0.0040, type = 0.60, dark = 0.18, desat = 0.50, haze = 1.50, fog = 0.30, wind = 0.3, tint = { 0.93, 0.85, 0.62 } }
 }

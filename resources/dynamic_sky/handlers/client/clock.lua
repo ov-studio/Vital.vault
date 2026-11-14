@@ -7,7 +7,7 @@
      Desc: Local clock, server sync and the time / weather / timescale commands ]]--
 ----------------------------------------------------------------
 
-local S = Sky.state
+local state = Sky.state
 
 
 ----------------
@@ -16,15 +16,15 @@ local S = Sky.state
 
 -- local clock, corrected by server syncs
 Sky.on("update", function(F)
-    if Config.day_length_min > 0 and S.scale > 0 then
-        S.time = S.time + F.dt * S.scale * (24.0 / (Config.day_length_min * 60.0))
-        if S.time >= 24 then S.time = S.time - 24; S.day = S.day + 1 end
+    if Config.day_length_min > 0 and state.scale > 0 then
+        state.time = state.time + F.dt * state.scale * (24.0 / (Config.day_length_min * 60.0))
+        if state.time >= 24 then state.time = state.time - 24; state.day = state.day + 1 end
     end
 end)
 
 util.event.on("dynamic_sky:sync", function(time, day, scale, weather)
-    S.time, S.day, S.scale = time, day, scale
-    if Config.weather[weather] then S.weather = weather end
+    state.time, state.day, state.scale = time, day, scale
+    if Config.weather[weather] then state.weather = weather end
 end)
 
 
@@ -38,7 +38,7 @@ local function request(kind, value) util.event.emit("dynamic_sky:request", { rem
 -- time 18.5   or   time 18:30
 util.input.register("time", function(args)
     local a = args[1]
-    if not a then return core.engine.print("info", util.string.format("[dynamic_sky] time %.2f, weather %s", S.time, S.weather)) end
+    if not a then return core.engine.print("info", util.string.format("[dynamic_sky] time %.2f, weather %s", state.time, state.weather)) end
     local h, m = tostring(a):match("^(%d+):(%d+)$")
     local v = h and (tonumber(h) + tonumber(m) / 60) or tonumber(a)
     if not v then return core.engine.print("warn", "Usage: time <hour 0-24 | HH:MM>") end
@@ -64,5 +64,5 @@ end)
 --[[ Exports ]]--
 ------------------
 
-util.export.register("get_time", function() return S.time end)
-util.export.register("get_weather", function() return S.weather end)
+util.export.register("get_time", function() return state.time end)
+util.export.register("get_weather", function() return state.weather end)
