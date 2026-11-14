@@ -18,8 +18,7 @@ local lerp, clamp = Math.lerp, Math.clamp
 
 Sky.on("init", function()
     if not Config.use_surface_weather then return end
-    state.cshader = Sky.shader("files/shaders/snow_cover.gdshader")
-    if not state.cshader then return end
+    state.cshader = core.shader.create("files/shaders/snow_cover.gdshader", core.shader.shader_mode.SPATIAL)
     state.cshader:set_param("ripple_gain", Config.ripple_gain)
     state.cshader:set_param("screen_rip_depth", Sky.ripple.depth)
     state.cshader:set_param("screen_rip_gamma", Config.ripple_buffer_gamma)
@@ -48,8 +47,8 @@ Sky.on("update", function(F)
     local active = (state.cover > 0.004 or state.wet > 0.01)
     if active ~= state.cover_on then
         state.cover_on = active
-        if active then pcall(sh.apply_to_material, sh, "*", "*", "*", 0, true)   -- layered: drawn on top of the level's own materials
-        else pcall(sh.remove_from_material, sh, "*", "*", "*") end
+        if active then sh:apply_to_material("*", "*", "*", 0, true)   -- layered: drawn on top of the level's own materials
+        else sh:remove_from_material("*", "*", "*") end
     end
     if not active then return end
 

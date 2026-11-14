@@ -18,11 +18,6 @@ local clamp, rad = Math.clamp, Math.rad
 
 Sky.on("init", function()
     local shader = core.shader.create("files/shaders/sky.gdshader", core.shader.shader_mode.POST_PROCESS)
-    if not shader then
-        core.engine.print("error", "[dynamic_sky] sky shader failed to compile")
-        state.enabled = false
-        return false
-    end
     state.shader = shader
 
     -- NASA LROC moon colour map
@@ -81,7 +76,7 @@ end)
 
 -- the sky is a screen quad (same mechanism as a post process effect)
 Sky.on("draw", function()
-    if not state.enabled or not state.shader then return end
+    if not state.enabled then return end
     core.engine.draw_material({ 0, 0 }, core.display.get_resolution(), state.shader, 0, { 0, 0 }, { 1, 1, 1, 1 })
 end)
 

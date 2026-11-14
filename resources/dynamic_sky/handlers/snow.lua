@@ -19,30 +19,26 @@ local lerp, clamp = Math.lerp, Math.clamp
 -- flakes vanish on roofs and ground, so nothing snows indoors
 Sky.on("init", function()
     if not Config.use_precipitation then return end
-    local sh = Sky.shader("files/shaders/snow_fall.gdshader")
-    if not sh then return end
-    local ok, err = pcall(function()
-        local life = Config.snow_life
-        state.snow_full = floor(Config.snow_rate * life)
-        local car = particle.gpu.create()
-        car:set_amount(state.snow_full)
-        car:set_lifetime(life)
-        car:set_one_shot(false)
-        car:set_explosiveness(0.0)
-        car:set_randomness(0.0)
-        car:set_local_coords(false)
-        car:set_emission_shape(particle.gpu.emission_shape.BOX, { 17.0, 0.2, 17.0 })
-        car:set_direction({ 0, -1, 0 })
-        car:set_spread(0)
-        car:set_gravity({ 0, 0, 0 })
-        car:set_visibility_aabb({ -30, -30, -30 }, { 60, 60, 60 })
-        car:set_material(sh)
-        pcall(car.set_collision, car, particle.gpu.collision_mode.HIDE, 0.0, 1.0)      -- older engines: flakes just fall through
-        car:set_visible(false)
-        state.snow_car, state.snow_shader = car, sh
-    end)
-    state.snow_on = ok
-    if not ok then core.engine.print("warn", "[dynamic_sky] snow particles unavailable: " .. tostring(err)) end
+    local sh = core.shader.create("files/shaders/snow_fall.gdshader", core.shader.shader_mode.SPATIAL)
+    local life = Config.snow_life
+    state.snow_full = floor(Config.snow_rate * life)
+    local car = particle.gpu.create()
+    car:set_amount(state.snow_full)
+    car:set_lifetime(life)
+    car:set_one_shot(false)
+    car:set_explosiveness(0.0)
+    car:set_randomness(0.0)
+    car:set_local_coords(false)
+    car:set_emission_shape(particle.gpu.emission_shape.BOX, { 17.0, 0.2, 17.0 })
+    car:set_direction({ 0, -1, 0 })
+    car:set_spread(0)
+    car:set_gravity({ 0, 0, 0 })
+    car:set_visibility_aabb({ -30, -30, -30 }, { 60, 60, 60 })
+    car:set_material(sh)
+    car:set_collision(particle.gpu.collision_mode.HIDE, 0.0, 1.0)
+    car:set_visible(false)
+    state.snow_car, state.snow_shader = car, sh
+    state.snow_on = true
 end)
 
 
@@ -59,11 +55,9 @@ Sky.on("update", function(F)
 
     local fx, fy, fz = F.wx * 0.85, -(0.9 + 0.7 * SN), F.wz * 0.85
     local fl = sqrt(fx * fx + fy * fy + fz * fz)
-    pcall(function()
-        car:set_global_position({ cpos[1], cpos[2] + 12.0, cpos[3] })
-        car:set_direction({ fx / fl, fy / fl, fz / fl })
-        car:set_param(particle.gpu.param.VELOCITY, fl * 0.8, fl * 1.2)
-    end)
+    car:set_global_position({ cpos[1], cpos[2] + 12.0, cpos[3] })
+    car:set_direction({ fx / fl, fy / fl, fz / fl })
+    car:set_param(particle.gpu.param.VELOCITY, fl * 0.8, fl * 1.2)
     -- flake colour against the open sky: the scene's colour (horizon tint), kept bright at night so flakes are not dark specks;
     -- in front of scenery the shader takes the colour of what is behind (the ground snow) instead
     local lf = 0.55 + 0.4 * clamp(F.daylight, 0.0, 1.0)

@@ -24,36 +24,24 @@ local function buffer_free()
     local rt = state.rrt
     if not rt then return end
     state.rrt = nil
-    pcall(function()
-        state.cshader:set_param("screen_rip_on", 0.0)
-        state.gpu_rip:set_visible(false)
-        state.gpu_rip:set_layer()
-        rt:destroy()
-    end)
+    state.cshader:set_param("screen_rip_on", 0.0)
+    state.gpu_rip:set_visible(false)
+    state.gpu_rip:set_layer()
+    rt:destroy()
 end
 
 local function buffer()
     local res = core.display.get_resolution()
-    local rx, ry = res[1] or res.x, res[2] or res.y
-    if not (rx and ry and ry > 0) then return end
+    local rx, ry = res[1], res[2]
     if state.rrt and abs(rx - state.rrt_rx) <= 2 and abs(ry - state.rrt_ry) <= 2 then return end
     buffer_free()
     local div = Config.ripple_rt_div
-    local ok, err = pcall(function()
-        local rt = core.rendertarget.create({ max(64, floor(rx / div)), max(64, floor(ry / div)) }, true, true)
-        state.gpu_rip:set_layer(rt)
-        state.gpu_rip:set_visible(true)
-        state.cshader:set_param("screen_rip", rt)
-        state.cshader:set_param("screen_rip_on", 1.0)
-        state.rrt = rt
-    end)
-    state.rrt_rx, state.rrt_ry = rx, ry
-    if not ok then
-        core.engine.print("warn", "[dynamic_sky] ripple buffer unavailable, using procedural ripples: " .. tostring(err))
-        state.rip_hook, state.rrt = false, nil
-        state.cshader:set_param("screen_rip_on", 0.0)
-        pcall(function() state.gpu_rip:set_visible(false) end)
-    end
+    local rt = core.rendertarget.create({ max(64, floor(rx / div)), max(64, floor(ry / div)) }, true, true)
+    state.gpu_rip:set_layer(rt)
+    state.gpu_rip:set_visible(true)
+    state.cshader:set_param("screen_rip", rt)
+    state.cshader:set_param("screen_rip_on", 1.0)
+    state.rrt, state.rrt_rx, state.rrt_ry = rt, rx, ry
 end
 
 
@@ -62,83 +50,78 @@ end
 --------------
 
 -- real falling drops that collide with the world (they vanish on roofs and ground, so nothing rains indoors);
--- every drop that lands spawns a small droplet burst through a sub-emitter. Needs the engine's particle collision API.
+-- every drop that lands spawns a small droplet burst through a sub-emitter.
 Sky.on("init", function()
     if not Config.use_precipitation then return end
-    local ok, err = pcall(function()
-        local rr = Sky.shader("files/shaders/rain_fall.gdshader")
-        if not rr then error("files/shaders/rain_fall.gdshader failed to compile") end
-        -- ripples exactly where each drop lands: the droplets spawn a flat ring emitter that is drawn into a screen-space buffer
-        -- (needs particle:set_layer). Without it the puddles use procedural ripples.
-        local ring_sh = Config.use_surface_weather and Sky.shader("files/shaders/ripple_ring.gdshader") or nil
-        state.sdrop = (state.splash_on or ring_sh) and Sky.shader("files/shaders/splash_drop.gdshader") or nil
-        if not particle.gpu.set_world_collision then error("particle.gpu.set_world_collision is missing") end
-        local life = 3.6
-        state.gpu_full = floor(Config.rain_real_rate * life)
-        state.gpu_burst = Config.splash_gpu_burst
-        state.rrshader = rr
-        -- enough droplet slots for EVERY landing: landings per second x droplets per landing x droplet lifetime (+25%).
-        -- A full budget silently drops new splashes, which looks like drops that hit the ground without splashing
-        local sub = particle.gpu.create()                         -- the droplets: the engine spawns them where a drop lands
-        sub:set_amount(max(Config.splash_gpu_amount, floor(Config.rain_real_rate * state.gpu_burst * 0.46 * 1.25) + 16))
-        sub:set_lifetime(0.46)
-        sub:set_one_shot(false)
-        sub:set_explosiveness(0.0)
-        sub:set_randomness(0.6)
-        sub:set_local_coords(false)
-        sub:set_direction({ 0, 1, 0 })
-        sub:set_spread(62)
-        sub:set_gravity({ 0, -9.8, 0 })
-        sub:set_param(particle.gpu.param.VELOCITY, 0.7, 3.0)
-        sub:set_visibility_aabb({ -30, -10, -30 }, { 60, 40, 60 })
-        if state.sdrop then sub:set_material(state.sdrop) end
-        pcall(sub.set_fixed_fps, sub, 0)                          -- simulate every frame, not at 30 fps
-        sub:set_visible(true)
-        local rip = ring_sh and particle.gpu.create()                 -- one ring per droplet: stands still where it was spawned
-        if rip and not rip.set_layer then rip:destroy(); rip = nil end
-        if rip then
-            rip:set_amount(floor(Config.rain_real_rate * state.gpu_burst * RIP.life * 1.25) + 16)
-            rip:set_lifetime(RIP.life)
-            rip:set_one_shot(false)
-            rip:set_explosiveness(0.0)
-            rip:set_randomness(0.0)
-            rip:set_local_coords(false)
-            rip:set_gravity({ 0, 0, 0 })
-            rip:set_param(particle.gpu.param.VELOCITY, 0.0, 0.0)
-            rip:set_visibility_aabb({ -30, -10, -30 }, { 60, 40, 60 })
-            rip:set_material(ring_sh)
-            ring_sh:set_param("ring_radius", RIP.radius)
-            ring_sh:set_param("share", 1.0 / state.gpu_burst)
-            ring_sh:set_param("depth_scale", RIP.depth)
-            pcall(rip.set_fixed_fps, rip, 0)
-            rip:set_visible(false)                                -- shown once its rendertarget exists (see buffer)
-            sub:set_sub_emitter(rip, particle.gpu.sub_emitter_mode.AT_START, 1)
-            state.gpu_rip = rip
-        end
-        local car = particle.gpu.create()                         -- the rain: real falling drops drawn by rain_fall.gdshader
-        car:set_amount(state.gpu_full)
-        car:set_lifetime(life)
-        car:set_one_shot(false)
-        car:set_explosiveness(0.0)
-        car:set_randomness(0.0)
-        car:set_local_coords(false)
-        car:set_emission_shape(particle.gpu.emission_shape.BOX, { 17.0, 0.2, 17.0 })
-        car:set_direction({ 0, -1, 0 })
-        car:set_spread(0)
-        car:set_gravity({ 0, 0, 0 })
-        car:set_material(rr)
-        car:set_visibility_aabb({ -30, -30, -30 }, { 60, 60, 60 })
-        car:set_collision(particle.gpu.collision_mode.HIDE, 0.0, 1.0)
-        if state.splash_on or rip then car:set_sub_emitter(sub, particle.gpu.sub_emitter_mode.AT_COLLISION, state.gpu_burst) end
-        -- the rain simulates every frame: at the default 30 fps a drop falling 13 m/s moves 0.4 m per step and is only noticed
-        -- below the surface, so its splash would start under the floor
-        pcall(car.set_fixed_fps, car, 0)
-        car:set_visible(false)
-        state.gpu_sub, state.gpu_car = sub, car
-    end)
-    state.gpu_on = ok
-    if ok then core.engine.print("info", "[dynamic_sky] rain active (real colliding drops, splashes = " .. (state.splash_on and "on" or "off") .. ")")
-    else core.engine.print("warn", "[dynamic_sky] rain needs the engine with the particle collision API: " .. tostring(err)) end
+    local SPATIAL = core.shader.shader_mode.SPATIAL
+    local rr = core.shader.create("files/shaders/rain_fall.gdshader", SPATIAL)
+    -- ripples exactly where each drop lands: the droplets spawn a flat ring emitter that is drawn into a screen-space buffer
+    -- (needs particle:set_layer). Without it the puddles use procedural ripples.
+    local ring_sh = Config.use_surface_weather and core.shader.create("files/shaders/ripple_ring.gdshader", SPATIAL) or nil
+    state.sdrop = (state.splash_on or ring_sh) and core.shader.create("files/shaders/splash_drop.gdshader", SPATIAL) or nil
+    local life = 3.6
+    state.gpu_full = floor(Config.rain_real_rate * life)
+    state.gpu_burst = Config.splash_gpu_burst
+    state.rrshader = rr
+    -- enough droplet slots for EVERY landing: landings per second x droplets per landing x droplet lifetime (+25%).
+    -- A full budget silently drops new splashes, which looks like drops that hit the ground without splashing
+    local sub = particle.gpu.create()                         -- the droplets: the engine spawns them where a drop lands
+    sub:set_amount(max(Config.splash_gpu_amount, floor(Config.rain_real_rate * state.gpu_burst * 0.46 * 1.25) + 16))
+    sub:set_lifetime(0.46)
+    sub:set_one_shot(false)
+    sub:set_explosiveness(0.0)
+    sub:set_randomness(0.6)
+    sub:set_local_coords(false)
+    sub:set_direction({ 0, 1, 0 })
+    sub:set_spread(62)
+    sub:set_gravity({ 0, -9.8, 0 })
+    sub:set_param(particle.gpu.param.VELOCITY, 0.7, 3.0)
+    sub:set_visibility_aabb({ -30, -10, -30 }, { 60, 40, 60 })
+    if state.sdrop then sub:set_material(state.sdrop) end
+    sub:set_fixed_fps(0)                                       -- simulate every frame, not at 30 fps
+    sub:set_visible(true)
+    local rip = ring_sh and particle.gpu.create()                 -- one ring per droplet: stands still where it was spawned
+    if rip then
+        rip:set_amount(floor(Config.rain_real_rate * state.gpu_burst * RIP.life * 1.25) + 16)
+        rip:set_lifetime(RIP.life)
+        rip:set_one_shot(false)
+        rip:set_explosiveness(0.0)
+        rip:set_randomness(0.0)
+        rip:set_local_coords(false)
+        rip:set_gravity({ 0, 0, 0 })
+        rip:set_param(particle.gpu.param.VELOCITY, 0.0, 0.0)
+        rip:set_visibility_aabb({ -30, -10, -30 }, { 60, 40, 60 })
+        rip:set_material(ring_sh)
+        ring_sh:set_param("ring_radius", RIP.radius)
+        ring_sh:set_param("share", 1.0 / state.gpu_burst)
+        ring_sh:set_param("depth_scale", RIP.depth)
+        rip:set_fixed_fps(0)
+        rip:set_visible(false)                                -- shown once its rendertarget exists (see buffer)
+        sub:set_sub_emitter(rip, particle.gpu.sub_emitter_mode.AT_START, 1)
+        state.gpu_rip = rip
+    end
+    local car = particle.gpu.create()                         -- the rain: real falling drops drawn by rain_fall.gdshader
+    car:set_amount(state.gpu_full)
+    car:set_lifetime(life)
+    car:set_one_shot(false)
+    car:set_explosiveness(0.0)
+    car:set_randomness(0.0)
+    car:set_local_coords(false)
+    car:set_emission_shape(particle.gpu.emission_shape.BOX, { 17.0, 0.2, 17.0 })
+    car:set_direction({ 0, -1, 0 })
+    car:set_spread(0)
+    car:set_gravity({ 0, 0, 0 })
+    car:set_material(rr)
+    car:set_visibility_aabb({ -30, -30, -30 }, { 60, 60, 60 })
+    car:set_collision(particle.gpu.collision_mode.HIDE, 0.0, 1.0)
+    if state.splash_on or rip then car:set_sub_emitter(sub, particle.gpu.sub_emitter_mode.AT_COLLISION, state.gpu_burst) end
+    -- the rain simulates every frame: at the default 30 fps a drop falling 13 m/s moves 0.4 m per step and is only noticed
+    -- below the surface, so its splash would start under the floor
+    car:set_fixed_fps(0)
+    car:set_visible(false)
+    state.gpu_sub, state.gpu_car = sub, car
+    state.gpu_on = true
+    core.engine.print("info", "[dynamic_sky] rain active (real colliding drops, splashes = " .. (state.splash_on and "on" or "off") .. ")")
 
     -- ripples from the landed drops (else procedural ripples in the puddle layer)
     state.rip_hook = state.gpu_rip ~= nil and state.cshader ~= nil
@@ -161,16 +144,14 @@ Sky.on("update", function(F)
         if dens then
             local fx, fy, fz = F.wx * (0.75 + 0.5 * R), -(8.5 + 9.5 * R ^ 0.9), F.wz * (0.75 + 0.5 * R)
             local fl = sqrt(fx * fx + fy * fy + fz * fz)
-            pcall(function()
-                car:set_global_position({ cpos[1], cpos[2] + 14.0, cpos[3] })
-                state.gpu_sub:set_global_position({ cpos[1], cpos[2], cpos[3] })       -- their culling box follows the camera too
-                if state.rip_hook then
-                    state.gpu_rip:set_global_position({ cpos[1], cpos[2], cpos[3] })
-                    buffer()
-                end
-                car:set_direction({ fx / fl, fy / fl, fz / fl })
-                car:set_param(particle.gpu.param.VELOCITY, fl * 0.75, fl * 1.25)
-            end)
+            car:set_global_position({ cpos[1], cpos[2] + 14.0, cpos[3] })
+            state.gpu_sub:set_global_position({ cpos[1], cpos[2], cpos[3] })       -- their culling box follows the camera too
+            if state.rip_hook then
+                state.gpu_rip:set_global_position({ cpos[1], cpos[2], cpos[3] })
+                buffer()
+            end
+            car:set_direction({ fx / fl, fy / fl, fz / fl })
+            car:set_param(particle.gpu.param.VELOCITY, fl * 0.75, fl * 1.25)
             local sh = state.rrshader
             sh:set_param("fall_vel", { fx, fy, fz })
             sh:set_param("density", dens)
@@ -194,13 +175,11 @@ end)
 
 -- sky_splash [on|off] : droplet splashes where rain hits the ground
 util.input.register("sky_splash", function(args)
-    if not state.gpu_on then return core.engine.print("warn", "[dynamic_sky] rain is not active (needs the engine with the particle collision API)") end
+    if not state.gpu_on then return core.engine.print("warn", "[dynamic_sky] rain is not active (use_precipitation is off)") end
     state.splash_on = Sky.switch(args[1], state.splash_on)
     if not state.rip_hook then                                                     -- with the ripple hook the droplets keep spawning (the rings hang on them), they just stay invisible
-        pcall(function()
-            if state.splash_on then state.gpu_car:set_sub_emitter(state.gpu_sub, particle.gpu.sub_emitter_mode.AT_COLLISION, state.gpu_burst)
-            else state.gpu_car:reset_sub_emitter() end
-        end)
+        if state.splash_on then state.gpu_car:set_sub_emitter(state.gpu_sub, particle.gpu.sub_emitter_mode.AT_COLLISION, state.gpu_burst)
+        else state.gpu_car:reset_sub_emitter() end
     end
     core.engine.print("info", "[dynamic_sky] rain splashes:", state.splash_on and "on" or "off")
 end)

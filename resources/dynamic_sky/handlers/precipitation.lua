@@ -19,26 +19,21 @@ function Sky.level(car, key, full, inten, on)
     local steps = 8.0
     local lvl = on and min(steps, floor(inten * steps) + 1) or 0
     if lvl <= 0 then
-        if state[key] ~= 0 then state[key] = 0; pcall(function() car:set_visible(false); car:stop() end) end   -- a hidden emitter must not keep simulating
+        if state[key] ~= 0 then state[key] = 0; car:set_visible(false); car:stop() end   -- a hidden emitter must not keep simulating
         return nil
     end
     if state[key] ~= lvl then
         state[key] = lvl
-        pcall(function()
-            car:set_amount(max(40, floor(full * lvl / steps)))
-            car:set_visible(true)
-            car:emit()
-        end)
+        car:set_amount(max(40, floor(full * lvl / steps)))
+        car:set_visible(true)
+        car:emit()
     end
     return clamp(inten * steps / lvl, 0.0, 1.0) ^ 0.8
 end
 
 Sky.on("update", function(F)
     local cam = core.camera.get_active()
-    if cam then
-        local ok, p = pcall(cam.get_global_position, cam)
-        if ok and type(p) == "table" then F.cpos = p end
-    end
+    if cam then F.cpos = cam:get_global_position() end
     local tc = F.tc
     F.daylight = clamp(0.10 + 0.80 * clamp(tc.light_energy, 0.0, 1.0) ^ 0.7, 0.08, 1.0) * (1.0 + F.FL * 3.0)
 

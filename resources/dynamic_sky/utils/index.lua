@@ -27,12 +27,9 @@ function Sky.on(stage, fn)
 end
 
 function Sky.run(stage, ...)
-    if Sky.stage[stage] then
-        for _, fn in ipairs(Sky.stage[stage]) do
-            if fn(...) == false then return false end
-        end
+    for _, fn in ipairs(Sky.stage[stage] or {}) do 
+        fn(...) 
     end
-    return true
 end
 
 -- on | off | nothing (flip) -> the new state

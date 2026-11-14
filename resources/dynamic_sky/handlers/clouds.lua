@@ -11,10 +11,6 @@ local state = Sky.state
 local floor, max, abs = util.math.floor, util.math.max, util.math.abs
 local clamp = Math.clamp
 
-local function vec3_of(v)
-    return { v[1] or v.x, v[2] or v.y, v[3] or v.z }
-end
-
 
 --------------
 --[[ Init ]]--
@@ -22,12 +18,7 @@ end
 
 -- baked cloud noise (see tools/bake_cloud_noise.py), sampled instead of computing noise per pixel
 Sky.on("init", function()
-    local ok, img = pcall(core.image.create, "files/textures/cloud_noise.png", true)
-    if ok and img then
-        state.noise = img                                   -- keep a reference alive
-    else
-        core.engine.print("error", "[dynamic_sky] files/textures/cloud_noise.png could not be loaded, clouds disabled")
-    end
+    state.noise = core.image.create("files/textures/cloud_noise.png", true)
 end)
 
 
@@ -41,59 +32,42 @@ end)
 local function setup(rx, ry)
     local div = Config.cloud_rt_div
     local w, h = max(64, floor(rx / div)), max(64, floor(ry / div))
-    local ok, err = pcall(function()
+    if not state.cloud_sh then
         local mode = core.shader.shader_mode.CANVAS_ITEM
-        if not state.cloud_sh then
-            state.cloud_sh = core.shader.create("files/shaders/cloud_pass.gdshader", mode)
-            state.cblur_h = core.shader.create("files/shaders/cloud_blur.gdshader", mode)
-            state.cblur_v = core.shader.create("files/shaders/cloud_blur.gdshader", mode)
-            if not (state.cloud_sh and state.cblur_h and state.cblur_v) then error("cloud shaders failed to compile") end
-            state.cloud_sh:set_param("noise_tex", state.noise)
-        end
-        -- a resize makes new rendertargets, the old ones are freed
-        for _, rt in ipairs({ state.crt_a or false, state.crt_b or false, state.crt_c or false }) do
-            if rt then pcall(rt.destroy, rt) end
-        end
-        -- every rendertarget gets ONE draw per frame: it is rendered once, with everything drawn to it
-        state.crt_a = core.rendertarget.create({ w, h }, true, true)
-        state.crt_b = core.rendertarget.create({ w, h }, true, true)
-        state.crt_c = core.rendertarget.create({ w, h }, true, true)
-        if not state.crt_a:is_hdr() then error("needs the engine with hdr rendertargets (core.rendertarget.create third parameter)") end
-        state.cblur_h:set_param("src", state.crt_a)
-        state.cblur_h:set_param("step_uv", { 1.0 / w, 0.0 })
-        state.cblur_v:set_param("src", state.crt_b)
-        state.cblur_v:set_param("step_uv", { 0.0, 1.0 / h })
-        state.shader:set_param("cloud_tex", Config.cloud_blur and state.crt_c or state.crt_a)
-        state.crt_w, state.crt_h, state.crt_rx, state.crt_ry = w, h, rx, ry
-    end)
-    if not ok then
-        state.cloud_failed = true
-        core.engine.print("error", "[dynamic_sky] clouds unavailable: " .. tostring(err))
+        state.cloud_sh = core.shader.create("files/shaders/cloud_pass.gdshader", mode)
+        state.cblur_h = core.shader.create("files/shaders/cloud_blur.gdshader", mode)
+        state.cblur_v = core.shader.create("files/shaders/cloud_blur.gdshader", mode)
+        state.cloud_sh:set_param("noise_tex", state.noise)
     end
-    return ok
+    -- a resize makes new rendertargets, the old ones are freed
+    for _, rt in ipairs({ state.crt_a, state.crt_b, state.crt_c }) do rt:destroy() end
+    -- every rendertarget gets ONE draw per frame: it is rendered once, with everything drawn to it
+    state.crt_a = core.rendertarget.create({ w, h }, true, true)
+    state.crt_b = core.rendertarget.create({ w, h }, true, true)
+    state.crt_c = core.rendertarget.create({ w, h }, true, true)
+    state.cblur_h:set_param("src", state.crt_a)
+    state.cblur_h:set_param("step_uv", { 1.0 / w, 0.0 })
+    state.cblur_v:set_param("src", state.crt_b)
+    state.cblur_v:set_param("step_uv", { 0.0, 1.0 / h })
+    state.shader:set_param("cloud_tex", Config.cloud_blur and state.crt_c or state.crt_a)
+    state.crt_w, state.crt_h, state.crt_rx, state.crt_ry = w, h, rx, ry
 end
 
 Sky.on("draw", function()
-    if not (state.enabled and state.shader and state.noise) or state.cloud_failed then return end
+    if not state.enabled then return end
     local cam = core.camera.get_active()
     if not cam then return end
     local res = core.display.get_resolution()
-    local rx, ry = res[1] or res.x, res[2] or res.y
-    if not (rx and ry and ry > 0) then return end
-    if not state.crt_a or abs(rx - state.crt_rx) > 2 or abs(ry - state.crt_ry) > 2 then
-        if not setup(rx, ry) then return end
-    end
+    local rx, ry = res[1], res[2]
+    if not state.crt_a or abs(rx - state.crt_rx) > 2 or abs(ry - state.crt_ry) > 2 then setup(rx, ry) end
 
-    local ok, tr = pcall(cam.get_transform, cam)
-    local okp, pos = pcall(cam.get_global_position, cam)
-    local okf, fov = pcall(cam.get_fov, cam)
-    if not (ok and okp and okf and type(tr) == "table" and tr.basis and type(pos) == "table" and type(fov) == "number") then return end
-    local bx, by, bz = vec3_of(tr.basis.x), vec3_of(tr.basis.y), vec3_of(tr.basis.z)
-    local okk, keep = pcall(cam.get_keep_aspect, cam)
-    local t = util.math.tan(util.math.rad(fov) * 0.5)
+    local basis = cam:get_transform().basis
+    local bx, by, bz = basis.x, basis.y, basis.z
+    local pos = cam:get_global_position()
+    local t = util.math.tan(util.math.rad(cam:get_fov()) * 0.5)
     local aspect = rx / ry
     local tx, ty = t * aspect, t                            -- the field of view is vertical by default (keep height)
-    if okk and keep == 0 then tx, ty = t, t / aspect end    -- keep width
+    if cam:get_keep_aspect() == 0 then tx, ty = t, t / aspect end    -- keep width
 
     -- looking far down: no pixel of the screen can show sky, so nothing to march
     local pitch = util.math.asin(clamp(-bz[2], -1.0, 1.0))
@@ -149,7 +123,7 @@ Sky.on("update", function(F)
     cset("cloud_ambient_top", { tc.ambient_top[1] * F.grey + ng[1] * nk + FL * 2.2, tc.ambient_top[2] * F.grey + ng[2] * nk + FL * 2.4, tc.ambient_top[3] * F.grey + ng[3] * nk + FL * 3.2 })
     cset("cloud_ambient_bottom", { tc.ambient_bottom[1] + ng[1] * nk * 0.6, tc.ambient_bottom[2] + ng[2] * nk * 0.6, tc.ambient_bottom[3] + ng[3] * nk * 0.6 })
 
-    local coverage = (state.clouds and state.noise) and state.cur.coverage or 0.0
+    local coverage = state.clouds and state.cur.coverage or 0.0
     state.shader:set_param("cloud_coverage", coverage)
     cset("cloud_coverage", coverage)
     cset("cloud_density", state.cur.density)

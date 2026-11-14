@@ -12,7 +12,7 @@
 --[[ Configs ]]--
 -----------------
 
-Config.rain_real_rate      = 3500  -- real drops falling per second at full rain (rain needs the engine with the particle collision API)
+Config.rain_real_rate      = 3500  -- real drops falling per second at full rain
 Config.rain_opacity        = 1.0   -- rain streak transparency multiplier (lower = fainter)
 Config.use_splash          = true  -- a droplet splash wherever a rain drop lands (engine sub-emitter on the colliding rain)
 Config.splash_opacity      = 1.0   -- splash droplet opacity multiplier (lower = fainter)

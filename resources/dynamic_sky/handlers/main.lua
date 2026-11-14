@@ -13,7 +13,7 @@ local state = Sky.state
 Sky.run("init")
 
 util.event.on("sandbox:process", function(dt)
-    if not state.enabled or not state.shader then return end
+    if not state.enabled then return end
     Sky.run("update", { dt = dt })
 end)
 
