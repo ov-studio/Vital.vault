@@ -86,24 +86,24 @@ scripts:
 
   # client
   - { src: "utils/state.lua", type: "client" }
-  - { src: "handlers/server/sync.lua", type: "server" }
-  - { src: "handlers/client/clock.lua", type: "client" }
-  - { src: "handlers/client/weather.lua", type: "client" }
-  - { src: "handlers/client/timecycle.lua", type: "client" }
-  - { src: "handlers/client/lightning.lua", type: "client" }
-  - { src: "handlers/client/celestial.lua", type: "client" }
-  - { src: "handlers/client/clouds.lua", type: "client" }
-  - { src: "handlers/client/sky.lua", type: "client" }
-  - { src: "handlers/client/godrays.lua", type: "client" }
-  - { src: "handlers/client/glow.lua", type: "client" }
-  - { src: "handlers/client/light.lua", type: "client" }
-  - { src: "handlers/client/fog.lua", type: "client" }
-  - { src: "handlers/client/precipitation.lua", type: "client" }
-  - { src: "handlers/client/surface.lua", type: "client" }
-  - { src: "handlers/client/snow.lua", type: "client" }
-  - { src: "handlers/client/rain.lua", type: "client" }
-  - { src: "handlers/client/collision.lua", type: "client" }
-  - { src: "handlers/client/main.lua", type: "client" }
+  - { src: "handlers/sync.lua", type: "server" }
+  - { src: "handlers/clock.lua", type: "client" }
+  - { src: "handlers/weather.lua", type: "client" }
+  - { src: "handlers/timecycle.lua", type: "client" }
+  - { src: "handlers/lightning.lua", type: "client" }
+  - { src: "handlers/celestial.lua", type: "client" }
+  - { src: "handlers/clouds.lua", type: "client" }
+  - { src: "handlers/sky.lua", type: "client" }
+  - { src: "handlers/godrays.lua", type: "client" }
+  - { src: "handlers/glow.lua", type: "client" }
+  - { src: "handlers/light.lua", type: "client" }
+  - { src: "handlers/fog.lua", type: "client" }
+  - { src: "handlers/precipitation.lua", type: "client" }
+  - { src: "handlers/surface.lua", type: "client" }
+  - { src: "handlers/snow.lua", type: "client" }
+  - { src: "handlers/rain.lua", type: "client" }
+  - { src: "handlers/collision.lua", type: "client" }
+  - { src: "handlers/main.lua", type: "client" }
 
 files:
   - "files/**"

@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
 --[[ Resource: Dynamic Sky
-     Script: handlers/client/lightning.lua
+     Script: handlers/lightning.lua
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026

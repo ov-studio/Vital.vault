@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
 --[[ Resource: Dynamic Sky
-     Script: handlers/client/celestial.lua
+     Script: handlers/celestial.lua
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026

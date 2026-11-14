@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
 --[[ Resource: Dynamic Sky
-     Script: handlers/client/collision.lua
+     Script: handlers/collision.lua
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026

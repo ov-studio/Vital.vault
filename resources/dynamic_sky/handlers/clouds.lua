@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
 --[[ Resource: Dynamic Sky
-     Script: handlers/client/clouds.lua
+     Script: handlers/clouds.lua
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026

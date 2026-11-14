@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
 --[[ Resource: Dynamic Sky
-     Script: handlers/client/glow.lua
+     Script: handlers/glow.lua
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026

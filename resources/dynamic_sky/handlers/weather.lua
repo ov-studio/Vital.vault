@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
 --[[ Resource: Dynamic Sky
-     Script: handlers/client/weather.lua
+     Script: handlers/weather.lua
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
