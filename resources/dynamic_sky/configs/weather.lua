@@ -18,6 +18,7 @@ Config.wind_dir              = { 1.0, 0.35 }  -- start wind direction {x, z}, th
 Config.wind_speed            = 6.0            -- metres / second
 Config.lightning_intensity   = 1.0            -- strength of thunderstorm flashes (0 = none, 2 = blinding)
 
+
 -- weather presets: target values, blended smoothly on the client
 -- Every preset blends smoothly into the next one. Keys (all optional, missing = off / neutral):
 --   coverage, density, type   cloud cover / thickness / shape (0 flat stratus .. 1 puffy cumulus)
@@ -35,7 +36,6 @@ Config.weather = {
     overcast  = { coverage = 0.55, density = 0.0070, type = 0.30, dark = 0.40, desat = 0.70, haze = 0.30 },
     storm     = { coverage = 0.68, density = 0.0100, type = 0.20, dark = 0.65, desat = 0.85, haze = 0.45, wind = 1.6 },
     hazy      = { coverage = 0.16, density = 0.0048, type = 0.80, dark = 0.05, desat = 0.38, haze = 1.00 },
-
     drizzle   = { coverage = 0.50, density = 0.0062, type = 0.30, dark = 0.38, desat = 0.62, haze = 0.25, rain = 0.22, fog = 0.08, wind = 0.8 },
     rain      = { coverage = 0.62, density = 0.0085, type = 0.22, dark = 0.62, desat = 0.78, haze = 0.40, rain = 0.60, fog = 0.15, wind = 1.2 },
     thunder   = { coverage = 0.74, density = 0.0115, type = 0.15, dark = 0.85, desat = 0.88, haze = 0.50, rain = 1.00, fog = 0.12, wind = 1.9, lightning = 1.0 },
