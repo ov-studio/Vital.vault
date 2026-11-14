@@ -27,7 +27,7 @@ function Sky.on(stage, fn)
 end
 
 function Sky.run(stage, ...)
-    if then Sky.stage[stage] then
+    if Sky.stage[stage] then
         for _, fn in ipairs(Sky.stage[stage]) do
             if fn(...) == false then return false end
         end
