@@ -7,6 +7,9 @@
      Desc: Client state shared by every handler ]]--
 ----------------------------------------------------------------
 
+-- Fields that start out unset (nil): shader, light, cshader, moon_phase_manual (nil = automatic phase),
+-- cover_manual (nil = snow cover follows the weather), fog_on (unknown until the first frame, so the level's own fog
+-- is switched off when the weather has none), gpu_on / snow_on (set once the particles exist).
 Sky.state = {
     time     = Config.start_time,
     day      = 0,
@@ -21,7 +24,6 @@ Sky.state = {
     wind     = { 0, 0, 0 },     -- accumulated wind offset of the clouds
     cloud_t  = 0.0,
     enabled  = true,
-    shader   = nil,             -- sky shader
 
     -- lightning
     flash    = 0.0,             -- manual flash 0..1
@@ -31,7 +33,6 @@ Sky.state = {
     -- sun / moon
     sun_deg  = Config.sun_radius_deg,
     moon_deg = Config.moon_radius_deg,
-    moon_phase_manual = nil,    -- set by the moon_phase command / the set_moon_phase export (nil = automatic)
 
     -- clouds
     quality  = Config.quality,
@@ -43,18 +44,13 @@ Sky.state = {
     precip    = Config.use_precipitation,
     splash_on = Config.use_splash,
 
-    -- scene
-    light    = nil,
-    fog_on   = nil,             -- unknown until the first frame, so the level's own fog is switched off when the weather has none
-
     -- precipitation
-    gpu_on   = false,
-    snow_on  = false,
     flt      = 0.0,
 
     -- surface weather
-    cshader  = nil,
-    cover = 0.0, wet = 0.0, cover_manual = nil, cover_on = false,
+    cover    = 0.0,
+    wet      = 0.0,
+    cover_on = false,
 }
 
 for k, v in pairs(Sky.state.cur) do Sky.state.base[k] = v end
