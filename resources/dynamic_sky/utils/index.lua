@@ -7,15 +7,19 @@
      Desc: Shared namespaces, stage registry and math helpers ]]--
 ----------------------------------------------------------------
 
+
+-------------------
+--[[ Variables ]]--
+-------------------
+
 Config = {}
 Sky = { stage = { init = {}, update = {}, draw = {} } }
 Math = {}
 
 
------------------
+----------------
 --[[ Stages ]]--
------------------
--- handlers register their work here and handlers/client/main.lua runs it, in load order
+----------------
 
 function Sky.on(stage, fn)
     local list = Sky.stage[stage]
