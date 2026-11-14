@@ -15,34 +15,60 @@
 -- timecycle -----------------------------------------------------
 -- Keyframes by hour, smoothstep-interpolated, wraps at 24.
 -- Add / remove / edit rows freely (keep them sorted by hour, first at 0 and last at 24).
---   zenith, horizon, ground : gradient sky colours
---   glow, glow_strength     : sun glow / sunset tint around the sun
---   sun_color               : sun disc colour
---   light, light_energy     : colour + energy of the scene directional light (sun)
---   ambient_top/bottom      : cloud ambient + scene ambient tint
---   stars                   : star visibility 0..1
---   exposure                : per-keyframe sky brightness multiplier
-local NIGHT = {
-    zenith         = {0.004, 0.007, 0.022},
-    horizon        = {0.020, 0.030, 0.062},
-    ground         = {0.006, 0.008, 0.014},
-    glow           = {0.20, 0.25, 0.45},
-    glow_strength  = 0.0,
-    sun_color      = {1.0, 0.5, 0.2},
-    light          = {0.45, 0.55, 1.00},
-    light_energy   = 0.10,
-    ambient_top    = {0.020, 0.030, 0.060},
-    ambient_bottom = {0.010, 0.014, 0.026},
-    stars          = 1.0,
-    exposure       = 1.0,
-}
-
+--   zenith         : sky colour at the top
+--   horizon        : sky colour at the horizon
+--   ground         : colour below the horizon
+--   glow           : sun glow / sunset tint around the sun
+--   glow_strength  : strength of that glow
+--   sun_color      : sun disc colour
+--   light          : colour of the scene directional light (sun)
+--   light_energy   : energy of the scene directional light (sun)
+--   ambient_top    : cloud ambient tint
+--   ambient_bottom : scene ambient tint
+--   stars          : star visibility 0..1
+--   exposure       : per-keyframe sky brightness multiplier
 Config.timecycle = {
-    { hour = 0.0, NIGHT },
-    { hour = 4.6, NIGHT },
+    {
+        hour = 0.0,
+        template = {
+            -- midnight
+            zenith         = {0.003, 0.005, 0.018},
+            horizon        = {0.014, 0.022, 0.050},
+            ground         = {0.005, 0.006, 0.012},
+            glow           = {0.20, 0.25, 0.45},
+            glow_strength  = 0.0,
+            sun_color      = {1.0, 0.5, 0.2},
+            light          = {0.45, 0.55, 1.00},
+            light_energy   = 0.08,
+            ambient_top    = {0.016, 0.024, 0.050},
+            ambient_bottom = {0.008, 0.011, 0.021},
+            stars          = 1.0,
+            exposure       = 1.0
+        }
+    },
 
     {
-        hour = 5.1, {
+        hour = 4.6,
+        template = {
+            -- pre-dawn
+            zenith         = {0.004, 0.007, 0.024},
+            horizon        = {0.026, 0.034, 0.075},
+            ground         = {0.006, 0.008, 0.015},
+            glow           = {0.22, 0.20, 0.40},
+            glow_strength  = 0.02,
+            sun_color      = {1.0, 0.45, 0.2},
+            light          = {0.42, 0.52, 1.00},
+            light_energy   = 0.07,
+            ambient_top    = {0.022, 0.030, 0.064},
+            ambient_bottom = {0.012, 0.015, 0.028},
+            stars          = 0.9,
+            exposure       = 1.0
+        }
+    },
+
+    {
+        hour = 5.1,
+        template = {
             -- nautical dawn
             zenith         = {0.002, 0.004, 0.026},
             horizon        = {0.048, 0.048, 0.150},
@@ -60,7 +86,8 @@ Config.timecycle = {
     },
 
     {
-        hour = 5.6, {
+        hour = 5.6,
+        template = {
             -- civil dawn: pink / purple belt
             zenith         = {0.012, 0.021, 0.122},
             horizon        = {0.527, 0.195, 0.242},
@@ -78,7 +105,8 @@ Config.timecycle = {
     },
 
     {
-        hour = 6.0, {
+        hour = 6.0,
+        template = {
             -- sunrise
             zenith         = {0.027, 0.065, 0.270},
             horizon        = {0.791, 0.305, 0.181},
@@ -96,7 +124,8 @@ Config.timecycle = {
     },
 
     {
-        hour = 6.6, {
+        hour = 6.6,
+        template = {
             -- golden morning
             zenith         = {0.045, 0.127, 0.468},
             horizon        = {0.855, 0.491, 0.270},
@@ -114,7 +143,8 @@ Config.timecycle = {
     },
 
     {
-        hour = 7.8, {
+        hour = 7.8,
+        template = {
             -- morning
             zenith         = {0.058, 0.181, 0.604},
             horizon        = {0.552, 0.658, 0.776},
@@ -132,7 +162,8 @@ Config.timecycle = {
     },
 
     {
-        hour = 12.0, {
+        hour = 12.0,
+        template = {
             -- noon
             zenith         = {0.032, 0.144, 0.552},
             horizon        = {0.413, 0.617, 0.839},
@@ -150,7 +181,8 @@ Config.timecycle = {
     },
 
     {
-        hour = 16.2, {
+        hour = 16.2,
+        template = {
             -- afternoon
             zenith         = {0.040, 0.156, 0.565},
             horizon        = {0.491, 0.617, 0.761},
@@ -168,7 +200,8 @@ Config.timecycle = {
     },
 
     {
-        hour = 17.4, {
+        hour = 17.4,
+        template = {
             -- golden evening
             zenith         = {0.045, 0.117, 0.434},
             horizon        = {0.839, 0.445, 0.231},
@@ -186,7 +219,8 @@ Config.timecycle = {
     },
 
     {
-        hour = 18.0, {
+        hour = 18.0,
+        template = {
             -- sunset
             zenith         = {0.025, 0.058, 0.262},
             horizon        = {0.807, 0.246, 0.133},
@@ -204,7 +238,8 @@ Config.timecycle = {
     },
 
     {
-        hour = 18.45, {
+        hour = 18.45,
+        template = {
             -- civil dusk: purple / rose
             zenith         = {0.013, 0.023, 0.133},
             horizon        = {0.434, 0.144, 0.231},
@@ -222,7 +257,8 @@ Config.timecycle = {
     },
 
     {
-        hour = 18.9, {
+        hour = 18.9,
+        template = {
             -- nautical dusk
             zenith         = {0.003, 0.005, 0.037},
             horizon        = {0.065, 0.048, 0.162},
@@ -240,7 +276,8 @@ Config.timecycle = {
     },
 
     {
-        hour = 19.6, {
+        hour = 19.6,
+        template = {
             -- late dusk
             zenith         = {0.001, 0.002, 0.009},
             horizon        = {0.013, 0.018, 0.061},
@@ -257,8 +294,43 @@ Config.timecycle = {
         }
     },
 
-    { hour = 20.4, NIGHT },
-    { hour = 24.0, NIGHT }
+    {
+        hour = 20.4,
+        template = {
+            -- early night
+            zenith         = {0.003, 0.006, 0.020},
+            horizon        = {0.018, 0.026, 0.058},
+            ground         = {0.005, 0.007, 0.013},
+            glow           = {0.18, 0.20, 0.42},
+            glow_strength  = 0.01,
+            sun_color      = {1.0, 0.5, 0.2},
+            light          = {0.45, 0.55, 1.00},
+            light_energy   = 0.10,
+            ambient_top    = {0.019, 0.028, 0.058},
+            ambient_bottom = {0.010, 0.013, 0.025},
+            stars          = 1.0,
+            exposure       = 1.0
+        }
+    },
+
+    {
+        hour = 24.0,
+        template = {
+            -- midnight, same as 0.0 so the day wraps seamlessly
+            zenith         = {0.003, 0.005, 0.018},
+            horizon        = {0.014, 0.022, 0.050},
+            ground         = {0.005, 0.006, 0.012},
+            glow           = {0.20, 0.25, 0.45},
+            glow_strength  = 0.0,
+            sun_color      = {1.0, 0.5, 0.2},
+            light          = {0.45, 0.55, 1.00},
+            light_energy   = 0.08,
+            ambient_top    = {0.016, 0.024, 0.050},
+            ambient_bottom = {0.008, 0.011, 0.021},
+            stars          = 1.0,
+            exposure       = 1.0
+        }
+    }
 }
 
 Config.night_ambient_boost = 0.6                                           -- extra ambient strength from dusk to night (0 = off, 1 = double)

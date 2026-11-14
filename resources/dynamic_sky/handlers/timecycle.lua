@@ -23,8 +23,8 @@ local function sample(hour)
     local t = span > 0 and (hour - a.hour) / span or 0
     t = t * t * (3 - 2 * t)
     local out = {}
-    for _, f in ipairs(FIELDS3) do out[f] = lerp3(a[1][f], b[1][f], t) end
-    for _, f in ipairs(FIELDS1) do out[f] = lerp(a[1][f], b[1][f], t) end
+    for _, f in ipairs(FIELDS3) do out[f] = lerp3(a.template[f], b.template[f], t) end
+    for _, f in ipairs(FIELDS1) do out[f] = lerp(a.template[f], b.template[f], t) end
     return out
 end
 
