@@ -69,29 +69,29 @@ description: |
 
 scripts:
   # configs & utils
-  - { src: "utils/index.lua", type: "shared" }
-  - { src: "configs/**.lua", type: "shared" }
-  - { src: "utils/state.lua", type: "client" }
+  - { src: "utils/index.lua",            type: "shared" }
+  - { src: "configs/**.lua",             type: "shared" }
+  - { src: "utils/state.lua",            type: "client" }
 
   # handlers
-  - { src: "handlers/sync.lua", type: "server" }
-  - { src: "handlers/clock.lua", type: "client" }
-  - { src: "handlers/weather.lua", type: "client" }
-  - { src: "handlers/timecycle.lua", type: "client" }
-  - { src: "handlers/lightning.lua", type: "client" }
-  - { src: "handlers/celestial.lua", type: "client" }
-  - { src: "handlers/clouds.lua", type: "client" }
-  - { src: "handlers/sky.lua", type: "client" }
-  - { src: "handlers/godrays.lua", type: "client" }
-  - { src: "handlers/glow.lua", type: "client" }
-  - { src: "handlers/light.lua", type: "client" }
-  - { src: "handlers/fog.lua", type: "client" }
+  - { src: "handlers/sync.lua",          type: "server" }
+  - { src: "handlers/clock.lua",         type: "client" }
+  - { src: "handlers/weather.lua",       type: "client" }
+  - { src: "handlers/timecycle.lua",     type: "client" }
+  - { src: "handlers/lightning.lua",     type: "client" }
+  - { src: "handlers/celestial.lua",     type: "client" }
+  - { src: "handlers/clouds.lua",        type: "client" }
+  - { src: "handlers/sky.lua",           type: "client" }
+  - { src: "handlers/godrays.lua",       type: "client" }
+  - { src: "handlers/glow.lua",          type: "client" }
+  - { src: "handlers/light.lua",         type: "client" }
+  - { src: "handlers/fog.lua",           type: "client" }
   - { src: "handlers/precipitation.lua", type: "client" }
-  - { src: "handlers/surface.lua", type: "client" }
-  - { src: "handlers/snow.lua", type: "client" }
-  - { src: "handlers/rain.lua", type: "client" }
-  - { src: "handlers/collision.lua", type: "client" }
-  - { src: "handlers/main.lua", type: "client" }
+  - { src: "handlers/surface.lua",       type: "client" }
+  - { src: "handlers/snow.lua",          type: "client" }
+  - { src: "handlers/rain.lua",          type: "client" }
+  - { src: "handlers/collision.lua",     type: "client" }
+  - { src: "handlers/main.lua",          type: "client" }
 
 files:
   - "files/**"
