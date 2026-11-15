@@ -7,7 +7,6 @@
      Desc: Sky shader: gradient, sun, moon and stars ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
@@ -43,13 +42,14 @@ Sky.on("update", function(F)
     sh:set_param("ground_color", tc.ground)
     sh:set_param("glow_color", tc.glow)
     sh:set_param("glow_strength", tc.glow_strength * F.dark)
-    sh:set_param("horizon_falloff", max(3.5 - state.cur.haze * 1.6, 0.8))       -- haze widens the bright horizon band
+    sh:set_param("horizon_falloff", max(3.5 - state.cur.haze * 1.6, 0.8))  -- haze widens the bright horizon band
     sh:set_param("sun_color", tc.sun_color)
+
     -- sunlight colour after travelling through the atmosphere (Kasten-Young air mass + Rayleigh-ish
     -- per-channel extinction): warm white high up, yellow, orange, then deep red at the horizon.
     -- haze/dust makes the path "longer", so hazy weather gives redder suns.
     local sy = clamp(sun[2], 0.0, 1.0)
-    local hrad = sy + sy * sy * sy / 6.0 + 0.075 * sy ^ 5          -- asin() without needing it
+    local hrad = sy + sy * sy * sy / 6.0 + 0.075 * sy ^ 5  -- asin() without needing it
     local hdeg = hrad * 180.0 / PI
     local am = 1.0 / (sy + 0.50572 * (hdeg + 6.07995) ^ -1.6364) * (1.0 + 0.5 * state.cur.haze)
     local r, g, b = 2.718281828 ^ (-0.055 * am), 2.718281828 ^ (-0.105 * am), 2.718281828 ^ (-0.245 * am)
@@ -75,6 +75,7 @@ end)
 --[[ Exports ]]--
 -----------------
 
+-- Public API surface exposed to other resources: switch the whole sky on or off.
 util.export.register("toggle", function() state.enabled = not state.enabled end)
 
 
