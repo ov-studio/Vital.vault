@@ -14,7 +14,7 @@
 
 local state = Sky.state
 local floor, max, abs = util.math.floor, util.math.max, util.math.abs
-local clamp = Math.clamp
+local clamp = util.math.clamp
 
 
 ---------------

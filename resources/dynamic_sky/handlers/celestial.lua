@@ -14,7 +14,7 @@
 
 local state = Sky.state
 local sin, cos, PI = util.math.sin, util.math.cos, util.math.pi
-local lerp, clamp, smoothstep, norm, rotate = Math.lerp, Math.clamp, Math.smoothstep, Math.norm, Math.rotate
+local lerp, clamp, smoothstep, norm, rotate = util.math.lerp, util.math.clamp, util.math.smoothstep, util.math.norm, util.math.rotate
 local PHASES = {
     { "new_moon", 0.0 }, 
     { "waxing_crescent", 0.125 }, 

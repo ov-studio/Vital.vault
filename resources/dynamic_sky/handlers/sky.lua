@@ -14,7 +14,7 @@
 
 local state = Sky.state
 local max, exp, rad, PI = util.math.max, util.math.exp, util.math.rad, util.math.pi
-local clamp = Math.clamp
+local clamp = util.math.clamp
 
 
 ------------------

@@ -13,7 +13,7 @@
 -------------------
 
 local state = Sky.state
-local clamp, lerp3 = Math.clamp, Math.lerp3
+local clamp, lerp3 = util.math.clamp, util.math.lerp3
 
 
 ---------------

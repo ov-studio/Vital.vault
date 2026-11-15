@@ -14,7 +14,7 @@
 
 local state = Sky.state
 local random = util.math.random
-local clamp = Math.clamp
+local clamp = util.math.clamp
 
 
 ------------------

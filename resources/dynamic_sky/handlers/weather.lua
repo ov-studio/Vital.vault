@@ -14,7 +14,7 @@
 
 local state = Sky.state
 local sin, cos, rad = util.math.sin, util.math.cos, util.math.rad
-local lerp, clamp, norm = Math.lerp, Math.clamp, Math.norm
+local lerp, clamp, norm = util.math.lerp, util.math.clamp, util.math.norm
 local overrides = {}
 
 

@@ -13,7 +13,7 @@
 -------------------
 
 local state = Sky.state
-local lerp, lerp3, clamp = Math.lerp, Math.lerp3, Math.clamp
+local lerp, lerp3, clamp = util.math.lerp, util.math.lerp3, util.math.clamp
 local FIELDS3 = { "zenith", "horizon", "ground", "glow", "sun_color", "light", "ambient_top", "ambient_bottom" }
 local FIELDS1 = { "glow_strength", "light_energy", "stars", "exposure" }
 

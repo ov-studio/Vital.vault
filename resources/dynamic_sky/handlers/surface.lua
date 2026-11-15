@@ -14,7 +14,7 @@
 
 local state = Sky.state
 local min, max = util.math.min, util.math.max
-local lerp, clamp = Math.lerp, Math.clamp
+local lerp, clamp = util.math.lerp, util.math.clamp
 
 
 ------------------

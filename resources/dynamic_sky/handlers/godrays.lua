@@ -13,7 +13,7 @@
 -------------------
 
 local state = Sky.state
-local clamp, smoothstep = Math.clamp, Math.smoothstep
+local clamp, smoothstep = util.math.clamp, util.math.smoothstep
 
 
 ------------------
