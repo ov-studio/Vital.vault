@@ -7,7 +7,6 @@
      Desc: Sky colours for the current hour, tinted by the weather ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
