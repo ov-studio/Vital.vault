@@ -7,7 +7,6 @@
      Desc: Crepuscular rays through gaps in geometry ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
@@ -23,7 +22,7 @@ local clamp, smoothstep = Math.clamp, Math.smoothstep
 
 -- strongest with a low sun and some haze, gone under heavy overcast, at night and in precipitation
 Sky.on("update", function(frame)
-    local low_sun = 1.0 - smoothstep(0.2, 0.8, frame.sun[2])                      -- low sun = stronger shafts
+    local low_sun = 1.0 - smoothstep(0.2, 0.8, frame.sun[2])  -- low sun = stronger shafts
     local sun_visible = smoothstep(-0.02, 0.10, frame.sun[2])
     local clear_sky = 1.0 - clamp(state.cur.dark * 1.6, 0.0, 1.0)
     local dry_air = 1.0 - clamp(state.cur.rain * 0.8 + state.cur.snow * 0.5, 0.0, 0.9)
