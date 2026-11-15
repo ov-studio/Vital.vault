@@ -7,7 +7,6 @@
      Desc: Sun and moon positions, moon phase, key light and their commands ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
@@ -32,10 +31,19 @@ local PHASES = {
 --[[ Utils ]]--
 ---------------
 
-local function phase_name(p) return PHASES[(floor((p % 1.0) * 8 + 0.5) % 8) + 1][1] end
-local function phase_lit(p) return (1.0 - cos(p * 2 * PI)) * 0.5 end
+local function phase_name(p) 
+    return PHASES[(floor((p % 1.0) * 8 + 0.5) % 8) + 1][1] 
+end
+
+local function phase_lit(p) 
+    return (1.0 - cos(p * 2 * PI)) * 0.5 
+end
+
 local function set_moon_phase(v)
-    if v == nil or v == "auto" then state.moon_phase_manual = nil; return true end
+    if v == nil or v == "auto" then 
+        state.moon_phase_manual = nil
+        return true 
+    end
     local n = tonumber(v)
     if not n then
         local key = tostring(v):lower():gsub("[%s%-]", "_")
@@ -45,24 +53,31 @@ local function set_moon_phase(v)
         if key == "full" then n = 0.5 elseif key == "new" then n = 0.0 end
     end
     if not n then return false end
+
     state.moon_phase_manual = n % 1.0
     return true
 end
 
 local function set_sun_size(deg)
-    deg = tonumber(deg); if not deg then return false end
-    state.sun_deg = clamp(deg, 0.05, 15.0); return true
+    deg = tonumber(deg)
+    if not deg then return false end
+
+    state.sun_deg = clamp(deg, 0.05, 15.0)]
+    return true
 end
 
 local function set_moon_size(deg)
-    deg = tonumber(deg); if not deg then return false end
-    state.moon_deg = clamp(deg, 0.05, 15.0); return true
+    deg = tonumber(deg)
+    if not deg then return false end
+
+    state.moon_deg = clamp(deg, 0.05, 15.0)
+    return true
 end
 
 local function celestial(hour, day)
     local tilt = Config.sun_tilt_deg * PI / 180
-    local axis = { 0, -sin(tilt), cos(tilt) }                   -- rotation axis of the sky
-    local a = (hour - 6.0) / 24.0 * 2 * PI                      -- 0 = east horizon (06:00)
+    local axis = { 0, -sin(tilt), cos(tilt) }  -- rotation axis of the sky
+    local a = (hour - 6.0) / 24.0 * 2 * PI     -- 0 = east horizon (06:00)
     local sun = rotate({ 1, 0, 0 }, axis, a)
     local phase = state.moon_phase_manual
     if phase == nil then
@@ -70,9 +85,7 @@ local function celestial(hour, day)
         if Config.moon_phase_cycle then phase = (phase + day / 29.5) % 1.0 end
     end
     state.phase = phase
-    -- the moon trails the sun's apparent motion: waxing moon (phase 0..0.5) sits EAST of the sun
-    -- (earlier in the sky's east-to-west rotation), so it is highest at sunset around first quarter
-    local elong = phase * 2 * PI                                -- 0 new, 0.25 first quarter, 0.5 full
+    local elong = phase * 2 * PI               -- 0 new, 0.25 first quarter, 0.5 full
     local moon = rotate({ 1, 0, 0 }, axis, a - elong)
     moon = norm({ moon[1] + axis[1] * 0.09, moon[2] + axis[2] * 0.09, moon[3] + axis[3] * 0.09 })
     return norm(sun), moon, axis, a
