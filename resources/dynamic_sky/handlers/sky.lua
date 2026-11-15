@@ -25,8 +25,7 @@ local clamp, rad = Math.clamp, Math.rad
 Sky.on("init", function()
     local shader = core.shader.create("files/shaders/sky.gdshader", core.shader.shader_mode.POST_PROCESS)
     state.shader = shader
-    -- NASA LROC moon colour map
-    state.moon = core.image.create("files/textures/moon.png", true)    -- keep a reference so the texture is not freed while the shader uses it
+    state.moon = core.image.create("files/textures/moon.png", true)
     shader:set_param("moon_tex", state.moon)
     core.engine.print("info", "[dynamic_sky] sky shader created")
 end)
@@ -66,7 +65,6 @@ Sky.on("update", function(F)
     sh:set_param("exposure", tc.exposure * Config.exposure * (1.0 + FL * 1.7))
 end)
 
--- the sky is a screen quad (same mechanism as a post process effect)
 Sky.on("draw", function()
     if not state.enabled then return end
     core.engine.draw_material({ 0, 0 }, core.display.get_resolution(), state.shader, 0, { 0, 0 }, { 1, 1, 1, 1 })
@@ -77,7 +75,6 @@ end)
 --[[ Exports ]]--
 -----------------
 
--- Public API exposed to other resources: switch the sky on / off
 util.export.register("toggle", function() state.enabled = not state.enabled end)
 
 
