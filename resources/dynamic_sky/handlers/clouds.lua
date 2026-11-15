@@ -23,12 +23,17 @@ local clamp = Math.clamp
 
 local private = {}
 
+-- Sets a cloud pass uniform, the pass is created on the first draw so it may not exist yet.
+function private.set_cloud(name, value)
+    if state.cloud_sh then state.cloud_sh:set_param(name, value) end
+end
+
 -- (Re)creates the cloud shaders and rendertargets for a resolution.
 -- The volumetric clouds are marched into a small rendertarget (a fraction of the screen), blurred with two
 -- passes (horizontal, vertical) and sky.gdshader reads the result with one texture fetch per pixel.
 -- The rendertargets are hdr (16 bit float): the cloud light is above 1 and 8 bits would band.
-function private.setup(rx, ry)
-    local w, h = max(64, floor(rx / Config.cloud_rt_div)), max(64, floor(ry / Config.cloud_rt_div))
+function private.setup(width, height)
+    local w, h = max(64, floor(width / Config.cloud_rt_div)), max(64, floor(height / Config.cloud_rt_div))
     if not state.cloud_sh then
         local mode = core.shader.shader_mode.CANVAS_ITEM
         state.cloud_sh = core.shader.create("files/shaders/cloud_pass.gdshader", mode)
@@ -47,7 +52,7 @@ function private.setup(rx, ry)
     state.cblur_v:set_param("src", state.crt_b)
     state.cblur_v:set_param("step_uv", { 0.0, 1.0 / h })
     state.shader:set_param("cloud_tex", Config.cloud_blur and state.crt_c or state.crt_a)
-    state.crt_w, state.crt_h, state.crt_rx, state.crt_ry = w, h, rx, ry
+    state.crt_w, state.crt_h, state.crt_rx, state.crt_ry = w, h, width, height
 end
 
 
@@ -55,82 +60,89 @@ end
 --[[ Handlers ]]--
 ------------------
 
+-- Loads the baked cloud noise (see tools/bake_cloud_noise.py), sampled instead of computing noise per pixel.
 Sky.on("init", function()
-    state.noise = core.image.create("files/textures/cloud_noise.png", true) -- baked cloud noise (see tools/bake_cloud_noise.py), sampled instead of computing noise per pixel
+    state.noise = core.image.create("files/textures/cloud_noise.png", true)
 end)
 
+-- Marches the volumetric clouds into the low resolution rendertarget and blurs the result, sky.gdshader then reads it.
+-- Skipped while the sky is off, and while the camera looks so far down that no pixel can show sky.
 Sky.on("draw", function()
     if not state.enabled then return end
-    local cam = core.camera.get_active()
-    if not cam then return end
-    
-    local res = core.display.get_resolution()
-    local rx, ry = res[1], res[2]
-    if not state.crt_a or abs(rx - state.crt_rx) > 2 or abs(ry - state.crt_ry) > 2 then private.setup(rx, ry) end
-    local basis = cam:get_transform().basis
-    local pos = cam:get_global_position()
-    local t = util.math.tan(util.math.rad(cam:get_fov()) * 0.5)
-    local aspect = rx / ry
-    local tx, ty = t * aspect, t                                                          -- the field of view is vertical by default (keep height)
-    if cam:get_keep_aspect() == 0 then tx, ty = t, t / aspect end                         -- keep width
-    local pitch = util.math.asin(clamp(-basis.z[2], -1.0, 1.0))
-    if pitch + util.math.atan(util.math.sqrt(tx * tx + ty * ty)) < -0.01 then return end  -- looking far down: no pixel of the screen can show sky, so nothing to march
+    local camera = core.camera.get_active()
+    if not camera then return end
 
-    local cs = state.cloud_sh
-    cs:set_param("cam_x", basis.x)
-    cs:set_param("cam_y", basis.y)
-    cs:set_param("cam_z", basis.z)
-    cs:set_param("cam_pos", pos)
-    cs:set_param("tan_xy", { tx, ty })
-    local size = { state.crt_w, state.crt_h }
+    local resolution = core.display.get_resolution()
+    local width, height = resolution[1], resolution[2]
+    if not state.crt_a or abs(width - state.crt_rx) > 2 or abs(height - state.crt_ry) > 2 then private.setup(width, height) end
+    local basis = camera:get_transform().basis
+    local tan_half_fov = util.math.tan(util.math.rad(camera:get_fov()) * 0.5)
+    local aspect = width / height
+    local tan_x, tan_y = tan_half_fov * aspect, tan_half_fov                                          -- the field of view is vertical by default (keep height)
+    if camera:get_keep_aspect() == 0 then tan_x, tan_y = tan_half_fov, tan_half_fov / aspect end      -- keep width
+    local pitch = util.math.asin(clamp(-basis.z[2], -1.0, 1.0))
+    if pitch + util.math.atan(util.math.sqrt(tan_x * tan_x + tan_y * tan_y)) < -0.01 then return end  -- looking far down: nothing to march
+
+    local cloud_pass = state.cloud_sh
+    cloud_pass:set_param("cam_x", basis.x)
+    cloud_pass:set_param("cam_y", basis.y)
+    cloud_pass:set_param("cam_z", basis.z)
+    cloud_pass:set_param("cam_pos", camera:get_global_position())
+    cloud_pass:set_param("tan_xy", { tan_x, tan_y })
+    local target_size = { state.crt_w, state.crt_h }
     core.rendertarget.set_active(state.crt_a, true)
-    core.engine.draw_material({ 0, 0 }, size, cs, 0, { 0, 0 }, { 1, 1, 1, 1 })
+    core.engine.draw_material({ 0, 0 }, target_size, cloud_pass, 0, { 0, 0 }, { 1, 1, 1, 1 })
     core.rendertarget.set_active(nil)
     if Config.cloud_blur then
         core.rendertarget.set_active(state.crt_b, true)
-        core.engine.draw_material({ 0, 0 }, size, state.cblur_h, 0, { 0, 0 }, { 1, 1, 1, 1 })
+        core.engine.draw_material({ 0, 0 }, target_size, state.cblur_h, 0, { 0, 0 }, { 1, 1, 1, 1 })
         core.rendertarget.set_active(nil)
         core.rendertarget.set_active(state.crt_c, true)
-        core.engine.draw_material({ 0, 0 }, size, state.cblur_v, 0, { 0, 0 }, { 1, 1, 1, 1 })
+        core.engine.draw_material({ 0, 0 }, target_size, state.cblur_v, 0, { 0, 0 }, { 1, 1, 1, 1 })
         core.rendertarget.set_active(nil)
     end
 end)
 
-Sky.on("update", function(F)
-    local function cset(name, v)                            -- cloud values: only the cloud pass uses them (created on the first draw)
-        if state.cloud_sh then state.cloud_sh:set_param(name, v) end
-    end
-
-    local tc, FL = F.tc, F.FL
-    local q = Config.qualities[state.quality] or Config.qualities.medium
-    local cloud_light = {
-        tc.light[1] * F.sun_energy * 1.6 * F.day_w + Config.night_light.color[1] * F.night_energy * 2.0,
-        tc.light[2] * F.sun_energy * 1.6 * F.day_w + Config.night_light.color[2] * F.night_energy * 2.0,
-        tc.light[3] * F.sun_energy * 1.6 * F.day_w + Config.night_light.color[3] * F.night_energy * 2.0,
+-- Feeds the time of day, weather, lightning and quality setting into the cloud pass uniforms every frame.
+Sky.on("update", function(frame)
+    local cycle = frame.cycle
+    local quality = Config.qualities[state.quality] or Config.qualities.medium
+    local light_color = {
+        cycle.light[1] * frame.sun_energy * 1.6 * frame.day_weight + Config.night_light.color[1] * frame.night_energy * 2.0,
+        cycle.light[2] * frame.sun_energy * 1.6 * frame.day_weight + Config.night_light.color[2] * frame.night_energy * 2.0,
+        cycle.light[3] * frame.sun_energy * 1.6 * frame.day_weight + Config.night_light.color[3] * frame.night_energy * 2.0
     }
-    cset("horizon_color", tc.horizon)
-    cset("haze_density", 0.000012 * (1.0 + state.cur.haze * 5.0))
-    cset("light_dir", F.key_dir)
-    cset("light_color", cloud_light)
+    private.set_cloud("horizon_color", cycle.horizon)
+    private.set_cloud("haze_density", 0.000012 * (1.0 + state.cur.haze * 5.0))
+    private.set_cloud("light_dir", frame.key_dir)
+    private.set_cloud("light_color", light_color)
 
-    local ng = Config.night_cloud_glow
-    local nk = clamp(tc.stars, 0.0, 1.0) * (0.35 + 0.65 * state.cur.dark)
-    cset("cloud_ambient_top", { tc.ambient_top[1] * F.grey + ng[1] * nk + FL * 2.2, tc.ambient_top[2] * F.grey + ng[2] * nk + FL * 2.4, tc.ambient_top[3] * F.grey + ng[3] * nk + FL * 3.2 })
-    cset("cloud_ambient_bottom", { tc.ambient_bottom[1] + ng[1] * nk * 0.6, tc.ambient_bottom[2] + ng[2] * nk * 0.6, tc.ambient_bottom[3] + ng[3] * nk * 0.6 })
-    
+    local night_glow = Config.night_cloud_glow
+    local night_factor = clamp(cycle.stars, 0.0, 1.0) * (0.35 + 0.65 * state.cur.dark)
+    private.set_cloud("cloud_ambient_top", {
+        cycle.ambient_top[1] * frame.cloud_grey + night_glow[1] * night_factor + frame.flash * 2.2,
+        cycle.ambient_top[2] * frame.cloud_grey + night_glow[2] * night_factor + frame.flash * 2.4,
+        cycle.ambient_top[3] * frame.cloud_grey + night_glow[3] * night_factor + frame.flash * 3.2
+    })
+    private.set_cloud("cloud_ambient_bottom", {
+        cycle.ambient_bottom[1] + night_glow[1] * night_factor * 0.6,
+        cycle.ambient_bottom[2] + night_glow[2] * night_factor * 0.6,
+        cycle.ambient_bottom[3] + night_glow[3] * night_factor * 0.6
+    })
+
     local coverage = state.clouds and state.cur.coverage or 0.0
     state.shader:set_param("cloud_coverage", coverage)
-    cset("cloud_coverage", coverage)
-    cset("cloud_density", state.cur.density)
-    cset("cloud_type", state.cur.type)
-    cset("cloud_base", Config.cloud_base)
-    cset("cloud_thickness", Config.cloud_thickness)
-    cset("cloud_scale", Config.cloud_scale)
-    cset("cloud_detail", Config.cloud_detail)
-    cset("cloud_steps", q.steps)
-    cset("cloud_light_steps", q.light)
-    cset("wind_offset", state.wind)
-    cset("cloud_time", state.cloud_t)
+    private.set_cloud("cloud_coverage", coverage)
+    private.set_cloud("cloud_density", state.cur.density)
+    private.set_cloud("cloud_type", state.cur.type)
+    private.set_cloud("cloud_base", Config.cloud_base)
+    private.set_cloud("cloud_thickness", Config.cloud_thickness)
+    private.set_cloud("cloud_scale", Config.cloud_scale)
+    private.set_cloud("cloud_detail", Config.cloud_detail)
+    private.set_cloud("cloud_steps", quality.steps)
+    private.set_cloud("cloud_light_steps", quality.light)
+    private.set_cloud("wind_offset", state.wind)
+    private.set_cloud("cloud_time", state.cloud_t)
 end)
 
 

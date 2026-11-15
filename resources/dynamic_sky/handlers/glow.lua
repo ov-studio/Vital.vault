@@ -44,6 +44,7 @@ end
 --[[ Handlers ]]--
 ------------------
 
+-- Turns the engine glow on at start when it is enabled in the config.
 Sky.on("init", function()
     if state.glow then private.apply(true) end
 end)

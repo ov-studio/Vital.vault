@@ -21,6 +21,7 @@ local lerp, clamp = Math.lerp, Math.clamp
 --[[ Handlers ]]--
 ------------------
 
+-- Creates the surface weather layer (snow cover, wetness, puddles and ripples) drawn on top of the level's own materials.
 Sky.on("init", function()
     if not Config.use_surface_weather then return end
     state.cshader = core.shader.create("files/shaders/snow_cover.gdshader", core.shader.shader_mode.SPATIAL)
@@ -29,40 +30,40 @@ Sky.on("init", function()
     state.cshader:set_param("screen_rip_gamma", Config.ripple_buffer_gamma)
 end)
 
-Sky.on("update", function(F)
-    local sh = state.cshader
-    if not sh then return end
+-- Grows or melts the snow cover and the wetness from the weather, and feeds them into the surface layer every frame.
+Sky.on("update", function(frame)
+    local shader = state.cshader
+    if not shader then return end
     
-    local dt, R, SN = F.dt, F.R, F.SN
     if state.cover_manual then
-        state.cover = lerp(state.cover, state.cover_manual, clamp(dt * 1.5, 0, 1))
-    elseif SN > 0.2 then
-        state.cover = min(1.0, state.cover + dt / Config.snow_accum_sec * SN)
+        state.cover = lerp(state.cover, state.cover_manual, clamp(frame.dt * 1.5, 0, 1))
+    elseif state.cur.snow > 0.2 then
+        state.cover = min(1.0, state.cover + frame.dt / Config.snow_accum_sec * state.cur.snow)
     else
-        state.cover = max(0.0, state.cover - dt / Config.snow_melt_sec * (1.0 + R * 3.0))
+        state.cover = max(0.0, state.cover - frame.dt / Config.snow_melt_sec * (1.0 + state.cur.rain * 3.0))
     end
-    if R > 0.05 and state.cover < 0.3 then state.wet = min(1.0, state.wet + dt / 25.0 * R)
-    else state.wet = max(0.0, state.wet - dt / (state.cover > 0.3 and 20.0 or Config.dry_time)) end
+    if state.cur.rain > 0.05 and state.cover < 0.3 then state.wet = min(1.0, state.wet + frame.dt / 25.0 * state.cur.rain)
+    else state.wet = max(0.0, state.wet - frame.dt / (state.cover > 0.3 and 20.0 or Config.dry_time)) end
     local active = (state.cover > 0.004 or state.wet > 0.01)
     if active ~= state.cover_on then
         state.cover_on = active
-        if active then sh:apply_to_material("*", "*", "*", 0, true)   -- layered: drawn on top of the level's own materials
-        else sh:remove_from_material("*", "*", "*") end
+        if active then shader:apply_to_material("*", "*", "*", 0, true)   -- layered: drawn on top of the level's own materials
+        else shader:remove_from_material("*", "*", "*") end
     end
     if not active then return end
 
-    sh:set_param("snow_amount", state.cover)
-    sh:set_param("wet", state.wet)
-    sh:set_param("rain_amt", clamp(R, 0.0, 1.0))
-    sh:set_param("puddle_gloss", Config.puddle_gloss)
-    sh:set_param("puddle_strength", Config.puddle_strength)
-    sh:set_param("wet_fade_start", Config.wet_fade_start)
-    sh:set_param("wet_fade_end", Config.wet_fade_end)
-    sh:set_param("alpha_cut", Config.surface_alpha_cut)
+    shader:set_param("snow_amount", state.cover)
+    shader:set_param("wet", state.wet)
+    shader:set_param("rain_amt", clamp(state.cur.rain, 0.0, 1.0))
+    shader:set_param("puddle_gloss", Config.puddle_gloss)
+    shader:set_param("puddle_strength", Config.puddle_strength)
+    shader:set_param("wet_fade_start", Config.wet_fade_start)
+    shader:set_param("wet_fade_end", Config.wet_fade_end)
+    shader:set_param("alpha_cut", Config.surface_alpha_cut)
     -- light the ripples pick up from the sky (independent of sun/moon): horizon + ambient colour, with a night floor
     -- mostly the horizon colour: that is what a flat water surface mirrors at a grazing angle
-    local g, f = Config.ripple_glow, 0.015 + F.FL * 0.8
-    sh:set_param("ripple_light", { (F.tc.horizon[1] * 0.85 + F.tc.ambient_top[1] * 0.15 + f * 0.8) * g, (F.tc.horizon[2] * 0.85 + F.tc.ambient_top[2] * 0.15 + f * 0.9) * g, (F.tc.horizon[3] * 0.85 + F.tc.ambient_top[3] * 0.15 + f * 1.2) * g })
+    local glow, flash_light = Config.ripple_glow, 0.015 + frame.flash * 0.8
+    shader:set_param("ripple_light", { (frame.cycle.horizon[1] * 0.85 + frame.cycle.ambient_top[1] * 0.15 + flash_light * 0.8) * glow, (frame.cycle.horizon[2] * 0.85 + frame.cycle.ambient_top[2] * 0.15 + flash_light * 0.9) * glow, (frame.cycle.horizon[3] * 0.85 + frame.cycle.ambient_top[3] * 0.15 + flash_light * 1.2) * glow })
 end)
 
 

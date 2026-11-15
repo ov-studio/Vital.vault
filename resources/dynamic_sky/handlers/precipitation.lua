@@ -21,24 +21,24 @@ local lerp, clamp = Math.lerp, Math.clamp
 --[[ Utils ]]--
 ---------------
 
--- rain and snow share this: the emitter shows more or fewer particles in 8 steps (changing the amount restarts
+-- Shared by rain and snow: the emitter shows more or fewer particles in 8 steps (changing the amount restarts
 -- the pool, so only step changes do it) and the shader's density smooths between the steps. Returns the density for
--- the shader, or nil (emitter hidden) when there is none.
-function Sky.level(emitter, key, full, inten, on)
+-- the shader, or nil (emitter hidden) when there is none. state[key] remembers the current step.
+function Sky.level(emitter, key, full, intensity, active)
     local steps = 8.0
-    local lvl = on and min(steps, floor(inten * steps) + 1) or 0
-    if lvl <= 0 then
+    local level = active and min(steps, floor(intensity * steps) + 1) or 0
+    if level <= 0 then
         if state[key] ~= 0 then state[key] = 0; emitter:set_visible(false); emitter:stop() end   -- a hidden emitter must not keep simulating
         return nil
     end
     
-    if state[key] ~= lvl then
-        state[key] = lvl
-        emitter:set_amount(max(40, floor(full * lvl / steps)))
+    if state[key] ~= level then
+        state[key] = level
+        emitter:set_amount(max(40, floor(full * level / steps)))
         emitter:set_visible(true)
         emitter:emit()
     end
-    return clamp(inten * steps / lvl, 0.0, 1.0) ^ 0.8
+    return clamp(intensity * steps / level, 0.0, 1.0) ^ 0.8
 end
 
 
@@ -46,21 +46,22 @@ end
 --[[ Handlers ]]--
 ------------------
 
-Sky.on("update", function(F)
-    local cam = core.camera.get_active()
-    if cam then F.cpos = cam:get_global_position() end
-    F.daylight = clamp(0.10 + 0.80 * clamp(F.tc.light_energy, 0.0, 1.0) ^ 0.7, 0.08, 1.0) * (1.0 + F.FL * 3.0)
+-- Publishes what rain and snow share every frame: the camera position, the daylight that tints them, the near white
+-- drop colour and the horizontal wind speed.
+Sky.on("update", function(frame)
+    local camera = core.camera.get_active()
+    if camera then frame.camera_pos = camera:get_global_position() end
+    frame.daylight = clamp(0.10 + 0.80 * clamp(frame.cycle.light_energy, 0.0, 1.0) ^ 0.7, 0.08, 1.0) * (1.0 + frame.flash * 3.0)
 
     -- horizon colour, kept close to white: the tint of the drops / flakes against the sky
-    local ph = F.tc.horizon
-    local pmx = max(ph[1], max(ph[2], max(ph[3], 1e-3)))
-    F.pr, F.pg, F.pb = lerp(ph[1] / pmx, 1.0, 0.45), lerp(ph[2] / pmx, 1.0, 0.45), lerp(ph[3] / pmx, 1.0, 0.45)
+    local horizon = frame.cycle.horizon
+    local peak = max(horizon[1], max(horizon[2], max(horizon[3], 1e-3)))
+    frame.precip_r, frame.precip_g, frame.precip_b = lerp(horizon[1] / peak, 1.0, 0.45), lerp(horizon[2] / peak, 1.0, 0.45), lerp(horizon[3] / peak, 1.0, 0.45)
 
     -- horizontal speed of the falling precipitation
     local gust = 1.0 + 0.25 * sin(state.cloud_t * 0.35) * sin(state.cloud_t * 0.113 + 1.7)
-    local wmps = state.cur.wind * Config.rain_wind_mps * gust
-    F.wx, F.wz = F.wd[1] * wmps, F.wd[3] * wmps
-    F.R, F.SN = state.cur.rain, state.cur.snow
+    local wind_speed = state.cur.wind * Config.rain_wind_mps * gust
+    frame.wind_x, frame.wind_z = frame.wind_dir[1] * wind_speed, frame.wind_dir[3] * wind_speed
 end)
 
 

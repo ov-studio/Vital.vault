@@ -96,12 +96,15 @@ end
 --[[ Handlers ]]--
 ------------------
 
+-- Starts the server clock.
 core.engine.print("info", "[dynamic_sky] server clock started at", state.time)
 
+-- Periodic drift correction: pushes the clock to every client.
 util.timer.create(function()
     private.push()
 end, Config.sync_interval_ms, 0)
 
+-- Handles /time, /weather and /timescale requests from clients (when client control is allowed).
 util.event.on("dynamic_sky:request", function(kind, value)
     if not Config.allow_client_control then return end
     if kind == "time" then private.set_time(value)
@@ -109,6 +112,7 @@ util.event.on("dynamic_sky:request", function(kind, value)
     elseif kind == "timescale" then private.set_timescale(value) end
 end, { remote = true })
 
+-- Late joiners: sends the clock to a peer as soon as it has started this resource.
 util.event.on("peer:resource:started", function(peer_id, resource)
     if resource ~= util.resource.current() then return false end
     private.push(peer_id)

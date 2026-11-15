@@ -19,19 +19,21 @@ local state = Sky.state
 --[[ Handlers ]]--
 ------------------
 
-Sky.on("update", function(F)
+-- Switches the engine fog on for fog, rain, blizzard, sandstorm... and sets its density, colour (the horizon) and
+-- brightness (lit by lightning) every frame.
+Sky.on("update", function(frame)
     if not Config.use_fog then return end
-    local want = state.cur.fog > 0.01
-    if want ~= state.fog_on then
-        gfx.fog.set_enabled(want)
-        if want then gfx.fog.set_sky_affect(0.0) end     -- our sky shader does its own haze
-        state.fog_on = want
+    local wanted = state.cur.fog > 0.01
+    if wanted ~= state.fog_on then
+        gfx.fog.set_enabled(wanted)
+        if wanted then gfx.fog.set_sky_affect(0.0) end     -- our sky shader does its own haze
+        state.fog_on = wanted
     end
-    if want then
+    if wanted then
         -- the horizon colour already carries the time of day (dark blue at night), so it is used as is
-        local k = 0.85 * (1.0 - 0.35 * state.cur.dark)
+        local brightness = 0.85 * (1.0 - 0.35 * state.cur.dark)
         gfx.fog.set_density(state.cur.fog * Config.fog_density_max)
-        gfx.fog.set_light_color({ F.tc.horizon[1] * k, F.tc.horizon[2] * k, F.tc.horizon[3] * k, 1.0 })
-        gfx.fog.set_light_energy(1.0 + F.FL * 3.2)
+        gfx.fog.set_light_color({ frame.cycle.horizon[1] * brightness, frame.cycle.horizon[2] * brightness, frame.cycle.horizon[3] * brightness, 1.0 })
+        gfx.fog.set_light_energy(1.0 + frame.flash * 3.2)
     end
 end)

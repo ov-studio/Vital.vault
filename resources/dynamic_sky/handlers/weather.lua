@@ -51,16 +51,17 @@ end
 --[[ Handlers ]]--
 ------------------
 
-Sky.on("update", function(F)
-    local dt = F.dt
-    local target = Config.weather[state.weather] or Config.weather.partly
-    local k = clamp(dt * Config.weather_blend_per_sec, 0, 1)
-    local tint = target.tint or { 1.0, 1.0, 1.0 }
-    local want = { rain = 0.0, snow = 0.0, fog = 0.0, wind = 1.0, lightning = 0.0, haze = 0.0,
+-- Blends the weather preset into the current values (plus the manual overrides) every frame, smooths the wind direction
+-- and advances the wind and cloud time. Publishes the wind direction as frame.wind_dir.
+Sky.on("update", function(frame)
+    local preset = Config.weather[state.weather] or Config.weather.partly
+    local blend = clamp(frame.dt * Config.weather_blend_per_sec, 0, 1)
+    local tint = preset.tint or { 1.0, 1.0, 1.0 }
+    local goal = { rain = 0.0, snow = 0.0, fog = 0.0, wind = 1.0, lightning = 0.0, haze = 0.0,
                    tr = tint[1], tg = tint[2], tb = tint[3] }
-    for key, v in pairs(target) do if key ~= "tint" then want[key] = v end end
+    for key, v in pairs(preset) do if key ~= "tint" then goal[key] = v end end
     -- every key blends, so a key a preset does not mention returns to its neutral value
-    for key, v in pairs(want) do state.base[key] = lerp(state.base[key], v, k) end
+    for key, v in pairs(goal) do state.base[key] = lerp(state.base[key], v, blend) end
     -- effective values = blended preset + manual intensity (sky_rain / sky_snow / sky_fog / sky_lightning set the level
     -- reached WHILE the weather has that phenomenon, so clear weather still stops it; sky_wind is a multiplier)
     for key, v in pairs(state.base) do state.cur[key] = v end
@@ -69,13 +70,13 @@ Sky.on("update", function(F)
         else state.cur[key] = v * clamp(state.base[key] / 0.3, 0.0, 1.0) end
     end
     -- wind / cloud evolution accumulate (changing the speed never makes clouds jump)
-    local kd = clamp(dt * 0.6, 0, 1)
-    state.wdir[1] = lerp(state.wdir[1], state.wdir_t[1], kd)
-    state.wdir[2] = lerp(state.wdir[2], state.wdir_t[2], kd)
-    local wd = norm({ state.wdir[1], 0, state.wdir[2] })
-    for i = 1, 3 do state.wind[i] = (state.wind[i] + wd[i] * Config.wind_speed * state.cur.wind * dt) % Sky.wrap end
-    state.cloud_t = (state.cloud_t + dt) % Sky.wrap
-    F.wd = wd
+    local dir_blend = clamp(frame.dt * 0.6, 0, 1)
+    state.wdir[1] = lerp(state.wdir[1], state.wdir_t[1], dir_blend)
+    state.wdir[2] = lerp(state.wdir[2], state.wdir_t[2], dir_blend)
+    local wind_dir = norm({ state.wdir[1], 0, state.wdir[2] })
+    for i = 1, 3 do state.wind[i] = (state.wind[i] + wind_dir[i] * Config.wind_speed * state.cur.wind * frame.dt) % Sky.wrap end
+    state.cloud_t = (state.cloud_t + frame.dt) % Sky.wrap
+    frame.wind_dir = wind_dir
 end)
 
 

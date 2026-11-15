@@ -19,9 +19,11 @@ local state = Sky.state
 --[[ Handlers ]]--
 ------------------
 
-Sky.on("update", function(F)
+-- Keeps the world collider alive only while rain or snow falls, and a few seconds after for the last particles in the air.
+-- It re-renders the level from above every time it moves, so it only exists while it is needed.
+Sky.on("update", function(frame)
     local need = (state.gpu_lvl or 0) > 0 or (state.snow_lvl or 0) > 0
-    state.col_idle = need and 0.0 or (state.col_idle or 0.0) + F.dt
+    state.col_idle = need and 0.0 or (state.col_idle or 0.0) + frame.dt
     local want = need or state.col_idle < 8.0
     if want ~= (state.col_on or false) then
         state.col_on = want

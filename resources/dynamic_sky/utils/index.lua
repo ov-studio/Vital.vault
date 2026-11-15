@@ -23,16 +23,22 @@ Sky = {
 --[[ Stages ]]--
 ----------------
 
+-- Registers a handler for a stage (init, update or draw), handlers run in the order their scripts are loaded.
+-- The update stage gets a per-frame table (frame): dt, then what earlier handlers publish for the later ones,
+-- cycle (timecycle values), light_left, cloud_grey, wind_dir, sun, moon, axis, angle, day_weight, key_dir, sun_energy,
+-- night_energy, flash, camera_pos, daylight, precip_r / g / b and wind_x / z.
 function Sky.on(stage, fn)
     Sky.stage[stage] = Sky.stage[stage] or {}
     Sky.stage[stage][#Sky.stage[stage] + 1] = fn
 end
 
+-- Runs every handler registered for a stage with the given arguments.
 function Sky.run(stage, ...)
     for _, fn in ipairs(Sky.stage[stage] or {}) do fn(...) end
 end
 
--- on | off | nothing (flip) -> the new state
+-- Resolves a command argument: "on" gives true, "off" gives false, nothing flips the current state.
+-- Returns the new state.
 function Sky.switch(arg, current)
     if arg == "on" then return true end
     if arg == "off" then return false end

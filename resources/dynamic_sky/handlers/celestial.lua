@@ -89,18 +89,18 @@ end
 function private.celestial(hour, day)
     local tilt = Config.sun_tilt_deg * PI / 180
     local axis = { 0, -sin(tilt), cos(tilt) }  -- rotation axis of the sky
-    local a = (hour - 6.0) / 24.0 * 2 * PI     -- 0 = east horizon (06:00)
-    local sun = rotate({ 1, 0, 0 }, axis, a)
+    local angle = (hour - 6.0) / 24.0 * 2 * PI     -- 0 = east horizon (06:00)
+    local sun = rotate({ 1, 0, 0 }, axis, angle)
     local phase = state.moon_phase_manual
     if phase == nil then
         phase = Config.moon_phase
         if Config.moon_phase_cycle then phase = (phase + day / 29.5) % 1.0 end
     end
     state.phase = phase
-    local elong = phase * 2 * PI               -- 0 new, 0.25 first quarter, 0.5 full
-    local moon = rotate({ 1, 0, 0 }, axis, a - elong)
+    local elongation = phase * 2 * PI               -- 0 new, 0.25 first quarter, 0.5 full
+    local moon = rotate({ 1, 0, 0 }, axis, angle - elongation)
     moon = norm({ moon[1] + axis[1] * 0.09, moon[2] + axis[2] * 0.09, moon[3] + axis[3] * 0.09 })
-    return norm(sun), moon, axis, a
+    return norm(sun), moon, axis, angle
 end
 
 
@@ -108,12 +108,14 @@ end
 --[[ Handlers ]]--
 ------------------
 
-Sky.on("update", function(F)
-    F.sun, F.moon, F.axis, F.ang = private.celestial(state.time, state.day)
-    F.day_w = smoothstep(-0.10, 0.14, F.sun[2])
-    F.key_dir = norm({ lerp(F.moon[1], F.sun[1], F.day_w), lerp(F.moon[2], F.sun[2], F.day_w), lerp(F.moon[3], F.sun[3], F.day_w) })
-    F.sun_energy = F.tc.light_energy * F.dark
-    F.night_energy = Config.night_light.energy * smoothstep(-0.05, 0.2, F.moon[2]) * (1.0 - F.day_w)
+-- Moves the sun and moon along the sky every frame, then picks the key light: the sun by day and the moon by night,
+-- with the energy each one lights the scene (faded under storm clouds).
+Sky.on("update", function(frame)
+    frame.sun, frame.moon, frame.axis, frame.angle = private.celestial(state.time, state.day)
+    frame.day_weight = smoothstep(-0.10, 0.14, frame.sun[2])
+    frame.key_dir = norm({ lerp(frame.moon[1], frame.sun[1], frame.day_weight), lerp(frame.moon[2], frame.sun[2], frame.day_weight), lerp(frame.moon[3], frame.sun[3], frame.day_weight) })
+    frame.sun_energy = frame.cycle.light_energy * frame.light_left
+    frame.night_energy = Config.night_light.energy * smoothstep(-0.05, 0.2, frame.moon[2]) * (1.0 - frame.day_weight)
 end)
 
 

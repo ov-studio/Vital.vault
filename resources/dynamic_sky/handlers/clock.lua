@@ -31,13 +31,15 @@ end
 --[[ Handlers ]]--
 ------------------
 
-Sky.on("update", function(F)
+-- Advances the local clock every frame (scaled by the timescale), the server sync corrects any drift.
+Sky.on("update", function(frame)
     if Config.day_length_min > 0 and state.scale > 0 then
-        state.time = state.time + F.dt * state.scale * (24.0 / (Config.day_length_min * 60.0))
+        state.time = state.time + frame.dt * state.scale * (24.0 / (Config.day_length_min * 60.0))
         if state.time >= 24 then state.time = state.time - 24; state.day = state.day + 1 end
     end
 end)
 
+-- Applies the time, day, timescale and weather the server sends on join and periodically.
 util.event.on("dynamic_sky:sync", function(time, day, scale, weather)
     state.time, state.day, state.scale = time, day, scale
     if Config.weather[weather] then state.weather = weather end
@@ -62,8 +64,8 @@ util.export.register("get_weather", function() return state.weather end)
 util.input.register("time", function(args)
     local a = args[1]
     if not a then return core.engine.print("info", util.string.format("[dynamic_sky] time %.2f, weather %s", state.time, state.weather)) end
-    local h, m = tostring(a):match("^(%d+):(%d+)$")
-    local v = h and (tonumber(h) + tonumber(m) / 60) or tonumber(a)
+    local hours, minutes = tostring(a):match("^(%d+):(%d+)$")
+    local v = hours and (tonumber(hours) + tonumber(minutes) / 60) or tonumber(a)
     if not v then return core.engine.print("warn", "Usage: time <hour 0-24 | HH:MM>") end
     private.request("time", v)
 end)
