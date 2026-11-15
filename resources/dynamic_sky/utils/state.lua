@@ -15,8 +15,22 @@ Sky.state = {
     day      = 0,
     scale    = 1.0,
     weather  = Config.default_weather,
-    cur      = { coverage = 0.45, density = 0.004, type = 0.75, dark = 0.0, desat = 0.0, haze = 0.0,
-                 rain = 0.0, snow = 0.0, fog = 0.0, wind = 1.0, lightning = 0.0, tr = 1.0, tg = 1.0, tb = 1.0 },  -- blended weather
+    cur      = { 
+                  coverage = 0.45, 
+                  density = 0.004, 
+                  type = 0.75, 
+                  dark = 0.0, 
+                  desat = 0.0, 
+                  haze = 0.0,
+                  rain = 0.0, 
+                  snow = 0.0, 
+                  fog = 0.0, 
+                  wind = 1.0, 
+                  lightning = 0.0, 
+                  tr = 1.0, 
+                  tg = 1.0, 
+                  tb = 1.0 
+               },               -- blended weather
     base     = {},              -- blended preset values before the manual multipliers (see over)
     over     = {},              -- manual weather overrides: rain, snow, wind, fog, lightning
     wdir     = { Config.wind_dir[1], Config.wind_dir[2] },    -- smoothed wind direction {x, z}
@@ -53,7 +67,9 @@ Sky.state = {
     cover_on = false,
 }
 
-for k, v in pairs(Sky.state.cur) do Sky.state.base[k] = v end
+for k, v in pairs(Sky.state.cur) do 
+    Sky.state.base[k] = v 
+end
 
 -- ripple buffer constants, ripple_ring.gdshader and snow_cover.gdshader use the same depth range
 Sky.ripple = { life = 1.2, radius = 0.35, depth = 64.0 }
