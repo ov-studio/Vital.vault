@@ -28,14 +28,14 @@ local private = {}
 function private.make_override(cmd, key, lo, hi)
     util.input.register(cmd, function(args)
         local a = args[1]
-        if not a then return core.engine.print("info", util.string.format("[dynamic_sky] %s = %.2f%s", key, state.cur[key], state.over[key] and " (manual)" or " (auto)")) end
+        if not a then return core.engine.print("info", util.string.format("Weather %s is %.2f%s", key, state.cur[key], state.over[key] and " (manual)" or " (auto)")) end
         if a == "auto" then state.over[key] = nil
         else
             local v = tonumber(a)
-            if not v then return core.engine.print("warn", "Usage: " .. cmd .. " <" .. lo .. ".." .. hi .. " | auto>") end
+            if not v then return core.engine.print("warn", util.string.format("Usage: %s <%s-%s|auto>", cmd, lo, hi)) end
             state.over[key] = clamp(v, lo, hi)
         end
-        core.engine.print("info", "[dynamic_sky] " .. key .. ":", state.over[key] or "auto")
+        core.engine.print("info", util.string.format("Weather %s successfully set to %s", key, state.over[key] or "auto"))
     end)
     overrides[#overrides + 1] = { key = key, lo = lo, hi = hi }
 end
@@ -122,7 +122,7 @@ private.make_override("sky_wind", "wind", 0, 6)
 -- Usage: /sky_winddir <deg>
 util.input.register("sky_winddir", function(args)
     local deg = tonumber(args[1])
-    if not deg then return core.engine.print("info", util.string.format("[dynamic_sky] wind blows towards (%.2f, %.2f)", state.wdir_t[1], state.wdir_t[2])) end
+    if not deg then return core.engine.print("warn", util.string.format("Usage: sky_winddir <deg> (currently blowing towards %.2f, %.2f)", state.wdir_t[1], state.wdir_t[2])) end
     private.set_wind_dir(deg)
-    core.engine.print("info", "[dynamic_sky] wind direction:", deg, "deg")
+    core.engine.print("info", util.string.format("Wind direction successfully set to %s deg", deg))
 end)

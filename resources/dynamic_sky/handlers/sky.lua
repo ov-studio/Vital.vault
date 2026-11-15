@@ -27,7 +27,7 @@ Sky.on("init", function()
     state.shader = shader
     state.moon = core.image.create("files/textures/moon.png", true)
     shader:set_param("moon_tex", state.moon)
-    core.engine.print("info", "[dynamic_sky] sky shader created")
+    core.engine.print("info", "Sky shader created")
 end)
 
 -- Feeds the sun, moon, time of day colours, weather and lightning into the sky shader every frame.
@@ -91,5 +91,5 @@ util.export.register("toggle", function() state.enabled = not state.enabled end)
 -- Usage: /sky_toggle
 util.input.register("sky_toggle", function()
     state.enabled = not state.enabled
-    core.engine.print("info", "[dynamic_sky] enabled:", state.enabled)
+    core.engine.print("info", util.string.format("Sky %s", state.enabled and "on" or "off"))
 end)

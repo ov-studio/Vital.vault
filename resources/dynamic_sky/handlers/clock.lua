@@ -68,7 +68,7 @@ util.export.register("get_weather", function() return state.weather end)
 -- Usage: /time <hour | HH:MM>
 util.input.register("time", function(args)
     local a = args[1]
-    if not a then return core.engine.print("info", util.string.format("[dynamic_sky] time %.2f, weather %s", state.time, state.weather)) end
+    if not a then return core.engine.print("info", util.string.format("Time is %.2f, weather is %s", state.time, state.weather)) end
     local hours, minutes = tostring(a):match("^(%d+):(%d+)$")
     local v = hours and (tonumber(hours) + tonumber(minutes) / 60) or tonumber(a)
     if not v then return core.engine.print("warn", "Usage: time <hour 0-24 | HH:MM>") end

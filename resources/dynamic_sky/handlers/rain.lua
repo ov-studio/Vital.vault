@@ -136,7 +136,7 @@ Sky.on("init", function()
     drops:set_visible(false)
     state.splash_emitter, state.rain_emitter = splash, drops
     state.gpu_on = true
-    core.engine.print("info", "[dynamic_sky] rain active (real colliding drops, splashes = " .. (state.splash_on and "on" or "off") .. ")")
+    core.engine.print("info", util.string.format("Rain active (real colliding drops, splashes %s)", state.splash_on and "on" or "off"))
     state.rip_hook = state.ring_emitter ~= nil and state.cshader ~= nil
 end)
 
@@ -185,11 +185,11 @@ end)
 -- Toggles the droplet splashes where rain hits the ground
 -- Usage: /sky_splash [on|off]
 util.input.register("sky_splash", function(args)
-    if not state.gpu_on then return core.engine.print("warn", "[dynamic_sky] rain is not active (use_precipitation is off)") end
+    if not state.gpu_on then return core.engine.print("warn", "Rain is not active (use_precipitation is off)") end
     state.splash_on = Sky.switch(args[1], state.splash_on)
     if not state.rip_hook then  -- with the ripple hook the droplets keep spawning (the rings hang on them), they just stay invisible
         if state.splash_on then state.rain_emitter:set_sub_emitter(state.splash_emitter, particle.gpu.sub_emitter_mode.AT_COLLISION, state.gpu_burst)
         else state.rain_emitter:reset_sub_emitter() end
     end
-    core.engine.print("info", "[dynamic_sky] rain splashes:", state.splash_on and "on" or "off")
+    core.engine.print("info", util.string.format("Rain splashes %s", state.splash_on and "on" or "off"))
 end)

@@ -155,12 +155,12 @@ end)
 util.input.register("sky_quality", function(args)
     if not Config.qualities[args[1] or ""] then return core.engine.print("warn", "Usage: sky_quality <low|medium|high|ultra>") end
     state.quality = args[1]
-    core.engine.print("info", "[dynamic_sky] cloud quality", state.quality)
+    core.engine.print("info", util.string.format("Cloud quality successfully set to %s", state.quality))
 end)
 
 -- Toggles the volumetric clouds, no argument flips
 -- Usage: /sky_clouds [on|off]
 util.input.register("sky_clouds", function(args)
     state.clouds = Sky.switch(args[1], state.clouds)
-    core.engine.print("info", "[dynamic_sky] clouds:", state.clouds and "on" or "off")
+    core.engine.print("info", util.string.format("Clouds %s", state.clouds and "on" or "off"))
 end)

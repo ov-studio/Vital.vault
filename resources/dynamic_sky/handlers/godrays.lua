@@ -42,5 +42,5 @@ end)
 -- Usage: /sky_godrays [on|off]
 util.input.register("sky_godrays", function(args)
     state.rays = Sky.switch(args[1], state.rays)
-    core.engine.print("info", "[dynamic_sky] god rays:", state.rays and "on" or "off")
+    core.engine.print("info", util.string.format("God rays %s", state.rays and "on" or "off"))
 end)

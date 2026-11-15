@@ -73,5 +73,5 @@ end)
 -- Usage: /sky_precip [on|off]
 util.input.register("sky_precip", function(args)
     state.precip = Sky.switch(args[1], state.precip)
-    core.engine.print("info", "[dynamic_sky] precipitation particles:", state.precip and "on" or "off")
+    core.engine.print("info", util.string.format("Precipitation particles %s", state.precip and "on" or "off"))
 end)

@@ -101,7 +101,7 @@ end
 ------------------
 
 -- Starts the server clock.
-core.engine.print("info", "[dynamic_sky] server clock started at", state.time)
+core.engine.print("info", util.string.format("Server clock started at %.2f", state.time))
 
 -- Periodic drift correction: pushes the clock to every client.
 util.timer.create(function()

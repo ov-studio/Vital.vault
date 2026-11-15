@@ -87,12 +87,12 @@ end)
 -- Usage: /snow_cover <0-1|auto>
 util.input.register("snow_cover", function(args)
     local a = args[1]
-    if not a then return core.engine.print("info", util.string.format("[dynamic_sky] snow cover %.2f, wet %.2f%s", state.cover, state.wet, state.cover_manual and " (manual)" or " (auto)")) end
+    if not a then return core.engine.print("info", util.string.format("Snow cover is %.2f, wet is %.2f%s", state.cover, state.wet, state.cover_manual and " (manual)" or " (auto)")) end
     if a == "auto" then state.cover_manual = nil
     else
         local v = tonumber(a)
-        if not v then return core.engine.print("warn", "Usage: snow_cover <0..1 | auto>") end
+        if not v then return core.engine.print("warn", "Usage: snow_cover <0-1|auto>") end
         state.cover_manual = clamp(v, 0.0, 1.0)
     end
-    core.engine.print("info", "[dynamic_sky] snow cover:", state.cover_manual or "auto")
+    core.engine.print("info", util.string.format("Snow cover successfully set to %s", state.cover_manual or "auto"))
 end)
