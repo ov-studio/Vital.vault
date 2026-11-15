@@ -60,6 +60,7 @@ Sky.on("update", function(frame)
     shader:set_param("wet_fade_start", Config.wet_fade_start)
     shader:set_param("wet_fade_end", Config.wet_fade_end)
     shader:set_param("alpha_cut", Config.surface_alpha_cut)
+    
     -- light the ripples pick up from the sky (independent of sun/moon): horizon + ambient colour, with a night floor
     -- mostly the horizon colour: that is what a flat water surface mirrors at a grazing angle
     local glow, flash_light = Config.ripple_glow, 0.015 + frame.flash * 0.8
