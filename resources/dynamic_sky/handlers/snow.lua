@@ -26,8 +26,10 @@ local lerp, clamp = Math.lerp, Math.clamp
 -- drawn by snow_fall.gdshader. Stays hidden until it snows.
 Sky.on("init", function()
     if not Config.use_precipitation then return end
+
     local shader = core.shader.create("files/shaders/snow_fall.gdshader", core.shader.shader_mode.SPATIAL)
     state.snow_full = floor(Config.snow_rate * Config.snow_life)
+    
     local emitter = particle.gpu.create()
     emitter:set_amount(state.snow_full)
     emitter:set_lifetime(Config.snow_life)

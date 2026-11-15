@@ -28,6 +28,7 @@ local private = {}
 function private.buffer_free()
     local rt = state.rrt
     if not rt then return end
+
     state.rrt = nil
     state.cshader:set_param("screen_rip_on", 0.0)
     state.ring_emitter:set_visible(false)
@@ -42,6 +43,7 @@ function private.buffer()
     local res = core.display.get_resolution()
     local rx, ry = res[1], res[2]
     if state.rrt and abs(rx - state.rrt_rx) <= 2 and abs(ry - state.rrt_ry) <= 2 then return end
+
     private.buffer_free()
     local rt = core.rendertarget.create({ max(64, floor(rx / Config.ripple_rt_div)), max(64, floor(ry / Config.ripple_rt_div)) }, true, true)
     state.ring_emitter:set_layer(rt)
@@ -61,6 +63,7 @@ end
 -- Stays hidden until it rains.
 Sky.on("init", function()
     if not Config.use_precipitation then return end
+    
     local SPATIAL = core.shader.shader_mode.SPATIAL
     local rain_shader = core.shader.create("files/shaders/rain_fall.gdshader", SPATIAL)
 
