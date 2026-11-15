@@ -85,14 +85,10 @@ end
 
 Sky.on("update", function(F)
     F.sun, F.moon, F.axis, F.ang = celestial(state.time, state.day)
-    local sun, moon = F.sun, F.moon
-    -- key light: sun by day, moon by night
-    F.day_w = smoothstep(-0.10, 0.14, sun[2])
-    F.key_dir = norm({
-        lerp(moon[1], sun[1], F.day_w), lerp(moon[2], sun[2], F.day_w), lerp(moon[3], sun[3], F.day_w) })
+    F.day_w = smoothstep(-0.10, 0.14, F.sun[2])
+    F.key_dir = norm({ lerp(F.moon[1], F.sun[1], F.day_w), lerp(F.moon[2], F.sun[2], F.day_w), lerp(F.moon[3], F.sun[3], F.day_w) })
     F.sun_energy = F.tc.light_energy * F.dark
-    local moon_up = smoothstep(-0.05, 0.2, moon[2])
-    F.night_energy = Config.night_light.energy * moon_up * (1.0 - F.day_w)
+    F.night_energy = Config.night_light.energy * smoothstep(-0.05, 0.2, F.moon[2]) * (1.0 - F.day_w)
 end)
 
 
@@ -100,7 +96,6 @@ end)
 --[[ Exports ]]--
 -----------------
 
--- Public API exposed to other resources: read the moon phase, set the sun / moon size and the moon phase (0..1, a phase name, or nil / "auto")
 util.export.register("get_moon_phase", function() return state.phase or Config.moon_phase, phase_name(state.phase or Config.moon_phase) end)
 util.export.register("set_sun_size", set_sun_size)
 util.export.register("set_moon_size", set_moon_size)
