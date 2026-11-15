@@ -39,6 +39,11 @@ Sky.on("update", function(frame)
     end
 end)
 
+
+----------------
+--[[ Events ]]--
+----------------
+
 -- Applies the time, day, timescale and weather the server sends on join and periodically.
 util.event.on("dynamic_sky:sync", function(time, day, scale, weather)
     state.time, state.day, state.scale = time, day, scale

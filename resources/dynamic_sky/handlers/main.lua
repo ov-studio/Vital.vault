@@ -22,6 +22,11 @@ local state = Sky.state
 -- Runs every init handler once, in manifest order.
 Sky.run("init")
 
+
+----------------
+--[[ Events ]]--
+----------------
+
 -- Runs every update handler each frame with the frame time, while the sky is enabled.
 util.event.on("sandbox:process", function(dt)
     if not state.enabled then return end

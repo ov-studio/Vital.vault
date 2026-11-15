@@ -108,6 +108,11 @@ util.timer.create(function()
     private.push()
 end, Config.sync_interval_ms, 0)
 
+
+----------------
+--[[ Events ]]--
+----------------
+
 -- Handles /time, /weather and /timescale requests from clients (when client control is allowed).
 util.event.on("dynamic_sky:request", function(kind, value)
     if not Config.allow_client_control then return end
