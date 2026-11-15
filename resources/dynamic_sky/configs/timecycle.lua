@@ -19,7 +19,7 @@ Config.night_light         = { color = {0.55, 0.65, 1.0}, energy = 0.12 }  -- mo
 
 
 -- Timecycle keyframes by hour, smoothstep-interpolated, wraps at 24.
--- Add / remove / edit rows freely (keep them sorted by hour, first at 0 and last at 24).
+-- Add / remove / edit rows freely (keep them sorted by hour; the last row blends back into the first, so no 24.0 row is needed).
 --   zenith         : sky colour at the top
 --   horizon        : sky colour at the horizon
 --   ground         : colour below the horizon
@@ -313,25 +313,6 @@ Config.timecycle = {
             light_energy   = 0.10,
             ambient_top    = {0.019, 0.028, 0.058},
             ambient_bottom = {0.010, 0.013, 0.025},
-            stars          = 1.0,
-            exposure       = 1.0
-        }
-    },
-
-    {
-        hour = 24.0,
-        template = {
-            -- midnight, same as 0.0 so the day wraps seamlessly
-            zenith         = {0.003, 0.005, 0.018},
-            horizon        = {0.014, 0.022, 0.050},
-            ground         = {0.005, 0.006, 0.012},
-            glow           = {0.20, 0.25, 0.45},
-            glow_strength  = 0.0,
-            sun_color      = {1.0, 0.5, 0.2},
-            light          = {0.45, 0.55, 1.00},
-            light_energy   = 0.08,
-            ambient_top    = {0.016, 0.024, 0.050},
-            ambient_bottom = {0.008, 0.011, 0.021},
             stars          = 1.0,
             exposure       = 1.0
         }
