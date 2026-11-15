@@ -35,7 +35,7 @@ def vnoise(cells):
 
 puffs = 1.0 - worley(16)
 perlin = 0.65 * vnoise(10) + 0.35 * vnoise(21)
-R = puffs + (1.0 - puffs) * perlin                       # mix(puffs, 1, perlin)
+R = puffs + (1.0 - puffs) * perlin                         # mix(puffs, 1, perlin)
 G = 0.625 * (1.0 - worley(32)) + 0.375 * vnoise(64)
 B = 0.65 * vnoise(16) + 0.35 * vnoise(37)
 
