@@ -62,7 +62,7 @@ local function set_sun_size(deg)
     deg = tonumber(deg)
     if not deg then return false end
 
-    state.sun_deg = clamp(deg, 0.05, 15.0)]
+    state.sun_deg = clamp(deg, 0.05, 15.0)
     return true
 end
 

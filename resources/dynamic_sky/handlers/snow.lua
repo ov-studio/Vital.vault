@@ -26,11 +26,10 @@ local lerp, clamp = Math.lerp, Math.clamp
 Sky.on("init", function()
     if not Config.use_precipitation then return end
     local sh = core.shader.create("files/shaders/snow_fall.gdshader", core.shader.shader_mode.SPATIAL)
-    local life = Config.snow_life
-    state.snow_full = floor(Config.snow_rate * life)
+    state.snow_full = floor(Config.snow_rate * Config.snow_life)
     local emitter = particle.gpu.create()
     emitter:set_amount(state.snow_full)
-    emitter:set_lifetime(life)
+    emitter:set_lifetime(Config.snow_life)
     emitter:set_one_shot(false)
     emitter:set_explosiveness(0.0)
     emitter:set_randomness(0.0)

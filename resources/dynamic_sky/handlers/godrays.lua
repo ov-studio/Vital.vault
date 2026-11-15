@@ -23,9 +23,8 @@ local clamp, smoothstep = Math.clamp, Math.smoothstep
 
 -- strongest with a low sun and some haze, gone under heavy overcast, at night and in precipitation
 Sky.on("update", function(F)
-    local el = F.sun[2]
-    local low = 1.0 - smoothstep(0.2, 0.8, el)                      -- low sun = stronger shafts
-    local up = smoothstep(-0.02, 0.10, el)
+    local low = 1.0 - smoothstep(0.2, 0.8, F.sun[2])                      -- low sun = stronger shafts
+    local up = smoothstep(-0.02, 0.10, F.sun[2])
     local cloudy = 1.0 - clamp(state.cur.dark * 1.6, 0.0, 1.0)
     local precip = 1.0 - clamp(state.cur.rain * 0.8 + state.cur.snow * 0.5, 0.0, 0.9)
     local amt = state.rays and Config.godray_strength * up * cloudy * precip * (0.65 + 0.35 * low) * (0.8 + 0.4 * clamp(state.cur.haze, 0.0, 1.0)) or 0.0

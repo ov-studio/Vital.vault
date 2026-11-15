@@ -65,8 +65,7 @@ Sky.on("update", function(F)
     tc.ambient_top = grey_out(tc.ambient_top, ds * 0.7, 0)
     tc.glow_strength = tc.glow_strength * (1.0 - ds * 0.7)
     -- coloured air (sandstorm, smog, snow-light): multiply the sky and the light by the weather tint
-    local tr, tg, tb = state.cur.tr, state.cur.tg, state.cur.tb
-    local function tinted(c3, amt) return { lerp(c3[1], c3[1] * tr, amt), lerp(c3[2], c3[2] * tg, amt), lerp(c3[3], c3[3] * tb, amt) } end
+    local function tinted(c3, amt) return { lerp(c3[1], c3[1] * state.cur.tr, amt), lerp(c3[2], c3[2] * state.cur.tg, amt), lerp(c3[3], c3[3] * state.cur.tb, amt) } end
     tc.zenith, tc.horizon, tc.ambient_top, tc.ambient_bottom = tinted(tc.zenith, 1.0), tinted(tc.horizon, 1.0), tinted(tc.ambient_top, 1.0), tinted(tc.ambient_bottom, 1.0)
     tc.glow, tc.light, tc.sun_color = tinted(tc.glow, 1.0), tinted(tc.light, 0.8), tinted(tc.sun_color, 0.8)
     F.tc = tc

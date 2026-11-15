@@ -49,10 +49,9 @@ end
 Sky.on("update", function(F)
     local cam = core.camera.get_active()
     if cam then F.cpos = cam:get_global_position() end
-    local tc = F.tc
-    F.daylight = clamp(0.10 + 0.80 * clamp(tc.light_energy, 0.0, 1.0) ^ 0.7, 0.08, 1.0) * (1.0 + F.FL * 3.0)
+    F.daylight = clamp(0.10 + 0.80 * clamp(F.tc.light_energy, 0.0, 1.0) ^ 0.7, 0.08, 1.0) * (1.0 + F.FL * 3.0)
     -- horizon colour, kept close to white: the tint of the drops / flakes against the sky
-    local ph = tc.horizon
+    local ph = F.tc.horizon
     local pmx = max(ph[1], max(ph[2], max(ph[3], 1e-3)))
     F.pr, F.pg, F.pb = lerp(ph[1] / pmx, 1.0, 0.45), lerp(ph[2] / pmx, 1.0, 0.45), lerp(ph[3] / pmx, 1.0, 0.45)
     -- horizontal speed of the falling precipitation

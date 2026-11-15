@@ -33,8 +33,7 @@ local function apply(on)
     gfx.glow.set_bloom(0.0)
     gfx.glow.set_normalized(true)
     gfx.glow.set_blend_mode(gfx.glow.blend_mode.ADDITIVE)
-    local lv = Config.glow_levels
-    for i = 1, #lv do gfx.glow.set_level_intensity(i - 1, lv[i]) end
+    for i = 1, #Config.glow_levels do gfx.glow.set_level_intensity(i - 1, Config.glow_levels[i]) end
 end
 
 

@@ -26,8 +26,7 @@ local clamp = Math.clamp
 -- passes (horizontal, vertical) and sky.gdshader reads the result with one texture fetch per pixel.
 -- The rendertargets are hdr (16 bit float): the cloud light is above 1 and 8 bits would band.
 local function setup(rx, ry)
-    local div = Config.cloud_rt_div
-    local w, h = max(64, floor(rx / div)), max(64, floor(ry / div))
+    local w, h = max(64, floor(rx / Config.cloud_rt_div)), max(64, floor(ry / Config.cloud_rt_div))
     if not state.cloud_sh then
         local mode = core.shader.shader_mode.CANVAS_ITEM
         state.cloud_sh = core.shader.create("files/shaders/cloud_pass.gdshader", mode)
@@ -67,7 +66,6 @@ Sky.on("draw", function()
     local rx, ry = res[1], res[2]
     if not state.crt_a or abs(rx - state.crt_rx) > 2 or abs(ry - state.crt_ry) > 2 then setup(rx, ry) end
     local basis = cam:get_transform().basis
-    local bx, by, bz = basis.x, basis.y, basis.z
     local pos = cam:get_global_position()
     local t = util.math.tan(util.math.rad(cam:get_fov()) * 0.5)
     local aspect = rx / ry
@@ -75,12 +73,12 @@ Sky.on("draw", function()
     if cam:get_keep_aspect() == 0 then tx, ty = t, t / aspect end    -- keep width
     
     -- looking far down: no pixel of the screen can show sky, so nothing to march
-    local pitch = util.math.asin(clamp(-bz[2], -1.0, 1.0))
+    local pitch = util.math.asin(clamp(-basis.z[2], -1.0, 1.0))
     if pitch + util.math.atan(util.math.sqrt(tx * tx + ty * ty)) < -0.01 then return end 
     local cs = state.cloud_sh
-    cs:set_param("cam_x", bx)
-    cs:set_param("cam_y", by)
-    cs:set_param("cam_z", bz)
+    cs:set_param("cam_x", basis.x)
+    cs:set_param("cam_y", basis.y)
+    cs:set_param("cam_z", basis.z)
     cs:set_param("cam_pos", pos)
     cs:set_param("tan_xy", { tx, ty })
     local size = { state.crt_w, state.crt_h }
@@ -98,9 +96,8 @@ Sky.on("draw", function()
 end)
 
 Sky.on("update", function(F)
-    local csh = state.cloud_sh                              -- the cloud pass is created on the first draw
-    local function cset(name, v)                            -- cloud values: only the cloud pass uses them
-        if csh then csh:set_param(name, v) end
+    local function cset(name, v)                            -- cloud values: only the cloud pass uses them (created on the first draw)
+        if state.cloud_sh then state.cloud_sh:set_param(name, v) end
     end
 
     local tc, FL = F.tc, F.FL

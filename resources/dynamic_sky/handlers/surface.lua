@@ -61,8 +61,7 @@ Sky.on("update", function(F)
     -- light the ripples pick up from the sky (independent of sun/moon): horizon + ambient colour, with a night floor
     -- mostly the horizon colour: that is what a flat water surface mirrors at a grazing angle
     local g, f = Config.ripple_glow, 0.015 + F.FL * 0.8
-    local h, a = F.tc.horizon, F.tc.ambient_top
-    sh:set_param("ripple_light", { (h[1] * 0.85 + a[1] * 0.15 + f * 0.8) * g, (h[2] * 0.85 + a[2] * 0.15 + f * 0.9) * g, (h[3] * 0.85 + a[3] * 0.15 + f * 1.2) * g })
+    sh:set_param("ripple_light", { (F.tc.horizon[1] * 0.85 + F.tc.ambient_top[1] * 0.15 + f * 0.8) * g, (F.tc.horizon[2] * 0.85 + F.tc.ambient_top[2] * 0.15 + f * 0.9) * g, (F.tc.horizon[3] * 0.85 + F.tc.ambient_top[3] * 0.15 + f * 1.2) * g })
 end)
 
 
