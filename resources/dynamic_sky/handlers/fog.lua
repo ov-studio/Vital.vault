@@ -7,7 +7,6 @@
      Desc: Scene fog from the weather ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
@@ -20,7 +19,6 @@ local state = Sky.state
 --[[ Handlers ]]--
 ------------------
 
--- fog, rain, blizzard, sandstorm ...
 Sky.on("update", function(F)
     if not Config.use_fog then return end
     local want = state.cur.fog > 0.01
