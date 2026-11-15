@@ -9,6 +9,10 @@
 
 --TODO: Improve
 
+-------------------
+--[[ Variables ]]--
+-------------------
+
 local state = Sky.state
 local floor, max, sqrt = util.math.floor, util.math.max, util.math.sqrt
 local lerp, clamp = Math.lerp, Math.clamp

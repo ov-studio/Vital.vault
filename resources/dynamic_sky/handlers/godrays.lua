@@ -9,6 +9,10 @@
 
 --TODO: Improve
 
+-------------------
+--[[ Variables ]]--
+-------------------
+
 local state = Sky.state
 local clamp, smoothstep = Math.clamp, Math.smoothstep
 

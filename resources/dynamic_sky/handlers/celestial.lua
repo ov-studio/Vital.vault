@@ -9,6 +9,10 @@
 
 --TODO: Improve
 
+-------------------
+--[[ Variables ]]--
+-------------------
+
 local state = Sky.state
 local sin, cos, floor, PI = util.math.sin, util.math.cos, util.math.floor, util.math.pi
 local lerp, clamp, smoothstep, norm, rotate = Math.lerp, Math.clamp, Math.smoothstep, Math.norm, Math.rotate

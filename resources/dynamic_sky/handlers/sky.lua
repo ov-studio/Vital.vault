@@ -9,6 +9,10 @@
 
 --TODO: Improve
 
+-------------------
+--[[ Variables ]]--
+-------------------
+
 local state = Sky.state
 local max, PI = util.math.max, util.math.pi
 local clamp, rad = Math.clamp, Math.rad

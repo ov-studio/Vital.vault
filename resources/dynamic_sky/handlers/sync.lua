@@ -9,6 +9,10 @@
 
 --TODO: Improve
 
+-------------------
+--[[ Variables ]]--
+-------------------
+
 local state = {
     time    = Config.start_time,                 -- hour of day, 0..24
     day     = 0,                              -- day counter (moon phase)
