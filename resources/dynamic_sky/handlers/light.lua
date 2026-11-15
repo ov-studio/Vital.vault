@@ -7,7 +7,6 @@
      Desc: Scene directional light and ambient environment ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
@@ -42,7 +41,7 @@ Sky.on("init", function()
         gfx.env.set_reflection_source(gfx.env.reflection_source.SKY)
         gfx.sky.procedural.set_sun_angle_max(0.0)
     end
-    
+
     if Config.control_light then
         state.light = light.directional.create()
         state.light:set_position({ 0, 5, 0 })
