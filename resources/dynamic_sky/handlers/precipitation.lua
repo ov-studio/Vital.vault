@@ -7,7 +7,6 @@
      Desc: What rain and snow share: camera, wind, light colour and particle level ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
@@ -50,10 +49,12 @@ Sky.on("update", function(F)
     local cam = core.camera.get_active()
     if cam then F.cpos = cam:get_global_position() end
     F.daylight = clamp(0.10 + 0.80 * clamp(F.tc.light_energy, 0.0, 1.0) ^ 0.7, 0.08, 1.0) * (1.0 + F.FL * 3.0)
+
     -- horizon colour, kept close to white: the tint of the drops / flakes against the sky
     local ph = F.tc.horizon
     local pmx = max(ph[1], max(ph[2], max(ph[3], 1e-3)))
     F.pr, F.pg, F.pb = lerp(ph[1] / pmx, 1.0, 0.45), lerp(ph[2] / pmx, 1.0, 0.45), lerp(ph[3] / pmx, 1.0, 0.45)
+
     -- horizontal speed of the falling precipitation
     local gust = 1.0 + 0.25 * sin(state.cloud_t * 0.35) * sin(state.cloud_t * 0.113 + 1.7)
     local wmps = state.cur.wind * Config.rain_wind_mps * gust
