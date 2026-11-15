@@ -7,7 +7,6 @@
      Desc: Snowfall: real flakes that collide with the world ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
