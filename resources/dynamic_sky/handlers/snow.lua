@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Snowfall: real flakes that collide with the world ]]--
+     Desc: Snowfall flakes ]]--
 ----------------------------------------------------------------
 
 

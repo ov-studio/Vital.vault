@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Sun and moon positions, moon phase, key light and their commands ]]--
+     Desc: Sun and moon positions, moon phase and key light ]]--
 ----------------------------------------------------------------
 
 

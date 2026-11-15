@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Clock and server sync ]]--
+     Desc: Start time, day length and server sync ]]--
 ----------------------------------------------------------------
 
 

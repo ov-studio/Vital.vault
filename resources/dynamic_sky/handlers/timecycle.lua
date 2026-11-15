@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Sky colours for the current hour, tinted by the weather ]]--
+     Desc: Sky colours for the hour, tinted by the weather ]]--
 ----------------------------------------------------------------
 
 

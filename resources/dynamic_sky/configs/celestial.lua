@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Sun and moon ]]--
+     Desc: Sun and moon size, tilt and phase ]]--
 ----------------------------------------------------------------
 
 

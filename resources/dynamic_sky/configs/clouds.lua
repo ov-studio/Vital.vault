@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Volumetric clouds ]]--
+     Desc: Cloud shape, resolution and quality presets ]]--
 ----------------------------------------------------------------
 
 

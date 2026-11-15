@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Snow cover, wet surfaces and puddles ]]--
+     Desc: Snow cover, wetness and puddles ]]--
 ----------------------------------------------------------------
 
 

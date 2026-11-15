@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: World collider for the rain and snow particles ]]--
+     Desc: World collider for rain and snow particles ]]--
 ----------------------------------------------------------------
 
 

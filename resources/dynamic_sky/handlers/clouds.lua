@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Volumetric clouds: noise, low resolution render pass and cloud uniforms ]]--
+     Desc: Volumetric clouds render pass and uniforms ]]--
 ----------------------------------------------------------------
 
 

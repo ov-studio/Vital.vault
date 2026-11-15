@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Scene fog from the weather ]]--
+     Desc: Engine fog from the weather ]]--
 ----------------------------------------------------------------
 
 

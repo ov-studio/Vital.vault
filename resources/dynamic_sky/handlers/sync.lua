@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Authoritative clock and weather, synced to every client ]]--
+     Desc: Server clock and weather sync ]]--
 ----------------------------------------------------------------
 
 

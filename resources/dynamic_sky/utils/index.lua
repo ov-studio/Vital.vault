@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Shared namespaces, stage registry and math helpers ]]--
+     Desc: Config, Math and Sky namespaces with the stage registry ]]--
 ----------------------------------------------------------------
 
 

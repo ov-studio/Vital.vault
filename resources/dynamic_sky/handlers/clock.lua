@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Local clock, server sync and the time / weather / timescale commands ]]--
+     Desc: Local clock, server sync and time commands ]]--
 ----------------------------------------------------------------
 
 

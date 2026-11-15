@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Weather blending, wind and the manual intensity overrides ]]--
+     Desc: Weather blending, wind and manual overrides ]]--
 ----------------------------------------------------------------
 
 

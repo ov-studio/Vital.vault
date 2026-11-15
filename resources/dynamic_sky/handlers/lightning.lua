@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Thunderstorm strokes and the flash they add to the scene ]]--
+     Desc: Lightning strikes and the scene flash ]]--
 ----------------------------------------------------------------
 
 

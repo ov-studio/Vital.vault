@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Scene directional light and ambient environment ]]--
+     Desc: Key light, ambient and procedural sky environment ]]--
 ----------------------------------------------------------------
 
 

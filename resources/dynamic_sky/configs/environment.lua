@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Scene light, ambient and fog ]]--
+     Desc: Engine light, ambient, shadows and fog ]]--
 ----------------------------------------------------------------
 
 

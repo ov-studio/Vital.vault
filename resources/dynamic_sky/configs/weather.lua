@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Weather presets and wind ]]--
+     Desc: Weather presets, wind and lightning ]]--
 ----------------------------------------------------------------
 
 

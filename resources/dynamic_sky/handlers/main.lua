@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Runs every handler: init once, then update and draw each frame ]]--
+     Desc: Runs the init, update and draw stages ]]--
 ----------------------------------------------------------------
 
 

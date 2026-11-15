@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: What rain and snow share: camera, wind, light colour and particle level ]]--
+     Desc: Shared rain and snow camera, wind and particle level ]]--
 ----------------------------------------------------------------
 
 

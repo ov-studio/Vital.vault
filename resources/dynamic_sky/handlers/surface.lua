@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Surface weather: snow settles and melts, the ground gets wet ]]--
+     Desc: Snow cover, wet ground and puddles ]]--
 ----------------------------------------------------------------
 
 
