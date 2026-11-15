@@ -27,7 +27,7 @@ Sky.on("update", function(frame)
     local wanted = state.cur.fog > 0.01
     if wanted ~= state.fog_on then
         gfx.fog.set_enabled(wanted)
-        if wanted then gfx.fog.set_sky_affect(0.0) end     -- our sky shader does its own haze
+        if wanted then gfx.fog.set_sky_affect(0.0) end  -- our sky shader does its own haze
         state.fog_on = wanted
     end
     

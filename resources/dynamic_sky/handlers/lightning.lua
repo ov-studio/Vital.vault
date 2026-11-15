@@ -43,7 +43,7 @@ Sky.on("update", function(frame)
         state.bolt_cd = state.bolt_cd - frame.dt
         if state.bolt_cd <= 0 then
             local roll = private.rnd()
-            local power = roll < 0.14 and 1.55 or (roll < 0.72 and (0.95 + 0.2 * private.rnd()) or (0.40 + 0.2 * private.rnd()))   -- close / normal / distant
+            local power = roll < 0.14 and 1.55 or (roll < 0.72 and (0.95 + 0.2 * private.rnd()) or (0.40 + 0.2 * private.rnd()))  -- close / normal / distant
             local stroke_count = 2 + util.math.floor(private.rnd() * 4.0)  -- 2..5 strokes
             local offset = 0.0
             state.strokes, state.stroke_t = {}, 0.0

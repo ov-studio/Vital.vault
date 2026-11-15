@@ -52,7 +52,7 @@ Sky.on("init", function()
         state.light = light.directional.create()
         state.light:set_position({ 0, 5, 0 })
         state.light:set_shadow_enabled(Config.shadows)
-        state.light:set_sky_mode(light.directional.sky_mode.LIGHT_ONLY) -- our shader draws the sun disc
+        state.light:set_sky_mode(light.directional.sky_mode.LIGHT_ONLY)  -- our shader draws the sun disc
     end
 end)
 

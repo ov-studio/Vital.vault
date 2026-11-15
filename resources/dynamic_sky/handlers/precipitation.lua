@@ -28,7 +28,7 @@ function Sky.level(emitter, key, full, intensity, active)
     local steps = 8.0
     local level = active and min(steps, floor(intensity * steps) + 1) or 0
     if level <= 0 then
-        if state[key] ~= 0 then state[key] = 0; emitter:set_visible(false); emitter:stop() end   -- a hidden emitter must not keep simulating
+        if state[key] ~= 0 then state[key] = 0; emitter:set_visible(false); emitter:stop() end  -- a hidden emitter must not keep simulating
         return nil
     end
     
