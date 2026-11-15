@@ -16,19 +16,24 @@
 local state = Sky.state
 local sin, cos, floor, PI = util.math.sin, util.math.cos, util.math.floor, util.math.pi
 local lerp, clamp, smoothstep, norm, rotate = Math.lerp, Math.clamp, Math.smoothstep, Math.norm, Math.rotate
+local PHASES = {
+    { "new_moon", 0.0 }, 
+    { "waxing_crescent", 0.125 }, 
+    { "first_quarter", 0.25 }, 
+    { "waxing_gibbous", 0.375 },
+    { "full_moon", 0.5 }, 
+    { "waning_gibbous", 0.625 }, 
+    { "last_quarter", 0.75 }, 
+    { "waning_crescent", 0.875 }
+}
 
 
 -----------------
 --[[ Phases ]]--
 -----------------
 
-local PHASES = {
-    { "new_moon", 0.0 }, { "waxing_crescent", 0.125 }, { "first_quarter", 0.25 }, { "waxing_gibbous", 0.375 },
-    { "full_moon", 0.5 }, { "waning_gibbous", 0.625 }, { "last_quarter", 0.75 }, { "waning_crescent", 0.875 },
-}
 local function phase_name(p) return PHASES[(floor((p % 1.0) * 8 + 0.5) % 8) + 1][1] end
 local function phase_lit(p) return (1.0 - cos(p * 2 * PI)) * 0.5 end
-
 local function set_moon_phase(v)
     if v == nil or v == "auto" then state.moon_phase_manual = nil; return true end
     local n = tonumber(v)
