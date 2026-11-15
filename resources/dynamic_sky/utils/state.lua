@@ -7,7 +7,10 @@
      Desc: Client state shared by every handler ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
+
+-------------------
+--[[ Variables ]]--
+-------------------
 
 -- Fields that start out unset (nil): shader, light, cshader, moon_phase_manual (nil = automatic phase),
 -- cover_manual (nil = snow cover follows the weather), fog_on (unknown until the first frame, so the level's own fog
@@ -66,7 +69,7 @@ Sky.state = {
     -- surface weather
     cover    = 0.0,
     wet      = 0.0,
-    cover_on = false,
+    cover_on = false
 }
 
 for k, v in pairs(Sky.state.cur) do 
