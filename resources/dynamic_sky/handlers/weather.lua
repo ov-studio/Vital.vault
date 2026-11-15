@@ -81,7 +81,6 @@ end)
 --[[ Exports ]]--
 -----------------
 
--- Public API exposed to other resources: set the weather intensities (set_rain, set_snow, set_fog, set_lightning, set_wind) and the wind direction
 for _, o in ipairs(overrides) do
     util.export.register("set_" .. o.key, function(v) state.over[o.key] = tonumber(v) and clamp(tonumber(v), o.lo, o.hi) or nil end)
 end

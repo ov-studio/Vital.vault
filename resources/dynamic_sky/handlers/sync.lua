@@ -77,16 +77,12 @@ end
 --[[ Handlers ]]--
 ------------------
 
--- late joiners
-util.event.on("peer:resource:started", function(peer_id, resource)
-    if resource ~= util.resource.current() then return false end
-    push(peer_id)
-end)
+core.engine.print("info", "[dynamic_sky] server clock started at", state.time)
 
--- periodic drift correction
-util.timer.create(function() push() end, Config.sync_interval_ms, 0)
+util.timer.create(function() 
+    push() 
+end, Config.sync_interval_ms, 0)
 
--- client requests (/time /weather /timescale)
 util.event.on("dynamic_sky:request", function(kind, value)
     if not Config.allow_client_control then return end
     if kind == "time" then set_time(value)
@@ -94,7 +90,11 @@ util.event.on("dynamic_sky:request", function(kind, value)
     elseif kind == "timescale" then set_timescale(value) end
 end, { remote = true })
 
-core.engine.print("info", "[dynamic_sky] server clock started at", state.time)
+util.event.on("peer:resource:started", function(peer_id, resource)
+    if resource ~= util.resource.current() then return false end
+    push(peer_id)
+end)
+
 
 
 -----------------
