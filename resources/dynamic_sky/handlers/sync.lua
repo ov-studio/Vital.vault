@@ -30,6 +30,7 @@ local private = {}
 -- Returns the length of a full day in seconds, 0 when the clock is frozen.
 function private.day_seconds()
     if Config.day_length_min <= 0 then return 0 end
+
     return Config.day_length_min * 60.0
 end
 
@@ -76,6 +77,7 @@ end
 -- Returns false if the preset does not exist.
 function private.set_weather(name)
     if not Config.weather[name] then return false end
+
     state.weather = name
     private.push()
     return true
@@ -86,6 +88,7 @@ end
 function private.set_timescale(scale)
     scale = tonumber(scale)
     if not scale then return false end
+    
     private.advance()
     state.scale = util.math.max(0.0, util.math.min(scale, 1000.0))
     private.push()
@@ -108,6 +111,7 @@ end, Config.sync_interval_ms, 0)
 -- Handles /time, /weather and /timescale requests from clients (when client control is allowed).
 util.event.on("dynamic_sky:request", function(kind, value)
     if not Config.allow_client_control then return end
+
     if kind == "time" then private.set_time(value)
     elseif kind == "weather" then private.set_weather(tostring(value))
     elseif kind == "timescale" then private.set_timescale(value) end
@@ -116,6 +120,7 @@ end, { remote = true })
 -- Late joiners: sends the clock to a peer as soon as it has started this resource.
 util.event.on("peer:resource:started", function(peer_id, resource)
     if resource ~= util.resource.current() then return false end
+    
     private.push(peer_id)
 end)
 

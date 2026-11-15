@@ -50,6 +50,7 @@ function private.set_moon_phase(v)
         state.moon_phase_manual = nil
         return true 
     end
+    
     local n = tonumber(v)
     if not n then
         local key = tostring(v):lower():gsub("[%s%-]", "_")
