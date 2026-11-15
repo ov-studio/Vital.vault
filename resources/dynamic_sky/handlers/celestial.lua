@@ -31,15 +31,21 @@ local PHASES = {
 --[[ Utils ]]--
 ---------------
 
-local function phase_name(p) 
+local private = {}
+
+-- Returns the name of a moon phase (0..1), 0 new, 0.25 first quarter, 0.5 full, 0.75 last quarter
+function private.phase_name(p) 
     return PHASES[(floor((p % 1.0) * 8 + 0.5) % 8) + 1][1] 
 end
 
-local function phase_lit(p) 
+-- Returns how much of the moon disc is lit (0..1) for a moon phase (0..1)
+function private.phase_lit(p) 
     return (1.0 - cos(p * 2 * PI)) * 0.5 
 end
 
-local function set_moon_phase(v)
+-- Sets the moon phase from a number (0..1) or a phase name, nil / "auto" follows the 29.5 day cycle again.
+-- Returns false if the value is not recognised.
+function private.set_moon_phase(v)
     if v == nil or v == "auto" then 
         state.moon_phase_manual = nil
         return true 
@@ -58,7 +64,9 @@ local function set_moon_phase(v)
     return true
 end
 
-local function set_sun_size(deg)
+-- Sets the apparent radius of the sun in degrees (0.05-15).
+-- Returns false if the value is not a number.
+function private.set_sun_size(deg)
     deg = tonumber(deg)
     if not deg then return false end
 
@@ -66,7 +74,9 @@ local function set_sun_size(deg)
     return true
 end
 
-local function set_moon_size(deg)
+-- Sets the apparent radius of the moon in degrees (0.05-15).
+-- Returns false if the value is not a number.
+function private.set_moon_size(deg)
     deg = tonumber(deg)
     if not deg then return false end
 
@@ -74,7 +84,9 @@ local function set_moon_size(deg)
     return true
 end
 
-local function celestial(hour, day)
+-- Returns the sun and moon directions, the rotation axis and the angle of the sky for an hour and day.
+-- The moon phase is manual or follows the day cycle, and is stored in state.phase.
+function private.celestial(hour, day)
     local tilt = Config.sun_tilt_deg * PI / 180
     local axis = { 0, -sin(tilt), cos(tilt) }  -- rotation axis of the sky
     local a = (hour - 6.0) / 24.0 * 2 * PI     -- 0 = east horizon (06:00)
@@ -97,7 +109,7 @@ end
 ------------------
 
 Sky.on("update", function(F)
-    F.sun, F.moon, F.axis, F.ang = celestial(state.time, state.day)
+    F.sun, F.moon, F.axis, F.ang = private.celestial(state.time, state.day)
     F.day_w = smoothstep(-0.10, 0.14, F.sun[2])
     F.key_dir = norm({ lerp(F.moon[1], F.sun[1], F.day_w), lerp(F.moon[2], F.sun[2], F.day_w), lerp(F.moon[3], F.sun[3], F.day_w) })
     F.sun_energy = F.tc.light_energy * F.dark
@@ -109,10 +121,12 @@ end)
 --[[ Exports ]]--
 -----------------
 
-util.export.register("get_moon_phase", function() return state.phase or Config.moon_phase, phase_name(state.phase or Config.moon_phase) end)
-util.export.register("set_sun_size", set_sun_size)
-util.export.register("set_moon_size", set_moon_size)
-util.export.register("set_moon_phase", set_moon_phase)
+-- Public API surface exposed to other resources: read the moon phase, set the sun / moon size
+-- and set the moon phase (0..1, a phase name, or nil / "auto").
+util.export.register("get_moon_phase", function() return state.phase or Config.moon_phase, private.phase_name(state.phase or Config.moon_phase) end)
+util.export.register("set_sun_size", private.set_sun_size)
+util.export.register("set_moon_size", private.set_moon_size)
+util.export.register("set_moon_phase", private.set_moon_phase)
 
 
 ------------------
@@ -122,7 +136,7 @@ util.export.register("set_moon_phase", set_moon_phase)
 -- Sets the apparent radius of the sun, the glow scales with it
 -- Usage: /sun_size <0.05-15> (real sun 0.27)
 util.input.register("sun_size", function(args)
-    if not set_sun_size(args[1]) then
+    if not private.set_sun_size(args[1]) then
         return core.engine.print("info", util.string.format("[dynamic_sky] sun radius %.2f deg (usage: sun_size <0.05-15>, real sun 0.27)", state.sun_deg))
     end
     core.engine.print("info", util.string.format("[dynamic_sky] sun radius %.2f deg", state.sun_deg))
@@ -131,7 +145,7 @@ end)
 -- Sets the apparent radius of the moon
 -- Usage: /moon_size <0.05-15> (real moon 0.26)
 util.input.register("moon_size", function(args)
-    if not set_moon_size(args[1]) then
+    if not private.set_moon_size(args[1]) then
         return core.engine.print("info", util.string.format("[dynamic_sky] moon radius %.2f deg (usage: moon_size <0.05-15>, real moon 0.26)", state.moon_deg))
     end
     core.engine.print("info", util.string.format("[dynamic_sky] moon radius %.2f deg", state.moon_deg))
@@ -140,9 +154,9 @@ end)
 -- Shows or sets the moon phase, 0 new, 0.25 first quarter, 0.5 full, 0.75 last quarter, auto follows the 29.5 day cycle
 -- Usage: /moon_phase [new|waxing_crescent|first_quarter|waxing_gibbous|full|waning_gibbous|last_quarter|waning_crescent|0-1|auto]
 util.input.register("moon_phase", function(args)
-    if args[1] and not set_moon_phase(args[1]) then
+    if args[1] and not private.set_moon_phase(args[1]) then
         return core.engine.print("warn", "Usage: moon_phase <new|waxing_crescent|first_quarter|waxing_gibbous|full|waning_gibbous|last_quarter|waning_crescent|0-1|auto>")
     end
     local p = state.phase or Config.moon_phase
-    core.engine.print("info", util.string.format("[dynamic_sky] moon: %s, %d%% lit%s", phase_name(p), floor(phase_lit(p) * 100 + 0.5), state.moon_phase_manual and " (manual)" or " (auto cycle)"))
+    core.engine.print("info", util.string.format("[dynamic_sky] moon: %s, %d%% lit%s", private.phase_name(p), floor(private.phase_lit(p) * 100 + 0.5), state.moon_phase_manual and " (manual)" or " (auto cycle)"))
 end)
