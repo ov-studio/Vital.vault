@@ -19,10 +19,13 @@ local state = Sky.state
 --[[ Utils ]]--
 ---------------
 
+local private = {}
+
+-- Turns the engine glow on or off.
 -- The sun disc is rendered HDR, so the engine's own glow (gfx.glow) blooms it. The glow works on the finished
 -- picture, so geometry in front of the sun hides it and only the exposed part of the disc blooms (blurred over the edges).
 -- The threshold is above normal scene brightness so nothing else lights up.
-local function apply(on)
+function private.apply(on)
     gfx.glow.set_enabled(on)
     if not on then return end
     gfx.glow.set_hdr_bleed_threshold(Config.glow_threshold)
@@ -42,7 +45,7 @@ end
 ------------------
 
 Sky.on("init", function()
-    if state.glow then apply(true) end
+    if state.glow then private.apply(true) end
 end)
 
 
@@ -54,6 +57,6 @@ end)
 -- Usage: /sky_glow [on|off]
 util.input.register("sky_glow", function(args)
     state.glow = Sky.switch(args[1], state.glow)
-    apply(state.glow)
+    private.apply(state.glow)
     core.engine.print("info", "[dynamic_sky] sun bloom:", state.glow and "on" or "off")
 end)
