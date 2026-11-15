@@ -57,8 +57,18 @@ Sky.on("update", function(frame)
     local preset = Config.weather[state.weather] or Config.weather.partly
     local blend = clamp(frame.dt * Config.weather_blend_per_sec, 0, 1)
     local tint = preset.tint or { 1.0, 1.0, 1.0 }
-    local goal = { rain = 0.0, snow = 0.0, fog = 0.0, wind = 1.0, lightning = 0.0, haze = 0.0,
-                   tr = tint[1], tg = tint[2], tb = tint[3] }
+    local goal = { 
+        rain = 0.0, 
+        snow = 0.0, 
+        fog = 0.0, 
+        wind = 1.0, 
+        lightning = 0.0, 
+        haze = 0.0, 
+        tr = tint[1],
+        tg = tint[2], 
+        tb = tint[3] 
+    }
+
     for key, v in pairs(preset) do if key ~= "tint" then goal[key] = v end end
     -- every key blends, so a key a preset does not mention returns to its neutral value
     for key, v in pairs(goal) do state.base[key] = lerp(state.base[key], v, blend) end
@@ -69,6 +79,7 @@ Sky.on("update", function(frame)
         if key == "wind" then state.cur.wind = state.base.wind * v
         else state.cur[key] = v * clamp(state.base[key] / 0.3, 0.0, 1.0) end
     end
+    
     -- wind / cloud evolution accumulate (changing the speed never makes clouds jump)
     local dir_blend = clamp(frame.dt * 0.6, 0, 1)
     state.wdir[1] = lerp(state.wdir[1], state.wdir_t[1], dir_blend)
