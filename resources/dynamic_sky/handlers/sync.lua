@@ -7,19 +7,18 @@
      Desc: Authoritative clock and weather, synced to every client ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
 -------------------
 
+local last_tick = core.engine.get_tick()
 local state = {
     time    = Config.start_time,              -- hour of day, 0..24
     day     = 0,                              -- day counter (moon phase)
     scale   = 1.0,                            -- timescale multiplier
-    weather = Config.default_weather,
+    weather = Config.default_weather
 }
-local last_tick = core.engine.get_tick()
 
 
 ---------------
