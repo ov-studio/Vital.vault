@@ -49,6 +49,7 @@ end)
 Sky.on("update", function(F)
     state.flt = (state.flt + F.dt) % 50.26548
     if not state.snow_on then return end
+
     local emitter, sh, cpos, SN = state.snow_emitter, state.snow_shader, F.cpos, F.SN
     local dens = Sky.level(emitter, "snow_lvl", state.snow_full, SN, state.precip and cpos ~= nil and SN > 0.02)
     if not dens then return end
@@ -57,6 +58,7 @@ Sky.on("update", function(F)
     emitter:set_global_position({ cpos[1], cpos[2] + 12.0, cpos[3] })
     emitter:set_direction({ fx / fl, fy / fl, fz / fl })
     emitter:set_param(particle.gpu.param.VELOCITY, fl * 0.8, fl * 1.2)
+
     -- flake colour against the open sky: the scene's colour (horizon tint), kept bright at night so flakes are not dark specks;
     -- in front of scenery the shader takes the colour of what is behind (the ground snow) instead
     local lf = 0.55 + 0.4 * clamp(F.daylight, 0.0, 1.0)
