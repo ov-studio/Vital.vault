@@ -31,6 +31,7 @@ function Sky.level(emitter, key, full, inten, on)
         if state[key] ~= 0 then state[key] = 0; emitter:set_visible(false); emitter:stop() end   -- a hidden emitter must not keep simulating
         return nil
     end
+    
     if state[key] ~= lvl then
         state[key] = lvl
         emitter:set_amount(max(40, floor(full * lvl / steps)))
