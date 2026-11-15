@@ -19,7 +19,10 @@ local state = Sky.state
 --[[ Utils ]]--
 ---------------
 
-local function request(kind, value) 
+local private = {}
+
+-- Asks the server to change the time, weather or timescale, the server owns all three.
+function private.request(kind, value) 
     util.event.emit("dynamic_sky:request", { remote = true }, kind, value) 
 end
 
@@ -45,6 +48,7 @@ end)
 --[[ Exports ]]--
 -----------------
 
+-- Public API surface exposed to other resources: read the current time and weather.
 util.export.register("get_time", function() return state.time end)
 util.export.register("get_weather", function() return state.weather end)
 
@@ -61,7 +65,7 @@ util.input.register("time", function(args)
     local h, m = tostring(a):match("^(%d+):(%d+)$")
     local v = h and (tonumber(h) + tonumber(m) / 60) or tonumber(a)
     if not v then return core.engine.print("warn", "Usage: time <hour 0-24 | HH:MM>") end
-    request("time", v)
+    private.request("time", v)
 end)
 
 -- Requests a weather preset from the server
@@ -72,12 +76,12 @@ util.input.register("weather", function(args)
         for n in pairs(Config.weather) do names[#names + 1] = n end
         return core.engine.print("warn", "Usage: weather <" .. util.table.concat(names, "|") .. ">")
     end
-    request("weather", args[1])
+    private.request("weather", args[1])
 end)
 
 -- Requests a new timescale from the server, 0 freezes the time
 -- Usage: /timescale <multiplier>
 util.input.register("timescale", function(args)
     if not tonumber(args[1]) then return core.engine.print("warn", "Usage: timescale <multiplier, 0 = freeze>") end
-    request("timescale", tonumber(args[1]))
+    private.request("timescale", tonumber(args[1]))
 end)
