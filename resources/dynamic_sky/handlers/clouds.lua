@@ -7,7 +7,6 @@
      Desc: Volumetric clouds: noise, low resolution render pass and cloud uniforms ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
@@ -22,10 +21,13 @@ local clamp = Math.clamp
 --[[ Utils ]]--
 ---------------
 
--- the volumetric clouds are marched into a small rendertarget (a fraction of the screen), blurred with two cheap
+local private = {}
+
+-- (Re)creates the cloud shaders and rendertargets for a resolution.
+-- The volumetric clouds are marched into a small rendertarget (a fraction of the screen), blurred with two
 -- passes (horizontal, vertical) and sky.gdshader reads the result with one texture fetch per pixel.
 -- The rendertargets are hdr (16 bit float): the cloud light is above 1 and 8 bits would band.
-local function setup(rx, ry)
+function private.setup(rx, ry)
     local w, h = max(64, floor(rx / Config.cloud_rt_div)), max(64, floor(ry / Config.cloud_rt_div))
     if not state.cloud_sh then
         local mode = core.shader.shader_mode.CANVAS_ITEM
@@ -54,27 +56,26 @@ end
 ------------------
 
 Sky.on("init", function()
-    -- baked cloud noise (see tools/bake_cloud_noise.py), sampled instead of computing noise per pixel
-    state.noise = core.image.create("files/textures/cloud_noise.png", true)
+    state.noise = core.image.create("files/textures/cloud_noise.png", true) -- baked cloud noise (see tools/bake_cloud_noise.py), sampled instead of computing noise per pixel
 end)
 
 Sky.on("draw", function()
     if not state.enabled then return end
     local cam = core.camera.get_active()
     if not cam then return end
+    
     local res = core.display.get_resolution()
     local rx, ry = res[1], res[2]
-    if not state.crt_a or abs(rx - state.crt_rx) > 2 or abs(ry - state.crt_ry) > 2 then setup(rx, ry) end
+    if not state.crt_a or abs(rx - state.crt_rx) > 2 or abs(ry - state.crt_ry) > 2 then private.setup(rx, ry) end
     local basis = cam:get_transform().basis
     local pos = cam:get_global_position()
     local t = util.math.tan(util.math.rad(cam:get_fov()) * 0.5)
     local aspect = rx / ry
-    local tx, ty = t * aspect, t                                     -- the field of view is vertical by default (keep height)
-    if cam:get_keep_aspect() == 0 then tx, ty = t, t / aspect end    -- keep width
-    
-    -- looking far down: no pixel of the screen can show sky, so nothing to march
+    local tx, ty = t * aspect, t                                                          -- the field of view is vertical by default (keep height)
+    if cam:get_keep_aspect() == 0 then tx, ty = t, t / aspect end                         -- keep width
     local pitch = util.math.asin(clamp(-basis.z[2], -1.0, 1.0))
-    if pitch + util.math.atan(util.math.sqrt(tx * tx + ty * ty)) < -0.01 then return end 
+    if pitch + util.math.atan(util.math.sqrt(tx * tx + ty * ty)) < -0.01 then return end  -- looking far down: no pixel of the screen can show sky, so nothing to march
+
     local cs = state.cloud_sh
     cs:set_param("cam_x", basis.x)
     cs:set_param("cam_y", basis.y)
