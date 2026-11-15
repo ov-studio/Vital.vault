@@ -46,9 +46,9 @@ function Sky.switch(arg, current)
 end
 
 
-----------------
+--------------
 --[[ Math ]]--
-----------------
+--------------
 
 local sin, cos = util.math.sin, util.math.cos
 
