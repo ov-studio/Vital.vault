@@ -16,6 +16,10 @@
 local state = Sky.state
 
 
+---------------
+--[[ Utils ]]--
+---------------
+
 -- The sun disc is rendered HDR, so the engine's own glow (gfx.glow) blooms it. The glow works on the finished
 -- picture, so geometry in front of the sun hides it and only the exposed part of the disc blooms (blurred over the edges).
 -- The threshold is above normal scene brightness so nothing else lights up.
@@ -34,16 +38,22 @@ local function apply(on)
     for i = 1, #lv do gfx.glow.set_level_intensity(i - 1, lv[i]) end
 end
 
+
+------------------
+--[[ Handlers ]]--
+------------------
+
 Sky.on("init", function()
     if state.glow then apply(true) end
 end)
 
 
------------------
---[[ Input ]]--
------------------
+------------------
+--[[ Commands ]]--
+------------------
 
--- sky_glow [on|off] : bloom around the sun (uses the engine glow)
+-- Toggles the bloom around the sun (uses the engine glow)
+-- Usage: /sky_glow [on|off]
 util.input.register("sky_glow", function(args)
     state.glow = Sky.switch(args[1], state.glow)
     apply(state.glow)

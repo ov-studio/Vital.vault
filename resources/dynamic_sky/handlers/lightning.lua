@@ -7,7 +7,6 @@
      Desc: Thunderstorm strokes and the flash they add to the scene ]]--
 ----------------------------------------------------------------
 
-
 --TODO: Improve
 
 -------------------
@@ -17,8 +16,18 @@
 local state = Sky.state
 local clamp = Math.clamp
 
+
+---------------
+--[[ Utils ]]--
+---------------
+
 -- tiny deterministic PRNG (0..1), so we do not depend on a random() in the sandbox
 local function rnd() state.seed = (state.seed * 1664525 + 1013904223) % 4294967296; return state.seed / 4294967296 end
+
+
+------------------
+--[[ Handlers ]]--
+------------------
 
 -- a real strike is a quick flicker of strokes (dim leader, one or two bright return strokes, a few
 -- weaker restrikes ~40-120 ms apart) followed by a slower afterglow while the cloud is lit from inside.
@@ -74,4 +83,5 @@ end)
 --[[ Exports ]]--
 -----------------
 
+-- Public API exposed to other resources: trigger a lightning flash (0..1)
 util.export.register("flash", function(v) state.flash = clamp(tonumber(v) or 1.0, 0.0, 1.0) end)

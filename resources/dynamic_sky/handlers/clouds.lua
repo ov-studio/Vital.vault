@@ -18,18 +18,8 @@ local floor, max, abs = util.math.floor, util.math.max, util.math.abs
 local clamp = Math.clamp
 
 
---------------
---[[ Init ]]--
---------------
-
--- baked cloud noise (see tools/bake_cloud_noise.py), sampled instead of computing noise per pixel
-Sky.on("init", function()
-    state.noise = core.image.create("files/textures/cloud_noise.png", true)
-end)
-
-
 ---------------
---[[ Pass ]]--
+--[[ Utils ]]--
 ---------------
 
 -- the volumetric clouds are marched into a small rendertarget (a fraction of the screen), blurred with two cheap
@@ -59,6 +49,16 @@ local function setup(rx, ry)
     state.crt_w, state.crt_h, state.crt_rx, state.crt_ry = w, h, rx, ry
 end
 
+
+------------------
+--[[ Handlers ]]--
+------------------
+
+-- baked cloud noise (see tools/bake_cloud_noise.py), sampled instead of computing noise per pixel
+Sky.on("init", function()
+    state.noise = core.image.create("files/textures/cloud_noise.png", true)
+end)
+
 Sky.on("draw", function()
     if not state.enabled then return end
     local cam = core.camera.get_active()
@@ -66,7 +66,6 @@ Sky.on("draw", function()
     local res = core.display.get_resolution()
     local rx, ry = res[1], res[2]
     if not state.crt_a or abs(rx - state.crt_rx) > 2 or abs(ry - state.crt_ry) > 2 then setup(rx, ry) end
-
     local basis = cam:get_transform().basis
     local bx, by, bz = basis.x, basis.y, basis.z
     local pos = cam:get_global_position()
@@ -74,18 +73,15 @@ Sky.on("draw", function()
     local aspect = rx / ry
     local tx, ty = t * aspect, t                            -- the field of view is vertical by default (keep height)
     if cam:get_keep_aspect() == 0 then tx, ty = t, t / aspect end    -- keep width
-
     -- looking far down: no pixel of the screen can show sky, so nothing to march
     local pitch = util.math.asin(clamp(-bz[2], -1.0, 1.0))
     if pitch + util.math.atan(util.math.sqrt(tx * tx + ty * ty)) < -0.01 then return end
-
     local cs = state.cloud_sh
     cs:set_param("cam_x", bx)
     cs:set_param("cam_y", by)
     cs:set_param("cam_z", bz)
     cs:set_param("cam_pos", pos)
     cs:set_param("tan_xy", { tx, ty })
-
     local size = { state.crt_w, state.crt_h }
     core.rendertarget.set_active(state.crt_a, true)
     core.engine.draw_material({ 0, 0 }, size, cs, 0, { 0, 0 }, { 1, 1, 1, 1 })
@@ -100,11 +96,6 @@ Sky.on("draw", function()
     end
 end)
 
-
-----------------
---[[ Update ]]--
-----------------
-
 Sky.on("update", function(F)
     local csh = state.cloud_sh                                  -- the cloud pass is created on the first draw
     local function cset(name, v)                            -- cloud values: only the cloud pass uses them
@@ -112,7 +103,6 @@ Sky.on("update", function(F)
     end
     local tc, FL = F.tc, F.FL
     local q = Config.qualities[state.quality] or Config.qualities.medium
-
     local cloud_light = {
         tc.light[1] * F.sun_energy * 1.6 * F.day_w + Config.night_light.color[1] * F.night_energy * 2.0,
         tc.light[2] * F.sun_energy * 1.6 * F.day_w + Config.night_light.color[2] * F.night_energy * 2.0,
@@ -122,13 +112,11 @@ Sky.on("update", function(F)
     cset("haze_density", 0.000012 * (1.0 + state.cur.haze * 5.0))
     cset("light_dir", F.key_dir)
     cset("light_color", cloud_light)
-
     -- night: clouds still catch scattered moon / sky glow, so an overcast or rainy night is dim grey-blue, not pitch black
     local ng = Config.night_cloud_glow
     local nk = clamp(tc.stars, 0.0, 1.0) * (0.35 + 0.65 * state.cur.dark)
     cset("cloud_ambient_top", { tc.ambient_top[1] * F.grey + ng[1] * nk + FL * 2.2, tc.ambient_top[2] * F.grey + ng[2] * nk + FL * 2.4, tc.ambient_top[3] * F.grey + ng[3] * nk + FL * 3.2 })
     cset("cloud_ambient_bottom", { tc.ambient_bottom[1] + ng[1] * nk * 0.6, tc.ambient_bottom[2] + ng[2] * nk * 0.6, tc.ambient_bottom[3] + ng[3] * nk * 0.6 })
-
     local coverage = state.clouds and state.cur.coverage or 0.0
     state.shader:set_param("cloud_coverage", coverage)
     cset("cloud_coverage", coverage)
@@ -145,18 +133,20 @@ Sky.on("update", function(F)
 end)
 
 
------------------
---[[ Input ]]--
------------------
+------------------
+--[[ Commands ]]--
+------------------
 
--- sky_quality low|medium|high|ultra   (client side, fps vs. cloud quality)
+-- Sets the cloud quality, trading fps for detail
+-- Usage: /sky_quality <low|medium|high|ultra>
 util.input.register("sky_quality", function(args)
     if not Config.qualities[args[1] or ""] then return core.engine.print("warn", "Usage: sky_quality <low|medium|high|ultra>") end
     state.quality = args[1]
     core.engine.print("info", "[dynamic_sky] cloud quality", state.quality)
 end)
 
--- sky_clouds on|off : toggle the clouds (no argument = flip)
+-- Toggles the volumetric clouds, no argument flips
+-- Usage: /sky_clouds [on|off]
 util.input.register("sky_clouds", function(args)
     state.clouds = Sky.switch(args[1], state.clouds)
     core.engine.print("info", "[dynamic_sky] clouds:", state.clouds and "on" or "off")

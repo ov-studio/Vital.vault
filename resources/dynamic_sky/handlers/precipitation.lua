@@ -18,6 +18,10 @@ local sin, floor, min, max = util.math.sin, util.math.floor, util.math.min, util
 local lerp, clamp = Math.lerp, Math.clamp
 
 
+---------------
+--[[ Utils ]]--
+---------------
+
 -- rain and snow share this: the emitter shows more or fewer particles in 8 steps (changing the amount restarts
 -- the pool, so only step changes do it) and the shader's density smooths between the steps. Returns the density for
 -- the shader, or nil (emitter hidden) when there is none.
@@ -37,17 +41,20 @@ function Sky.level(emitter, key, full, inten, on)
     return clamp(inten * steps / lvl, 0.0, 1.0) ^ 0.8
 end
 
+
+------------------
+--[[ Handlers ]]--
+------------------
+
 Sky.on("update", function(F)
     local cam = core.camera.get_active()
     if cam then F.cpos = cam:get_global_position() end
     local tc = F.tc
     F.daylight = clamp(0.10 + 0.80 * clamp(tc.light_energy, 0.0, 1.0) ^ 0.7, 0.08, 1.0) * (1.0 + F.FL * 3.0)
-
     -- horizon colour, kept close to white: the tint of the drops / flakes against the sky
     local ph = tc.horizon
     local pmx = max(ph[1], max(ph[2], max(ph[3], 1e-3)))
     F.pr, F.pg, F.pb = lerp(ph[1] / pmx, 1.0, 0.45), lerp(ph[2] / pmx, 1.0, 0.45), lerp(ph[3] / pmx, 1.0, 0.45)
-
     -- horizontal speed of the falling precipitation
     local gust = 1.0 + 0.25 * sin(state.cloud_t * 0.35) * sin(state.cloud_t * 0.113 + 1.7)
     local wmps = state.cur.wind * Config.rain_wind_mps * gust
@@ -56,11 +63,12 @@ Sky.on("update", function(F)
 end)
 
 
------------------
---[[ Input ]]--
------------------
+------------------
+--[[ Commands ]]--
+------------------
 
--- sky_precip on|off : toggle the rain / snow particles (no argument = flip)
+-- Toggles the rain and snow particles, no argument flips
+-- Usage: /sky_precip [on|off]
 util.input.register("sky_precip", function(args)
     state.precip = Sky.switch(args[1], state.precip)
     core.engine.print("info", "[dynamic_sky] precipitation particles:", state.precip and "on" or "off")

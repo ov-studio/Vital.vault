@@ -18,9 +18,9 @@ local floor, max, sqrt = util.math.floor, util.math.max, util.math.sqrt
 local lerp, clamp = Math.lerp, Math.clamp
 
 
---------------
---[[ Init ]]--
---------------
+------------------
+--[[ Handlers ]]--
+------------------
 
 -- flakes vanish on roofs and ground, so nothing snows indoors
 Sky.on("init", function()
@@ -47,18 +47,12 @@ Sky.on("init", function()
     state.snow_on = true
 end)
 
-
-----------------
---[[ Update ]]--
-----------------
-
 Sky.on("update", function(F)
     state.flt = (state.flt + F.dt) % 50.26548
     if not state.snow_on then return end
     local emitter, sh, cpos, SN = state.snow_emitter, state.snow_shader, F.cpos, F.SN
     local dens = Sky.level(emitter, "snow_lvl", state.snow_full, SN, state.precip and cpos ~= nil and SN > 0.02)
     if not dens then return end
-
     local fx, fy, fz = F.wx * 0.85, -(0.9 + 0.7 * SN), F.wz * 0.85
     local fl = sqrt(fx * fx + fy * fy + fz * fz)
     emitter:set_global_position({ cpos[1], cpos[2] + 12.0, cpos[3] })

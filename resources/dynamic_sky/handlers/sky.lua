@@ -18,28 +18,21 @@ local max, PI = util.math.max, util.math.pi
 local clamp, rad = Math.clamp, Math.rad
 
 
---------------
---[[ Init ]]--
---------------
+------------------
+--[[ Handlers ]]--
+------------------
 
 Sky.on("init", function()
     local shader = core.shader.create("files/shaders/sky.gdshader", core.shader.shader_mode.POST_PROCESS)
     state.shader = shader
-
     -- NASA LROC moon colour map
     state.moon = core.image.create("files/textures/moon.png", true)    -- keep a reference so the texture is not freed while the shader uses it
     shader:set_param("moon_tex", state.moon)
     core.engine.print("info", "[dynamic_sky] sky shader created")
 end)
 
-
-----------------
---[[ Update ]]--
-----------------
-
 Sky.on("update", function(F)
     local sh, tc, sun, FL = state.shader, F.tc, F.sun, F.FL
-
     sh:set_param("sun_dir", sun)
     sh:set_param("moon_dir", F.moon)
     sh:set_param("sun_size", rad(state.sun_deg))
@@ -53,7 +46,6 @@ Sky.on("update", function(F)
     sh:set_param("glow_strength", tc.glow_strength * F.dark)
     sh:set_param("horizon_falloff", max(3.5 - state.cur.haze * 1.6, 0.8))       -- haze widens the bright horizon band
     sh:set_param("sun_color", tc.sun_color)
-
     -- sunlight colour after travelling through the atmosphere (Kasten-Young air mass + Rayleigh-ish
     -- per-channel extinction): warm white high up, yellow, orange, then deep red at the horizon.
     -- haze/dust makes the path "longer", so hazy weather gives redder suns.
@@ -69,16 +61,10 @@ Sky.on("update", function(F)
     sh:set_param("sun_phys", state.sun_rgb)
     sh:set_param("sun_intensity", 25.0 * F.dark)
     sh:set_param("sun_hdr", Config.sun_hdr)
-
     sh:set_param("moon_color", Config.night_light.color)
     sh:set_param("star_visibility", tc.stars * (1.0 - state.cur.dark * 0.7))
     sh:set_param("exposure", tc.exposure * Config.exposure * (1.0 + FL * 1.7))
 end)
-
-
----------------
---[[ Draw ]]--
----------------
 
 -- the sky is a screen quad (same mechanism as a post process effect)
 Sky.on("draw", function()
@@ -88,18 +74,20 @@ end)
 
 
 -----------------
---[[ Input ]]--
+--[[ Exports ]]--
 -----------------
 
--- sky_toggle: switch the whole sky shader on/off
+-- Public API exposed to other resources: switch the sky on / off
+util.export.register("toggle", function() state.enabled = not state.enabled end)
+
+
+------------------
+--[[ Commands ]]--
+------------------
+
+-- Switches the whole sky shader on or off
+-- Usage: /sky_toggle
 util.input.register("sky_toggle", function()
     state.enabled = not state.enabled
     core.engine.print("info", "[dynamic_sky] enabled:", state.enabled)
 end)
-
-
------------------
---[[ Exports ]]--
------------------
-
-util.export.register("toggle", function() state.enabled = not state.enabled end)

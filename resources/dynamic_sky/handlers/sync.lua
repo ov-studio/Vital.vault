@@ -21,6 +21,11 @@ local state = {
 }
 local last_tick = core.engine.get_tick()
 
+
+---------------
+--[[ Utils ]]--
+---------------
+
 local function day_seconds()
     if Config.day_length_min <= 0 then return 0 end
     return Config.day_length_min * 60.0
@@ -50,16 +55,6 @@ local function push(peer)
     util.event.emit("dynamic_sky:sync", opts, state.time, state.day, state.scale, state.weather)
 end
 
--- late joiners
-util.event.on("peer:resource:started", function(peer_id, resource)
-    if resource ~= util.resource.current() then return false end
-    push(peer_id)
-end)
-
--- periodic drift correction
-util.timer.create(function() push() end, Config.sync_interval_ms, 0)
-
--- exports for other server scripts / resources ------------------------
 local function set_time(hour)
     hour = tonumber(hour); if not hour then return false end
     advance()
@@ -77,12 +72,21 @@ local function set_timescale(scale)
     advance(); state.scale = util.math.max(0.0, util.math.min(scale, 1000.0)); push(); return true
 end
 
-util.export.register("get_time", function() advance(); return state.time end)
-util.export.register("set_time", set_time)
-util.export.register("set_weather", set_weather)
-util.export.register("set_timescale", set_timescale)
 
--- client requests (/time /weather /timescale) --------------------------
+------------------
+--[[ Handlers ]]--
+------------------
+
+-- late joiners
+util.event.on("peer:resource:started", function(peer_id, resource)
+    if resource ~= util.resource.current() then return false end
+    push(peer_id)
+end)
+
+-- periodic drift correction
+util.timer.create(function() push() end, Config.sync_interval_ms, 0)
+
+-- client requests (/time /weather /timescale)
 util.event.on("dynamic_sky:request", function(kind, value)
     if not Config.allow_client_control then return end
     if kind == "time" then set_time(value)
@@ -91,3 +95,14 @@ util.event.on("dynamic_sky:request", function(kind, value)
 end, { remote = true })
 
 core.engine.print("info", "[dynamic_sky] server clock started at", state.time)
+
+
+-----------------
+--[[ Exports ]]--
+-----------------
+
+-- Public API exposed to other server scripts and resources: read the clock, set the time, weather and timescale
+util.export.register("get_time", function() advance(); return state.time end)
+util.export.register("set_time", set_time)
+util.export.register("set_weather", set_weather)
+util.export.register("set_timescale", set_timescale)

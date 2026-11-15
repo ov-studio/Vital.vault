@@ -16,6 +16,10 @@
 local state = Sky.state
 
 
+------------------
+--[[ Handlers ]]--
+------------------
+
 Sky.run("init")
 
 util.event.on("sandbox:process", function(dt)

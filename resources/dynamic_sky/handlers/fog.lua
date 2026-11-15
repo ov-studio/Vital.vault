@@ -16,6 +16,10 @@
 local state = Sky.state
 
 
+------------------
+--[[ Handlers ]]--
+------------------
+
 -- fog, rain, blizzard, sandstorm ...
 Sky.on("update", function(F)
     if not Config.use_fog then return end

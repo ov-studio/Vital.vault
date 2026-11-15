@@ -16,11 +16,38 @@
 local state = Sky.state
 local sin, cos = util.math.sin, util.math.cos
 local lerp, clamp, norm, rad = Math.lerp, Math.clamp, Math.norm, Math.rad
+local overrides = {}
 
 
--------------------
---[[ Weather ]]--
--------------------
+---------------
+--[[ Utils ]]--
+---------------
+
+-- Registers the command of one intensity and remembers its limits for the set_<key> export
+local function make_override(cmd, key, lo, hi)
+    util.input.register(cmd, function(args)
+        local a = args[1]
+        if not a then return core.engine.print("info", util.string.format("[dynamic_sky] %s = %.2f%s", key, state.cur[key], state.over[key] and " (manual)" or " (auto)")) end
+        if a == "auto" then state.over[key] = nil
+        else
+            local v = tonumber(a)
+            if not v then return core.engine.print("warn", "Usage: " .. cmd .. " <" .. lo .. ".." .. hi .. " | auto>") end
+            state.over[key] = clamp(v, lo, hi)
+        end
+        core.engine.print("info", "[dynamic_sky] " .. key .. ":", state.over[key] or "auto")
+    end)
+    overrides[#overrides + 1] = { key = key, lo = lo, hi = hi }
+end
+
+local function set_wind_dir(deg)
+    deg = tonumber(deg) or 0
+    state.wdir_t = { sin(rad(deg)), cos(rad(deg)) }
+end
+
+
+------------------
+--[[ Handlers ]]--
+------------------
 
 Sky.on("update", function(F)
     local dt = F.dt
@@ -39,7 +66,6 @@ Sky.on("update", function(F)
         if key == "wind" then state.cur.wind = state.base.wind * v
         else state.cur[key] = v * clamp(state.base[key] / 0.3, 0.0, 1.0) end
     end
-
     -- wind / cloud evolution accumulate (changing the speed never makes clouds jump)
     local kd = clamp(dt * 0.6, 0, 1)
     state.wdir[1] = lerp(state.wdir[1], state.wdir_t[1], kd)
@@ -52,38 +78,31 @@ end)
 
 
 -----------------
---[[ Input ]]--
+--[[ Exports ]]--
 -----------------
 
--- sky_rain / sky_snow / sky_fog / sky_wind / sky_lightning <value | auto>
--- rain, snow, fog, lightning: 0..1 level reached WHILE the weather has it (clear weather still has none); wind: multiplier, 1 = preset
-local overrides = {}
-local function make_override(cmd, key, lo, hi)
-    util.input.register(cmd, function(args)
-        local a = args[1]
-        if not a then return core.engine.print("info", util.string.format("[dynamic_sky] %s = %.2f%s", key, state.cur[key], state.over[key] and " (manual)" or " (auto)")) end
-        if a == "auto" then state.over[key] = nil
-        else
-            local v = tonumber(a)
-            if not v then return core.engine.print("warn", "Usage: " .. cmd .. " <" .. lo .. ".." .. hi .. " | auto>") end
-            state.over[key] = clamp(v, lo, hi)
-        end
-        core.engine.print("info", "[dynamic_sky] " .. key .. ":", state.over[key] or "auto")
-    end)
-    overrides[#overrides + 1] = { key = key, lo = lo, hi = hi }
+-- Public API exposed to other resources: set the weather intensities (set_rain, set_snow, set_fog, set_lightning, set_wind) and the wind direction
+for _, o in ipairs(overrides) do
+    util.export.register("set_" .. o.key, function(v) state.over[o.key] = tonumber(v) and clamp(tonumber(v), o.lo, o.hi) or nil end)
 end
+util.export.register("set_wind_dir", set_wind_dir)
+
+
+------------------
+--[[ Commands ]]--
+------------------
+
+-- Overrides one weather intensity, auto returns to the preset
+-- rain, snow, fog, lightning: 0..1 level reached while the weather has it (clear weather still has none), wind: multiplier, 1 = preset
+-- Usage: /sky_rain | /sky_snow | /sky_fog | /sky_lightning <0-1|auto>, /sky_wind <0-6|auto>
 make_override("sky_rain", "rain", 0, 1)
 make_override("sky_snow", "snow", 0, 1)
 make_override("sky_fog", "fog", 0, 1)
 make_override("sky_lightning", "lightning", 0, 1)
 make_override("sky_wind", "wind", 0, 6)
 
--- sky_winddir <deg>: direction the wind blows TOWARDS (0 = +Z, 90 = +X, 180 = -Z, 270 = -X); rain, snow and clouds follow
-local function set_wind_dir(deg)
-    deg = tonumber(deg) or 0
-    state.wdir_t = { sin(rad(deg)), cos(rad(deg)) }
-end
-
+-- Sets the direction the wind blows towards (0 = +Z, 90 = +X, 180 = -Z, 270 = -X), rain, snow and clouds follow
+-- Usage: /sky_winddir <deg>
 util.input.register("sky_winddir", function(args)
     local deg = tonumber(args[1])
     if not deg then
@@ -92,13 +111,3 @@ util.input.register("sky_winddir", function(args)
     set_wind_dir(deg)
     core.engine.print("info", "[dynamic_sky] wind direction:", deg, "deg")
 end)
-
-
------------------
---[[ Exports ]]--
------------------
-
-for _, o in ipairs(overrides) do
-    util.export.register("set_" .. o.key, function(v) state.over[o.key] = tonumber(v) and clamp(tonumber(v), o.lo, o.hi) or nil end)
-end
-util.export.register("set_wind_dir", set_wind_dir)

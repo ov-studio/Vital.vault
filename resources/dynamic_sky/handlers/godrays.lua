@@ -17,6 +17,10 @@ local state = Sky.state
 local clamp, smoothstep = Math.clamp, Math.smoothstep
 
 
+------------------
+--[[ Handlers ]]--
+------------------
+
 -- strongest with a low sun and some haze, gone under heavy overcast, at night and in precipitation
 Sky.on("update", function(F)
     local el = F.sun[2]
@@ -32,11 +36,12 @@ Sky.on("update", function(F)
 end)
 
 
------------------
---[[ Input ]]--
------------------
+------------------
+--[[ Commands ]]--
+------------------
 
--- sky_godrays [on|off] : crepuscular rays through gaps in trees / buildings
+-- Toggles the crepuscular rays through gaps in trees and buildings
+-- Usage: /sky_godrays [on|off]
 util.input.register("sky_godrays", function(args)
     state.rays = Sky.switch(args[1], state.rays)
     core.engine.print("info", "[dynamic_sky] god rays:", state.rays and "on" or "off")

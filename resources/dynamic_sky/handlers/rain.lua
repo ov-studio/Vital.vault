@@ -19,9 +19,9 @@ local clamp = Math.clamp
 local RIP = Sky.ripple
 
 
------------------------
---[[ Ripple buffer ]]--
------------------------
+---------------
+--[[ Utils ]]--
+---------------
 
 -- a 3D rendertarget (a fraction of the screen, same aspect) that only sees the ring emitter. It is made
 -- when the rain starts and rebuilt if the window changes size. A 3D rendertarget renders the world a second time every
@@ -51,9 +51,9 @@ local function buffer()
 end
 
 
---------------
---[[ Init ]]--
---------------
+------------------
+--[[ Handlers ]]--
+------------------
 
 -- real falling drops that collide with the world (they vanish on roofs and ground, so nothing rains indoors);
 -- every drop that lands spawns a small droplet burst through a sub-emitter.
@@ -128,15 +128,9 @@ Sky.on("init", function()
     state.splash_emitter, state.rain_emitter = splash, drops
     state.gpu_on = true
     core.engine.print("info", "[dynamic_sky] rain active (real colliding drops, splashes = " .. (state.splash_on and "on" or "off") .. ")")
-
     -- ripples from the landed drops (else procedural ripples in the puddle layer)
     state.rip_hook = state.ring_emitter ~= nil and state.cshader ~= nil
 end)
-
-
-----------------
---[[ Update ]]--
-----------------
 
 Sky.on("update", function(F)
     if state.gpu_on then
@@ -166,7 +160,6 @@ Sky.on("update", function(F)
             sh:set_param("streak_w", 0.007 + 0.006 * R)
         end
     end
-
     -- no rain for a moment (the last rings have faded): drop the ripple buffer
     if state.rip_hook and state.rrt then
         state.rrt_idle = (state.gpu_lvl or 0) > 0 and 0.0 or (state.rrt_idle or 0.0) + F.dt
@@ -175,11 +168,12 @@ Sky.on("update", function(F)
 end)
 
 
------------------
---[[ Input ]]--
------------------
+------------------
+--[[ Commands ]]--
+------------------
 
--- sky_splash [on|off] : droplet splashes where rain hits the ground
+-- Toggles the droplet splashes where rain hits the ground
+-- Usage: /sky_splash [on|off]
 util.input.register("sky_splash", function(args)
     if not state.gpu_on then return core.engine.print("warn", "[dynamic_sky] rain is not active (use_precipitation is off)") end
     state.splash_on = Sky.switch(args[1], state.splash_on)

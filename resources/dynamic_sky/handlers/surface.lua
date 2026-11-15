@@ -18,9 +18,9 @@ local min, max = util.math.min, util.math.max
 local lerp, clamp = Math.lerp, Math.clamp
 
 
---------------
---[[ Init ]]--
---------------
+------------------
+--[[ Handlers ]]--
+------------------
 
 Sky.on("init", function()
     if not Config.use_surface_weather then return end
@@ -30,16 +30,10 @@ Sky.on("init", function()
     state.cshader:set_param("screen_rip_gamma", Config.ripple_buffer_gamma)
 end)
 
-
-----------------
---[[ Update ]]--
-----------------
-
 Sky.on("update", function(F)
     local sh = state.cshader
     if not sh then return end
     local dt, R, SN = F.dt, F.R, F.SN
-
     if state.cover_manual then
         state.cover = lerp(state.cover, state.cover_manual, clamp(dt * 1.5, 0, 1))
     elseif SN > 0.2 then
@@ -49,7 +43,6 @@ Sky.on("update", function(F)
     end
     if R > 0.05 and state.cover < 0.3 then state.wet = min(1.0, state.wet + dt / 25.0 * R)
     else state.wet = max(0.0, state.wet - dt / (state.cover > 0.3 and 20.0 or Config.dry_time)) end
-
     local active = (state.cover > 0.004 or state.wet > 0.01)
     if active ~= state.cover_on then
         state.cover_on = active
@@ -57,7 +50,6 @@ Sky.on("update", function(F)
         else sh:remove_from_material("*", "*", "*") end
     end
     if not active then return end
-
     sh:set_param("snow_amount", state.cover)
     sh:set_param("wet", state.wet)
     sh:set_param("rain_amt", clamp(R, 0.0, 1.0))
@@ -75,10 +67,19 @@ end)
 
 
 -----------------
---[[ Input ]]--
+--[[ Exports ]]--
 -----------------
 
--- snow_cover <0..1 | auto> : force how much snow lies on surfaces (auto = follows the weather)
+-- Public API exposed to other resources: force the snow cover (0..1, nil follows the weather)
+util.export.register("set_snow_cover", function(v) state.cover_manual = tonumber(v) and clamp(tonumber(v), 0.0, 1.0) or nil end)
+
+
+------------------
+--[[ Commands ]]--
+------------------
+
+-- Forces how much snow lies on surfaces, auto follows the weather
+-- Usage: /snow_cover <0-1|auto>
 util.input.register("snow_cover", function(args)
     local a = args[1]
     if not a then return core.engine.print("info", util.string.format("[dynamic_sky] snow cover %.2f, wet %.2f%s", state.cover, state.wet, state.cover_manual and " (manual)" or " (auto)")) end
@@ -90,10 +91,3 @@ util.input.register("snow_cover", function(args)
     end
     core.engine.print("info", "[dynamic_sky] snow cover:", state.cover_manual or "auto")
 end)
-
-
------------------
---[[ Exports ]]--
------------------
-
-util.export.register("set_snow_cover", function(v) state.cover_manual = tonumber(v) and clamp(tonumber(v), 0.0, 1.0) or nil end)

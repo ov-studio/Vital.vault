@@ -7,7 +7,6 @@
      Desc: Local clock, server sync and the time / weather / timescale commands ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
@@ -16,11 +15,19 @@
 local state = Sky.state
 
 
-----------------
---[[ Clock ]]--
-----------------
+---------------
+--[[ Utils ]]--
+---------------
 
--- local clock, corrected by server syncs
+local function request(kind, value) 
+    util.event.emit("dynamic_sky:request", { remote = true }, kind, value) 
+end
+
+
+------------------
+--[[ Handlers ]]--
+------------------
+
 Sky.on("update", function(F)
     if Config.day_length_min > 0 and state.scale > 0 then
         state.time = state.time + F.dt * state.scale * (24.0 / (Config.day_length_min * 60.0))
@@ -34,14 +41,20 @@ util.event.on("dynamic_sky:sync", function(time, day, scale, weather)
 end)
 
 
-----------------
---[[ Input ]]--
-----------------
+-----------------
+--[[ Exports ]]--
+-----------------
 
--- the server owns time, weather and timescale
-local function request(kind, value) util.event.emit("dynamic_sky:request", { remote = true }, kind, value) end
+util.export.register("get_time", function() return state.time end)
+util.export.register("get_weather", function() return state.weather end)
 
--- time 18.5   or   time 18:30
+
+------------------
+--[[ Commands ]]--
+------------------
+
+-- Requests a new time of day from the server
+-- Usage: /time <hour | HH:MM>
 util.input.register("time", function(args)
     local a = args[1]
     if not a then return core.engine.print("info", util.string.format("[dynamic_sky] time %.2f, weather %s", state.time, state.weather)) end
@@ -51,6 +64,8 @@ util.input.register("time", function(args)
     request("time", v)
 end)
 
+-- Requests a weather preset from the server
+-- Usage: /weather <preset>
 util.input.register("weather", function(args)
     if not args[1] or not Config.weather[args[1]] then
         local names = {}
@@ -60,15 +75,9 @@ util.input.register("weather", function(args)
     request("weather", args[1])
 end)
 
+-- Requests a new timescale from the server, 0 freezes the time
+-- Usage: /timescale <multiplier>
 util.input.register("timescale", function(args)
     if not tonumber(args[1]) then return core.engine.print("warn", "Usage: timescale <multiplier, 0 = freeze>") end
     request("timescale", tonumber(args[1]))
 end)
-
-
------------------
---[[ Exports ]]--
------------------
-
-util.export.register("get_time", function() return state.time end)
-util.export.register("get_weather", function() return state.weather end)
