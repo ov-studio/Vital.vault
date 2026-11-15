@@ -7,7 +7,6 @@
      Desc: Surface weather: snow settles and melts, the ground gets wet ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
@@ -33,6 +32,7 @@ end)
 Sky.on("update", function(F)
     local sh = state.cshader
     if not sh then return end
+    
     local dt, R, SN = F.dt, F.R, F.SN
     if state.cover_manual then
         state.cover = lerp(state.cover, state.cover_manual, clamp(dt * 1.5, 0, 1))
@@ -50,6 +50,7 @@ Sky.on("update", function(F)
         else sh:remove_from_material("*", "*", "*") end
     end
     if not active then return end
+
     sh:set_param("snow_amount", state.cover)
     sh:set_param("wet", state.wet)
     sh:set_param("rain_amt", clamp(R, 0.0, 1.0))
@@ -69,8 +70,10 @@ end)
 --[[ Exports ]]--
 -----------------
 
--- Public API exposed to other resources: force the snow cover (0..1, nil follows the weather)
-util.export.register("set_snow_cover", function(v) state.cover_manual = tonumber(v) and clamp(tonumber(v), 0.0, 1.0) or nil end)
+-- Public API surface exposed to other resources: force the snow cover (0..1), nil follows the weather again.
+util.export.register("set_snow_cover", function(v)
+    state.cover_manual = tonumber(v) and clamp(tonumber(v), 0.0, 1.0) or nil
+end)
 
 
 ------------------
