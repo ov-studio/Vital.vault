@@ -54,8 +54,8 @@ end
 --[[ Handlers ]]--
 ------------------
 
--- baked cloud noise (see tools/bake_cloud_noise.py), sampled instead of computing noise per pixel
 Sky.on("init", function()
+    -- baked cloud noise (see tools/bake_cloud_noise.py), sampled instead of computing noise per pixel
     state.noise = core.image.create("files/textures/cloud_noise.png", true)
 end)
 
@@ -71,11 +71,12 @@ Sky.on("draw", function()
     local pos = cam:get_global_position()
     local t = util.math.tan(util.math.rad(cam:get_fov()) * 0.5)
     local aspect = rx / ry
-    local tx, ty = t * aspect, t                            -- the field of view is vertical by default (keep height)
+    local tx, ty = t * aspect, t                                     -- the field of view is vertical by default (keep height)
     if cam:get_keep_aspect() == 0 then tx, ty = t, t / aspect end    -- keep width
+    
     -- looking far down: no pixel of the screen can show sky, so nothing to march
     local pitch = util.math.asin(clamp(-bz[2], -1.0, 1.0))
-    if pitch + util.math.atan(util.math.sqrt(tx * tx + ty * ty)) < -0.01 then return end
+    if pitch + util.math.atan(util.math.sqrt(tx * tx + ty * ty)) < -0.01 then return end 
     local cs = state.cloud_sh
     cs:set_param("cam_x", bx)
     cs:set_param("cam_y", by)
@@ -97,10 +98,11 @@ Sky.on("draw", function()
 end)
 
 Sky.on("update", function(F)
-    local csh = state.cloud_sh                                  -- the cloud pass is created on the first draw
+    local csh = state.cloud_sh                              -- the cloud pass is created on the first draw
     local function cset(name, v)                            -- cloud values: only the cloud pass uses them
         if csh then csh:set_param(name, v) end
     end
+
     local tc, FL = F.tc, F.FL
     local q = Config.qualities[state.quality] or Config.qualities.medium
     local cloud_light = {
@@ -112,11 +114,12 @@ Sky.on("update", function(F)
     cset("haze_density", 0.000012 * (1.0 + state.cur.haze * 5.0))
     cset("light_dir", F.key_dir)
     cset("light_color", cloud_light)
-    -- night: clouds still catch scattered moon / sky glow, so an overcast or rainy night is dim grey-blue, not pitch black
+
     local ng = Config.night_cloud_glow
     local nk = clamp(tc.stars, 0.0, 1.0) * (0.35 + 0.65 * state.cur.dark)
     cset("cloud_ambient_top", { tc.ambient_top[1] * F.grey + ng[1] * nk + FL * 2.2, tc.ambient_top[2] * F.grey + ng[2] * nk + FL * 2.4, tc.ambient_top[3] * F.grey + ng[3] * nk + FL * 3.2 })
     cset("cloud_ambient_bottom", { tc.ambient_bottom[1] + ng[1] * nk * 0.6, tc.ambient_bottom[2] + ng[2] * nk * 0.6, tc.ambient_bottom[3] + ng[3] * nk * 0.6 })
+    
     local coverage = state.clouds and state.cur.coverage or 0.0
     state.shader:set_param("cloud_coverage", coverage)
     cset("cloud_coverage", coverage)
