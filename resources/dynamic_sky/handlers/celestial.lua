@@ -13,7 +13,7 @@
 -------------------
 
 local state = Sky.state
-local sin, cos, floor, PI = util.math.sin, util.math.cos, util.math.floor, util.math.pi
+local sin, cos, PI = util.math.sin, util.math.cos, util.math.pi
 local lerp, clamp, smoothstep, norm, rotate = Math.lerp, Math.clamp, Math.smoothstep, Math.norm, Math.rotate
 local PHASES = {
     { "new_moon", 0.0 }, 
@@ -35,7 +35,7 @@ local private = {}
 
 -- Returns the name of a moon phase (0..1), 0 new, 0.25 first quarter, 0.5 full, 0.75 last quarter
 function private.phase_name(p) 
-    return PHASES[(floor((p % 1.0) * 8 + 0.5) % 8) + 1][1] 
+    return PHASES[(util.math.round((p % 1.0) * 8) % 8) + 1][1] 
 end
 
 -- Returns how much of the moon disc is lit (0..1) for a moon phase (0..1)
@@ -155,5 +155,5 @@ end)
 util.input.register("moon_phase", function(args)
     if args[1] and not private.set_moon_phase(args[1]) then return core.engine.print("warn", "Usage: moon_phase <new|waxing_crescent|first_quarter|waxing_gibbous|full|waning_gibbous|last_quarter|waning_crescent|0-1|auto>") end
     local p = state.phase or Config.moon_phase
-    core.engine.print("info", util.string.format("Moon phase: %s, %d%% lit%s", private.phase_name(p), floor(private.phase_lit(p) * 100 + 0.5), state.moon_phase_manual and " (manual)" or " (auto cycle)"))
+    core.engine.print("info", util.string.format("Moon phase: %s, %d%% lit%s", private.phase_name(p), util.math.round(private.phase_lit(p) * 100), state.moon_phase_manual and " (manual)" or " (auto cycle)"))
 end)

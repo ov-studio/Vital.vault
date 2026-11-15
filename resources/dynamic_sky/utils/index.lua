@@ -52,10 +52,6 @@ end
 
 local sin, cos = util.math.sin, util.math.cos
 
-function Math.rad(d) 
-    return d * util.math.pi / 180.0 
-end
-
 function Math.lerp(a, b, t) 
     return a + (b - a) * t
 end

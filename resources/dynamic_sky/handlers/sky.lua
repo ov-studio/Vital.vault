@@ -13,8 +13,8 @@
 -------------------
 
 local state = Sky.state
-local max, PI = util.math.max, util.math.pi
-local clamp, rad = Math.clamp, Math.rad
+local max, exp, rad, PI = util.math.max, util.math.exp, util.math.rad, util.math.pi
+local clamp = Math.clamp
 
 
 ------------------
@@ -54,7 +54,7 @@ Sky.on("update", function(frame)
     local elevation_rad = sun_height + sun_height * sun_height * sun_height / 6.0 + 0.075 * sun_height ^ 5  -- asin() without needing it
     local elevation_deg = elevation_rad * 180.0 / PI
     local air_mass = 1.0 / (sun_height + 0.50572 * (elevation_deg + 6.07995) ^ -1.6364) * (1.0 + 0.5 * state.cur.haze)
-    local red, green, blue = 2.718281828 ^ (-0.055 * air_mass), 2.718281828 ^ (-0.105 * air_mass), 2.718281828 ^ (-0.245 * air_mass)
+    local red, green, blue = exp(-0.055 * air_mass), exp(-0.105 * air_mass), exp(-0.245 * air_mass)
     local peak = max(red, max(green, blue))
     red, green, blue = red / peak * state.cur.tr, green / peak * state.cur.tg, blue / peak * state.cur.tb
     peak = max(red, max(green, blue))

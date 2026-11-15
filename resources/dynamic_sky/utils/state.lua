@@ -36,10 +36,9 @@ Sky.state = {
                   tg = 1.0, 
                   tb = 1.0 
                },               -- blended weather
-    base     = {},              -- blended preset values before the manual multipliers (see over)
     over     = {},              -- manual weather overrides: rain, snow, wind, fog, lightning
-    wdir     = { Config.wind_dir[1], Config.wind_dir[2] },    -- smoothed wind direction {x, z}
-    wdir_t   = { Config.wind_dir[1], Config.wind_dir[2] },    -- wind direction target
+    wdir     = util.table.clone(Config.wind_dir),    -- smoothed wind direction {x, z}
+    wdir_t   = util.table.clone(Config.wind_dir),    -- wind direction target
     wind     = { 0, 0, 0 },     -- accumulated wind offset of the clouds
     cloud_t  = 0.0,
     enabled  = true,
@@ -47,7 +46,6 @@ Sky.state = {
     -- lightning
     flash    = 0.0,             -- manual flash 0..1
     bolt_cd  = 4.0,
-    seed     = 12345,
 
     -- sun / moon
     sun_deg  = Config.sun_radius_deg,
@@ -72,9 +70,8 @@ Sky.state = {
     cover_on = false
 }
 
-for k, v in pairs(Sky.state.cur) do 
-    Sky.state.base[k] = v 
-end
+-- blended preset values before the manual multipliers (see over), starts as a copy of the blended weather
+Sky.state.base = util.table.clone(Sky.state.cur)
 
 -- ripple buffer constants, ripple_ring.gdshader and snow_cover.gdshader use the same depth range
 Sky.ripple = { life = 1.2, radius = 0.35, depth = 64.0 }

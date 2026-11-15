@@ -13,20 +13,8 @@
 -------------------
 
 local state = Sky.state
+local random = util.math.random
 local clamp = Math.clamp
-
-
----------------
---[[ Utils ]]--
----------------
-
-local private = {}
-
--- Returns a tiny deterministic random number (0..1), so we do not depend on a random() in the sandbox.
-function private.rnd() 
-    state.seed = (state.seed * 1664525 + 1013904223) % 4294967296
-    return state.seed / 4294967296 
-end
 
 
 ------------------
@@ -42,21 +30,21 @@ Sky.on("update", function(frame)
     if state.cur.lightning > 0.3 then
         state.bolt_cd = state.bolt_cd - frame.dt
         if state.bolt_cd <= 0 then
-            local roll = private.rnd()
-            local power = roll < 0.14 and 1.55 or (roll < 0.72 and (0.95 + 0.2 * private.rnd()) or (0.40 + 0.2 * private.rnd()))  -- close / normal / distant
-            local stroke_count = 2 + util.math.floor(private.rnd() * 4.0)  -- 2..5 strokes
+            local roll = random()
+            local power = roll < 0.14 and 1.55 or (roll < 0.72 and (0.95 + 0.2 * random()) or (0.40 + 0.2 * random()))  -- close / normal / distant
+            local stroke_count = 2 + util.math.floor(random() * 4.0)  -- 2..5 strokes
             local offset = 0.0
             state.strokes, state.stroke_t = {}, 0.0
             for i = 1, stroke_count do
                 local amplitude
-                if i == 1 then amplitude = power * (0.35 + 0.2 * private.rnd())  -- stepped leader
+                if i == 1 then amplitude = power * (0.35 + 0.2 * random())  -- stepped leader
                 elseif i == 2 then amplitude = power  -- main return stroke
-                else amplitude = power * (0.35 + 0.5 * private.rnd()) end  -- restrikes
+                else amplitude = power * (0.35 + 0.5 * random()) end  -- restrikes
                 state.strokes[#state.strokes + 1] = { t = offset, a = amplitude }
-                offset = offset + 0.04 + 0.09 * private.rnd()
+                offset = offset + 0.04 + 0.09 * random()
             end
             state.after_peak = power
-            state.bolt_cd = (2.5 + private.rnd() * 9.0) / state.cur.lightning
+            state.bolt_cd = (2.5 + random() * 9.0) / state.cur.lightning
         end
     end
 

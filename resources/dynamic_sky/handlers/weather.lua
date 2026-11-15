@@ -13,8 +13,8 @@
 -------------------
 
 local state = Sky.state
-local sin, cos = util.math.sin, util.math.cos
-local lerp, clamp, norm, rad = Math.lerp, Math.clamp, Math.norm, Math.rad
+local sin, cos, rad = util.math.sin, util.math.cos, util.math.rad
+local lerp, clamp, norm = Math.lerp, Math.clamp, Math.norm
 local overrides = {}
 
 
