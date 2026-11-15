@@ -40,6 +40,7 @@ function private.advance()
     last_tick = now
     local ds = private.day_seconds()
     if ds <= 0 or state.scale == 0 then return end
+    
     state.time = state.time + dt * state.scale * (24.0 / ds)
     while state.time >= 24.0 do
         state.time = state.time - 24.0

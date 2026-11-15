@@ -28,6 +28,7 @@ local private = {}
 function private.apply(on)
     gfx.glow.set_enabled(on)
     if not on then return end
+
     gfx.glow.set_hdr_bleed_threshold(Config.glow_threshold)
     gfx.glow.set_hdr_bleed_scale(Config.glow_scale)
     gfx.glow.set_hdr_luminance_cap(Config.glow_cap)
@@ -36,7 +37,9 @@ function private.apply(on)
     gfx.glow.set_bloom(0.0)
     gfx.glow.set_normalized(true)
     gfx.glow.set_blend_mode(gfx.glow.blend_mode.ADDITIVE)
-    for i = 1, #Config.glow_levels do gfx.glow.set_level_intensity(i - 1, Config.glow_levels[i]) end
+    for i = 1, #Config.glow_levels do 
+        gfx.glow.set_level_intensity(i - 1, Config.glow_levels[i]) 
+    end
 end
 
 

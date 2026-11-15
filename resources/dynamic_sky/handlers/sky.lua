@@ -70,6 +70,7 @@ end)
 -- Draws the sky shader as a fullscreen quad every frame while the sky is enabled.
 Sky.on("draw", function()
     if not state.enabled then return end
+    
     core.engine.draw_material({ 0, 0 }, core.display.get_resolution(), state.shader, 0, { 0, 0 }, { 1, 1, 1, 1 })
 end)
 

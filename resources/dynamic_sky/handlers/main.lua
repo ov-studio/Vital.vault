@@ -25,6 +25,7 @@ Sky.run("init")
 -- Runs every update handler each frame with the frame time, while the sky is enabled.
 util.event.on("sandbox:process", function(dt)
     if not state.enabled then return end
+    
     Sky.run("update", { dt = dt })
 end)
 

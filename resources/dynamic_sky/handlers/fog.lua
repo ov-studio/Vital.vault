@@ -23,12 +23,14 @@ local state = Sky.state
 -- brightness (lit by lightning) every frame.
 Sky.on("update", function(frame)
     if not Config.use_fog then return end
+
     local wanted = state.cur.fog > 0.01
     if wanted ~= state.fog_on then
         gfx.fog.set_enabled(wanted)
         if wanted then gfx.fog.set_sky_affect(0.0) end     -- our sky shader does its own haze
         state.fog_on = wanted
     end
+    
     if wanted then
         -- the horizon colour already carries the time of day (dark blue at night), so it is used as is
         local brightness = 0.85 * (1.0 - 0.35 * state.cur.dark)

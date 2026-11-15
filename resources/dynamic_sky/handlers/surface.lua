@@ -24,6 +24,7 @@ local lerp, clamp = Math.lerp, Math.clamp
 -- Creates the surface weather layer (snow cover, wetness, puddles and ripples) drawn on top of the level's own materials.
 Sky.on("init", function()
     if not Config.use_surface_weather then return end
+    
     state.cshader = core.shader.create("files/shaders/snow_cover.gdshader", core.shader.shader_mode.SPATIAL)
     state.cshader:set_param("ripple_gain", Config.ripple_gain)
     state.cshader:set_param("screen_rip_depth", Sky.ripple.depth)
@@ -47,7 +48,7 @@ Sky.on("update", function(frame)
     local active = (state.cover > 0.004 or state.wet > 0.01)
     if active ~= state.cover_on then
         state.cover_on = active
-        if active then shader:apply_to_material("*", "*", "*", 0, true)   -- layered: drawn on top of the level's own materials
+        if active then shader:apply_to_material("*", "*", "*", 0, true)  -- layered: drawn on top of the level's own materials
         else shader:remove_from_material("*", "*", "*") end
     end
     if not active then return end
@@ -60,7 +61,7 @@ Sky.on("update", function(frame)
     shader:set_param("wet_fade_start", Config.wet_fade_start)
     shader:set_param("wet_fade_end", Config.wet_fade_end)
     shader:set_param("alpha_cut", Config.surface_alpha_cut)
-    
+
     -- light the ripples pick up from the sky (independent of sun/moon): horizon + ambient colour, with a night floor
     -- mostly the horizon colour: that is what a flat water surface mirrors at a grazing angle
     local glow, flash_light = Config.ripple_glow, 0.015 + frame.flash * 0.8

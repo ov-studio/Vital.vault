@@ -89,7 +89,7 @@ end
 function private.celestial(hour, day)
     local tilt = Config.sun_tilt_deg * PI / 180
     local axis = { 0, -sin(tilt), cos(tilt) }  -- rotation axis of the sky
-    local angle = (hour - 6.0) / 24.0 * 2 * PI     -- 0 = east horizon (06:00)
+    local angle = (hour - 6.0) / 24.0 * 2 * PI  -- 0 = east horizon (06:00)
     local sun = rotate({ 1, 0, 0 }, axis, angle)
     local phase = state.moon_phase_manual
     if phase == nil then
@@ -97,7 +97,7 @@ function private.celestial(hour, day)
         if Config.moon_phase_cycle then phase = (phase + day / 29.5) % 1.0 end
     end
     state.phase = phase
-    local elongation = phase * 2 * PI               -- 0 new, 0.25 first quarter, 0.5 full
+    local elongation = phase * 2 * PI  -- 0 new, 0.25 first quarter, 0.5 full
     local moon = rotate({ 1, 0, 0 }, axis, angle - elongation)
     moon = norm({ moon[1] + axis[1] * 0.09, moon[2] + axis[2] * 0.09, moon[3] + axis[3] * 0.09 })
     return norm(sun), moon, axis, angle
