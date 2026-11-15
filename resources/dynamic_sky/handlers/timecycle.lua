@@ -28,9 +28,9 @@ local private = {}
 function private.sample(hour)
     local tc = Config.timecycle
     local first, last = tc[1], tc[#tc]
-    local a, b, a_hour, b_hour = last, first, last.hour - 24, first.hour    -- before the first row: wrap from the last one
+    local a, b, a_hour, b_hour = last, first, last.hour - 24, first.hour  -- before the first row: wrap from the last one
     if hour >= last.hour then
-        a_hour, b_hour = last.hour, first.hour + 24                         -- after the last row: wrap to the first one
+        a_hour, b_hour = last.hour, first.hour + 24  -- after the last row: wrap to the first one
     elseif hour >= first.hour then
         for i = 1, #tc - 1 do
             if hour <= tc[i + 1].hour then a, b, a_hour, b_hour = tc[i], tc[i + 1], tc[i].hour, tc[i + 1].hour; break end
