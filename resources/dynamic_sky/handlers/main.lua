@@ -7,7 +7,6 @@
      Desc: Runs every handler: init once, then update and draw each frame ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
