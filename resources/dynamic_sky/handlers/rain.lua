@@ -139,7 +139,7 @@ end)
 Sky.on("update", function(F)
     if state.gpu_on then
         local R, cpos = F.R, F.cpos
-        local stint = { F.pr * F.daylight, F.pg * F.daylight, F.pb * F.daylight, state.splash_on and (0.30 + 0.45 * clamp(R, 0, 1)) * Config.splash_opacity or 0.0 }   -- same colour source as the rain
+        local stint = { F.pr * F.daylight, F.pg * F.daylight, F.pb * F.daylight, state.splash_on and (0.30 + 0.45 * clamp(R, 0, 1)) * Config.splash_opacity or 0.0 }  -- same colour source as the rain
         if state.sdrop then state.sdrop:set_param("tint", stint) end
         local snowk = (state.cur.snow > 0.2) and (1.0 - clamp(state.cur.snow, 0.0, 1.0)) or 1.0
         local reff = clamp(R * snowk, 0.0, 1.0)
@@ -149,7 +149,7 @@ Sky.on("update", function(F)
             local fx, fy, fz = F.wx * (0.75 + 0.5 * R), -(8.5 + 9.5 * R ^ 0.9), F.wz * (0.75 + 0.5 * R)
             local fl = sqrt(fx * fx + fy * fy + fz * fz)
             drops:set_global_position({ cpos[1], cpos[2] + 14.0, cpos[3] })
-            state.splash_emitter:set_global_position({ cpos[1], cpos[2], cpos[3] })       -- their culling box follows the camera too
+            state.splash_emitter:set_global_position({ cpos[1], cpos[2], cpos[3] })  -- their culling box follows the camera too
             if state.rip_hook then
                 state.ring_emitter:set_global_position({ cpos[1], cpos[2], cpos[3] })
                 private.buffer()
@@ -164,6 +164,7 @@ Sky.on("update", function(F)
             sh:set_param("streak_w", 0.007 + 0.006 * R)
         end
     end
+
     -- no rain for a moment (the last rings have faded): drop the ripple buffer
     if state.rip_hook and state.rrt then
         state.rrt_idle = (state.gpu_lvl or 0) > 0 and 0.0 or (state.rrt_idle or 0.0) + F.dt
@@ -181,7 +182,7 @@ end)
 util.input.register("sky_splash", function(args)
     if not state.gpu_on then return core.engine.print("warn", "[dynamic_sky] rain is not active (use_precipitation is off)") end
     state.splash_on = Sky.switch(args[1], state.splash_on)
-    if not state.rip_hook then                                                     -- with the ripple hook the droplets keep spawning (the rings hang on them), they just stay invisible
+    if not state.rip_hook then  -- with the ripple hook the droplets keep spawning (the rings hang on them), they just stay invisible
         if state.splash_on then state.rain_emitter:set_sub_emitter(state.splash_emitter, particle.gpu.sub_emitter_mode.AT_COLLISION, state.gpu_burst)
         else state.rain_emitter:reset_sub_emitter() end
     end
