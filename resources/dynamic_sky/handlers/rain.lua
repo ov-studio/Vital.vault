@@ -7,7 +7,6 @@
      Desc: Rain: real colliding drops, splashes and exact-landing ripples ]]--
 ----------------------------------------------------------------
 
---TODO: Improve
 
 -------------------
 --[[ Variables ]]--
@@ -23,10 +22,10 @@ local RIP = Sky.ripple
 --[[ Utils ]]--
 ---------------
 
--- a 3D rendertarget (a fraction of the screen, same aspect) that only sees the ring emitter. It is made
--- when the rain starts and rebuilt if the window changes size. A 3D rendertarget renders the world a second time every
--- frame, so it only exists while it rains.
-local function buffer_free()
+local private = {}
+
+-- Frees the ripple rendertarget and hides the ring emitter.
+function private.buffer_free()
     local rt = state.rrt
     if not rt then return end
     state.rrt = nil
@@ -36,11 +35,14 @@ local function buffer_free()
     rt:destroy()
 end
 
-local function buffer()
+-- Makes sure the ripple rendertarget exists and matches the window size.
+-- It is a 3D rendertarget (a fraction of the screen, same aspect) that only sees the ring emitter. It renders the
+-- world a second time every frame, so it is made when the rain starts and rebuilt if the window changes size.
+function private.buffer()
     local res = core.display.get_resolution()
     local rx, ry = res[1], res[2]
     if state.rrt and abs(rx - state.rrt_rx) <= 2 and abs(ry - state.rrt_ry) <= 2 then return end
-    buffer_free()
+    private.buffer_free()
     local rt = core.rendertarget.create({ max(64, floor(rx / Config.ripple_rt_div)), max(64, floor(ry / Config.ripple_rt_div)) }, true, true)
     state.ring_emitter:set_layer(rt)
     state.ring_emitter:set_visible(true)
@@ -60,6 +62,7 @@ Sky.on("init", function()
     if not Config.use_precipitation then return end
     local SPATIAL = core.shader.shader_mode.SPATIAL
     local rr = core.shader.create("files/shaders/rain_fall.gdshader", SPATIAL)
+
     -- ripples exactly where each drop lands: the droplets spawn a flat ring emitter that is drawn into a screen-space buffer
     -- (needs particle:set_layer). Without it the puddles use procedural ripples.
     local ring_sh = Config.use_surface_weather and core.shader.create("files/shaders/ripple_ring.gdshader", SPATIAL) or nil
@@ -68,6 +71,7 @@ Sky.on("init", function()
     state.gpu_full = floor(Config.rain_real_rate * life)
     state.gpu_burst = Config.splash_gpu_burst
     state.rrshader = rr
+
     -- enough droplet slots for EVERY landing: landings per second x droplets per landing x droplet lifetime (+25%).
     -- A full budget silently drops new splashes, which looks like drops that hit the ground without splashing
     local splash = particle.gpu.create()                         -- the droplets: the engine spawns them where a drop lands
@@ -83,9 +87,9 @@ Sky.on("init", function()
     splash:set_param(particle.gpu.param.VELOCITY, 0.7, 3.0)
     splash:set_visibility_aabb({ -30, -10, -30 }, { 60, 40, 60 })
     if state.sdrop then splash:set_material(state.sdrop) end
-    splash:set_fixed_fps(0)                                       -- simulate every frame, not at 30 fps
+    splash:set_fixed_fps(0)  -- simulate every frame, not at 30 fps
     splash:set_visible(true)
-    local ring = ring_sh and particle.gpu.create()                 -- one ring per droplet: stands still where it was spawned
+    local ring = ring_sh and particle.gpu.create()  -- one ring per droplet: stands still where it was spawned
     if ring then
         ring:set_amount(floor(Config.rain_real_rate * state.gpu_burst * RIP.life * 1.25) + 16)
         ring:set_lifetime(RIP.life)
@@ -101,11 +105,12 @@ Sky.on("init", function()
         ring_sh:set_param("share", 1.0 / state.gpu_burst)
         ring_sh:set_param("depth_scale", RIP.depth)
         ring:set_fixed_fps(0)
-        ring:set_visible(false)                                -- shown once its rendertarget exists (see buffer)
+        ring:set_visible(false)  -- shown once its rendertarget exists (see buffer)
         splash:set_sub_emitter(ring, particle.gpu.sub_emitter_mode.AT_START, 1)
         state.ring_emitter = ring
     end
-    local drops = particle.gpu.create()                         -- the rain: real falling drops drawn by rain_fall.gdshader
+
+    local drops = particle.gpu.create()  -- the rain: real falling drops drawn by rain_fall.gdshader
     drops:set_amount(state.gpu_full)
     drops:set_lifetime(life)
     drops:set_one_shot(false)
@@ -120,6 +125,7 @@ Sky.on("init", function()
     drops:set_visibility_aabb({ -30, -30, -30 }, { 60, 60, 60 })
     drops:set_collision(particle.gpu.collision_mode.HIDE, 0.0, 1.0)
     if state.splash_on or ring then drops:set_sub_emitter(splash, particle.gpu.sub_emitter_mode.AT_COLLISION, state.gpu_burst) end
+
     -- the rain simulates every frame: at the default 30 fps a drop falling 13 m/s moves 0.4 m per step and is only noticed
     -- below the surface, so its splash would start under the floor
     drops:set_fixed_fps(0)
@@ -127,7 +133,6 @@ Sky.on("init", function()
     state.splash_emitter, state.rain_emitter = splash, drops
     state.gpu_on = true
     core.engine.print("info", "[dynamic_sky] rain active (real colliding drops, splashes = " .. (state.splash_on and "on" or "off") .. ")")
-    -- ripples from the landed drops (else procedural ripples in the puddle layer)
     state.rip_hook = state.ring_emitter ~= nil and state.cshader ~= nil
 end)
 
@@ -147,7 +152,7 @@ Sky.on("update", function(F)
             state.splash_emitter:set_global_position({ cpos[1], cpos[2], cpos[3] })       -- their culling box follows the camera too
             if state.rip_hook then
                 state.ring_emitter:set_global_position({ cpos[1], cpos[2], cpos[3] })
-                buffer()
+                private.buffer()
             end
             drops:set_direction({ fx / fl, fy / fl, fz / fl })
             drops:set_param(particle.gpu.param.VELOCITY, fl * 0.75, fl * 1.25)
@@ -162,7 +167,7 @@ Sky.on("update", function(F)
     -- no rain for a moment (the last rings have faded): drop the ripple buffer
     if state.rip_hook and state.rrt then
         state.rrt_idle = (state.gpu_lvl or 0) > 0 and 0.0 or (state.rrt_idle or 0.0) + F.dt
-        if state.rrt_idle > RIP.life + 1.0 then buffer_free() end
+        if state.rrt_idle > RIP.life + 1.0 then private.buffer_free() end
     end
 end)
 
