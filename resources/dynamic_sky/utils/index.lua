@@ -14,7 +14,9 @@
 
 Config = {}
 Math = {}
-Sky = { stage = {} }
+Sky = { 
+    stage = {} 
+}
 
 
 ----------------

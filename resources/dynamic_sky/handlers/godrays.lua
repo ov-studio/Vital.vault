@@ -7,6 +7,8 @@
      Desc: Crepuscular rays through gaps in geometry ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = Sky.state
 local clamp, smoothstep = Math.clamp, Math.smoothstep
 

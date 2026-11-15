@@ -7,6 +7,8 @@
      Desc: Authoritative clock and weather, synced to every client ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = {
     time    = Config.start_time,                 -- hour of day, 0..24
     day     = 0,                              -- day counter (moon phase)

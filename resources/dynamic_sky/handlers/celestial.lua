@@ -7,6 +7,8 @@
      Desc: Sun and moon positions, moon phase, key light and their commands ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = Sky.state
 local sin, cos, floor, PI = util.math.sin, util.math.cos, util.math.floor, util.math.pi
 local lerp, clamp, smoothstep, norm, rotate = Math.lerp, Math.clamp, Math.smoothstep, Math.norm, Math.rotate
@@ -124,7 +126,6 @@ end)
 -----------------
 
 util.export.register("get_moon_phase", function() return state.phase or Config.moon_phase, phase_name(state.phase or Config.moon_phase) end)
-
 util.export.register("set_sun_size", set_sun_size)                  -- apparent radius in deg
 util.export.register("set_moon_size", set_moon_size)
 util.export.register("set_moon_phase", set_moon_phase)              -- 0..1, a phase name, or nil/"auto"

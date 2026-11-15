@@ -7,6 +7,8 @@
      Desc: Rain: real colliding drops, splashes and exact-landing ripples ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = Sky.state
 local floor, max, abs, sqrt = util.math.floor, util.math.max, util.math.abs, util.math.sqrt
 local clamp = Math.clamp

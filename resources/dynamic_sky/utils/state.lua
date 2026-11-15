@@ -7,6 +7,8 @@
      Desc: Client state shared by every handler ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 -- Fields that start out unset (nil): shader, light, cshader, moon_phase_manual (nil = automatic phase),
 -- cover_manual (nil = snow cover follows the weather), fog_on (unknown until the first frame, so the level's own fog
 -- is switched off when the weather has none), gpu_on / snow_on (set once the particles exist).

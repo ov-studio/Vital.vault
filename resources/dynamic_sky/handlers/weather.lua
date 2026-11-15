@@ -7,6 +7,8 @@
      Desc: Weather blending, wind and the manual intensity overrides ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = Sky.state
 local sin, cos = util.math.sin, util.math.cos
 local lerp, clamp, norm, rad = Math.lerp, Math.clamp, Math.norm, Math.rad

@@ -7,6 +7,8 @@
      Desc: Volumetric clouds: noise, low resolution render pass and cloud uniforms ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = Sky.state
 local floor, max, abs = util.math.floor, util.math.max, util.math.abs
 local clamp = Math.clamp

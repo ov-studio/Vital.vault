@@ -7,6 +7,8 @@
      Desc: Sky colours for the current hour, tinted by the weather ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = Sky.state
 local lerp, lerp3, clamp = Math.lerp, Math.lerp3, Math.clamp
 

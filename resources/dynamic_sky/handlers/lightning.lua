@@ -7,6 +7,9 @@
      Desc: Thunderstorm strokes and the flash they add to the scene ]]--
 ----------------------------------------------------------------
 
+
+--TODO: Improve
+
 local state = Sky.state
 local clamp = Math.clamp
 

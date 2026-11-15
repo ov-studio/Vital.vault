@@ -7,6 +7,8 @@
      Desc: Surface weather: snow settles and melts, the ground gets wet ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = Sky.state
 local min, max = util.math.min, util.math.max
 local lerp, clamp = Math.lerp, Math.clamp

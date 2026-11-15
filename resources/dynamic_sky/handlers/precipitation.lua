@@ -7,6 +7,8 @@
      Desc: What rain and snow share: camera, wind, light colour and particle level ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = Sky.state
 local sin, floor, min, max = util.math.sin, util.math.floor, util.math.min, util.math.max
 local lerp, clamp = Math.lerp, Math.clamp

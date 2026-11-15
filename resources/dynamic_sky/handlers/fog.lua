@@ -7,6 +7,8 @@
      Desc: Scene fog from the weather ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = Sky.state
 
 

@@ -7,6 +7,8 @@
      Desc: Snowfall: real flakes that collide with the world ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = Sky.state
 local floor, max, sqrt = util.math.floor, util.math.max, util.math.sqrt
 local lerp, clamp = Math.lerp, Math.clamp

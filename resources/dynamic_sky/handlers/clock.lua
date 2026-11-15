@@ -7,6 +7,8 @@
      Desc: Local clock, server sync and the time / weather / timescale commands ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = Sky.state
 
 

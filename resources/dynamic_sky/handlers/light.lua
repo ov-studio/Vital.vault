@@ -7,6 +7,8 @@
      Desc: Scene directional light and ambient environment ]]--
 ----------------------------------------------------------------
 
+--TODO: Improve
+
 local state = Sky.state
 local clamp, lerp3 = Math.clamp, Math.lerp3
 
