@@ -22,7 +22,10 @@ local clamp = Math.clamp
 ---------------
 
 -- tiny deterministic PRNG (0..1), so we do not depend on a random() in the sandbox
-local function rnd() state.seed = (state.seed * 1664525 + 1013904223) % 4294967296; return state.seed / 4294967296 end
+local function rnd() 
+    state.seed = (state.seed * 1664525 + 1013904223) % 4294967296
+    return state.seed / 4294967296 
+end
 
 
 ------------------
