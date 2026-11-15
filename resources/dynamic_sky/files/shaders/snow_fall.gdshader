@@ -1,9 +1,16 @@
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
-// Dynamic Sky: snow on real falling particles. A flake disappears on contact with the world, so nothing snows
-// indoors. The quad sits at the particle position and faces the camera, with a visual-only flutter on top.
-// Flakes are soft round sprites that stretch into short streaks in strong wind.
+// Dynamic Sky: snow_fall.gdshader
+// Desc: snow flakes on real falling particles
+// Note: a flake disappears on contact with the world, so nothing snows indoors.
+// Note: the quad sits at the particle position and faces the camera, with a visual-only flutter on top.
+//       Flakes are soft round sprites that stretch into short streaks in strong wind.
+// Note: never write the entry point signatures inside comments (the engine injects code there).
+
+// ============================================================================
+//  Uniforms
+// ============================================================================
 
 uniform vec3  fall_vel     = vec3(0.0, -1.3, 0.0);    // average velocity (m/s), sets the streak direction (Lua)
 uniform float spawn_half   = 17.0;                    // half size of the spawn box (m), for the edge fade
@@ -15,8 +22,16 @@ uniform vec4  tint : source_color = vec4(0.95, 0.97, 1.0, 0.85);   // flake colo
 uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear;
 uniform sampler2D depth_tex  : hint_depth_texture, filter_nearest;
 
+// ============================================================================
+//  Varyings
+// ============================================================================
+
 varying vec2  v_s;
 varying float v_a;
+
+// ============================================================================
+//  Helpers
+// ============================================================================
 
 uint pcg(uint v) {
 	uint s = v * 747796405u + 2891336453u;
@@ -26,6 +41,10 @@ uint pcg(uint v) {
 float rnd(uint v) {
 	return float(pcg(v) & 16777215u) / 16777215.0;
 }
+
+// ============================================================================
+//  Vertex
+// ============================================================================
 
 void vertex() {
 	uint id = uint(INSTANCE_ID);
@@ -77,10 +96,14 @@ void vertex() {
 	}
 }
 
+// ============================================================================
+//  Fragment
+// ============================================================================
+
 void fragment() {
 	float rr = length(v_s);
 	float disc = 1.0 - smoothstep(0.30, 1.0, rr);
-	// in front of scenery: the colour behind it, a little lighter (never darker than the tint); against sky: the tint
+	// in front of scenery: the colour behind it, a little lighter (never darker than the tint); against the sky: the tint
 	vec3 bg  = texture(screen_tex, SCREEN_UV).rgb;
 	float sky = step(texture(depth_tex, SCREEN_UV).r, 0.00001);
 	ALBEDO = mix(max(bg * 1.25, tint.rgb * 0.6), tint.rgb, sky);

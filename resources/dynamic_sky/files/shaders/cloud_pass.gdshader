@@ -1,37 +1,55 @@
 shader_type canvas_item;
 render_mode blend_disabled;
 
-// Dynamic Sky: volumetric cloud march into a small HDR rendertarget (cloud_blur.gdshader blurs it, sky.gdshader reads it).
-// Output: rgb = in-scattered light, a = 1 - transmittance.
-// NOTE: never write the text of the entry point signatures inside comments (the engine injects code there).
+// Dynamic Sky: cloud_pass.gdshader
+// Desc: volumetric cloud march into a small HDR rendertarget
+// Note: output is rgb = in-scattered light, a = 1 - transmittance, blurred by cloud_blur.gdshader and read by sky.gdshader.
+// Note: never write the entry point signatures inside comments (the engine injects code there).
+
+// ============================================================================
+//  Uniforms
+// ============================================================================
 
 uniform sampler2D noise_tex : filter_linear_mipmap, repeat_enable;   // R shape, G erosion, B detail
-uniform vec3  cam_x   = vec3(1.0, 0.0, 0.0);      // camera axes (right, up, back), from Lua
-uniform vec3  cam_y   = vec3(0.0, 1.0, 0.0);
-uniform vec3  cam_z   = vec3(0.0, 0.0, 1.0);
+
+// camera (from Lua)
+uniform vec3  cam_x   = vec3(1.0, 0.0, 0.0);      // right
+uniform vec3  cam_y   = vec3(0.0, 1.0, 0.0);      // up
+uniform vec3  cam_z   = vec3(0.0, 0.0, 1.0);      // back
 uniform vec3  cam_pos = vec3(0.0);
 uniform vec2  tan_xy  = vec2(1.0, 0.5625);        // tan of the half fov
 
-uniform vec3  horizon_color    = vec3(0.55, 0.70, 0.88);
-uniform vec3  light_dir        = vec3(0.0, 1.0, 0.0);
-uniform vec3  light_color      = vec3(1.0, 0.95, 0.85);
+// lighting
+uniform vec3  horizon_color        = vec3(0.55, 0.70, 0.88);
+uniform vec3  light_dir            = vec3(0.0, 1.0, 0.0);
+uniform vec3  light_color          = vec3(1.0, 0.95, 0.85);
 uniform vec3  cloud_ambient_top    = vec3(0.45, 0.58, 0.80);
 uniform vec3  cloud_ambient_bottom = vec3(0.30, 0.34, 0.42);
-uniform float cloud_coverage   = 0.40;
-uniform float cloud_density    = 0.004;
-uniform float cloud_type       = 0.75;
-uniform float cloud_base       = 1500.0;
-uniform float cloud_thickness  = 2500.0;
-uniform float cloud_scale      = 2600.0;
-uniform float cloud_detail     = 0.55;
-uniform float cloud_steps      = 40.0;
-uniform float cloud_light_steps= 4.0;
-uniform vec3  wind_offset      = vec3(0.0);
-uniform float cloud_time       = 0.0;
-uniform float haze_density     = 0.000012;
+
+// cloud layer
+uniform float cloud_coverage    = 0.40;
+uniform float cloud_density     = 0.004;
+uniform float cloud_type        = 0.75;      // 0 stratus, 0.5 stratocumulus, 1 cumulus
+uniform float cloud_base        = 1500.0;    // layer base altitude (m)
+uniform float cloud_thickness   = 2500.0;    // layer thickness (m)
+uniform float cloud_scale       = 2600.0;    // size of one noise tile (m)
+uniform float cloud_detail      = 0.55;
+uniform float cloud_steps       = 40.0;
+uniform float cloud_light_steps = 4.0;
+uniform vec3  wind_offset       = vec3(0.0);
+uniform float cloud_time        = 0.0;
+uniform float haze_density      = 0.000012;
+
+// ============================================================================
+//  Constants
+// ============================================================================
 
 const float PI_ = 3.14159265359;
 const float PLANET_R = 6000000.0;
+
+// ============================================================================
+//  Helpers
+// ============================================================================
 
 float sk_remap(float v, float a, float b, float c, float d) {
 	return c + ((v - a) / (b - a)) * (d - c);
@@ -74,15 +92,15 @@ float sk_cloud_density(vec3 q, float hf, float lod) {
 	float cov = cloud_coverage;
 	float grad = sk_height_gradient(hf, cloud_type);
 	if (grad <= 1.0 - cov) {
-		return 0.0;                                   // coverage remap can only give 0 here
+		return 0.0;                                   // the coverage remap can only give 0 here
 	}
 	vec3 pw = (q + wind_offset) / cloud_scale;
 	pw.y -= cloud_time * 0.00004 * cloud_scale * 0.1;
 
-	vec3 n = sk_tex3(pw);                                 // R perlin-worley, G worley fbm
+	vec3 n = sk_tex3(pw);
 	float shape = n.r;
 
-	// upper bound of the result, erosion can only lower it
+	// erosion can only lower the result, so this is its upper bound
 	float bound = clamp(sk_remap((shape + 1.0) * 0.5 * grad, 1.0 - cov, 1.0, 0.0, 1.0), 0.0, 1.0);
 	if (bound <= 0.0) {
 		return 0.0;
@@ -104,6 +122,10 @@ float sk_cloud_density(vec3 q, float hf, float lod) {
 	base = clamp(sk_remap(base, dfbm * cloud_detail * 0.7 * hf, 1.0, 0.0, 1.0), 0.0, 1.0);
 	return pow(base, (1.0 - hf) * 0.8 + 0.5);
 }
+
+// ============================================================================
+//  Clouds
+// ============================================================================
 
 float sk_ray_sphere_far(vec3 ro, vec3 rd, float r) {
 	float b = dot(ro, rd);
@@ -142,7 +164,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 	float T = 1.0;
 	int nl = int(clamp(cloud_light_steps, 1.0, 6.0));
 	bool light_on = dot(light_color, vec3(1.0)) > 0.03;      // no light march at night
-	float lit_c = 0.8;                                        // light of the last step, reused every second step
+	float lit_c = 0.8;                                        // light of the last march, reused every second step
 	float beers_c = 0.8;
 	int lcount = 0;
 
@@ -164,7 +186,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 
 		float lit = lit_c;
 		float beers = beers_c;
-		// light march toward the key light, skipped on thin edges / at night
+		// light march toward the key light, skipped on thin edges and at night
 		if (light_on && dn > 0.03 && far_lod < 0.5) {
 			if ((lcount & 1) == 0) {
 				float cd = 0.0;
@@ -213,6 +235,10 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 	float far_fade = 1.0 - 0.8 * smoothstep(12000.0, 60000.0, t0);
 	return vec4(L * far_fade, a * far_fade);
 }
+
+// ============================================================================
+//  Main
+// ============================================================================
 
 void fragment() {
 	vec2 ndc = vec2(UV.x * 2.0 - 1.0, 1.0 - UV.y * 2.0);

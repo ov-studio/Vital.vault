@@ -20,7 +20,7 @@ Sky.state = {
     day      = 0,
     scale    = 1.0,
     weather  = Config.default_weather,
-    cur      = {  -- blended weather
+    cur      = { 
                   coverage = 0.45, 
                   density = 0.004, 
                   type = 0.75, 
@@ -35,16 +35,16 @@ Sky.state = {
                   tr = 1.0, 
                   tg = 1.0, 
                   tb = 1.0 
-               },
-    over     = {},  -- manual weather overrides: rain, snow, wind, fog, lightning
-    wdir     = util.table.clone(Config.wind_dir),  -- smoothed wind direction {x, z}
-    wdir_t   = util.table.clone(Config.wind_dir),  -- wind direction target
-    wind     = { 0, 0, 0 },  -- accumulated wind offset of the clouds
+               },               -- blended weather
+    over     = {},              -- manual weather overrides: rain, snow, wind, fog, lightning
+    wdir     = util.table.clone(Config.wind_dir),    -- smoothed wind direction {x, z}
+    wdir_t   = util.table.clone(Config.wind_dir),    -- wind direction target
+    wind     = { 0, 0, 0 },     -- accumulated wind offset of the clouds
     cloud_t  = 0.0,
     enabled  = true,
 
     -- lightning
-    flash    = 0.0,  -- manual flash 0..1
+    flash    = 0.0,             -- manual flash 0..1
     bolt_cd  = 4.0,
 
     -- sun / moon
@@ -70,6 +70,9 @@ Sky.state = {
     cover_on = false
 }
 
-Sky.state.base = util.table.clone(Sky.state.cur)  -- blended preset values before the manual multipliers (see over), starts as a copy of the blended weather
-Sky.ripple = { life = 1.2, radius = 0.35, depth = 64.0 }  -- ripple buffer constants, ripple_ring.gdshader and snow_cover.gdshader use the same depth range
-Sky.wrap = 5.0e6  -- wind / cloud time wrap, keeps float precision
+-- blended preset values before the manual multipliers (see over), starts as a copy of the blended weather
+Sky.state.base = util.table.clone(Sky.state.cur)
+
+-- ripple buffer constants, ripple_ring.gdshader and snow_cover.gdshader use the same depth range
+Sky.ripple = { life = 1.2, radius = 0.35, depth = 64.0 }
+Sky.wrap = 5.0e6    -- wind / cloud time wrap, keeps float precision

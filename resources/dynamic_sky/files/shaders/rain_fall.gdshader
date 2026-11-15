@@ -1,9 +1,16 @@
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
-// Dynamic Sky: rain streaks on real falling particles. A particle disappears on contact with the world, where the
-// engine spawns the splash. The quad sits at the particle position, stretched along the fall direction and turned
-// to face the camera around that axis.
+// Dynamic Sky: rain_fall.gdshader
+// Desc: rain streaks on real falling particles
+// Note: a particle disappears on contact with the world, where the engine spawns the splash.
+// Note: the quad sits at the particle position, stretched along the fall direction and turned to face the camera
+//       around that axis.
+// Note: never write the entry point signatures inside comments (the engine injects code there).
+
+// ============================================================================
+//  Uniforms
+// ============================================================================
 
 uniform vec3  fall_vel     = vec3(0.0, -13.0, 0.0);   // average velocity (m/s), sets the streak direction (Lua)
 uniform float spawn_half   = 17.0;                    // half size of the spawn box (m), for the edge fade
@@ -11,13 +18,21 @@ uniform float density      = 1.0;                     // 0..1 share of the strea
 uniform float streak_len   = 0.85;                    // streak length at 13 m/s (m)
 uniform float streak_w     = 0.010;                   // streak width up close (m)
 uniform vec4  tint : source_color = vec4(0.72, 0.78, 0.88, 0.45);
-uniform float refract_str  = 0.010;                   // screen-space distortion through the streaks (0 = off)
+uniform float refract_str  = 0.010;                   // screen-space distortion through the streaks, 0 = off
 uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear;
 uniform sampler2D depth_tex  : hint_depth_texture, filter_nearest;
+
+// ============================================================================
+//  Varyings
+// ============================================================================
 
 varying vec2  v_s;     // x: across -1..1, y: along 0 (tail) .. 1 (head)
 varying float v_a;     // per-streak alpha
 varying vec2  v_side;  // streak width axis in view space, for the refraction offset
+
+// ============================================================================
+//  Helpers
+// ============================================================================
 
 uint pcg(uint v) {
 	uint s = v * 747796405u + 2891336453u;
@@ -27,6 +42,10 @@ uint pcg(uint v) {
 float rnd(uint v) {
 	return float(pcg(v) & 16777215u) / 16777215.0;
 }
+
+// ============================================================================
+//  Vertex
+// ============================================================================
 
 void vertex() {
 	uint id = uint(INSTANCE_ID);
@@ -67,6 +86,10 @@ void vertex() {
 		POSITION = vec4(0.0, 0.0, -2.0, 1.0);          // outside the clip volume
 	}
 }
+
+// ============================================================================
+//  Fragment
+// ============================================================================
 
 void fragment() {
 	float across = 1.0 - smoothstep(0.15, 1.0, abs(v_s.x));

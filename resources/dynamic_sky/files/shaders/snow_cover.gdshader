@@ -1,40 +1,62 @@
 shader_type spatial;
 render_mode blend_mix, depth_draw_never, cull_disabled, diffuse_burley, specular_schlick_ggx;
 
-// Dynamic Sky: weather surface layer, applied to every model as a layered material
-// (shader:apply_to_material("*", "*", "*", 0, true)) on top of the surface's own material.
-// snow_amount and wet are 0..1 and animated from Lua.
+// Dynamic Sky: snow_cover.gdshader
+// Desc: snow and rain wetness layer over every model
+// Note: applied as a layered material on top of each surface's own material
+//       (shader:apply_to_material("*", "*", "*", 0, true)), so albedo_texture is only read for the alpha cut-out.
+// Note: snow_amount and wet are animated from Lua.
+// Note: never write the entry point signatures inside comments (the engine injects code there).
 
-uniform sampler2D albedo_texture : source_color, filter_linear_mipmap, repeat_enable;   // only used for the alpha cut-out
+// ============================================================================
+//  Uniforms
+// ============================================================================
+
+// surface material
+uniform sampler2D albedo_texture : source_color, filter_linear_mipmap, repeat_enable;
 uniform vec4  albedo_color : source_color = vec4(1.0);
 uniform vec3  uv1_scale  = vec3(1.0, 1.0, 1.0);
 uniform vec3  uv1_offset = vec3(0.0, 0.0, 0.0);
+uniform float alpha_cut = 0.5;                     // texels below this alpha are discarded, 0 = never
 
-uniform float alpha_cut = 0.5;                     // texels below this alpha are discarded; 0 = never
+// snow
 uniform float snow_amount = 0.0;                   // 0..1
 uniform vec3  snow_color : source_color = vec3(0.86, 0.90, 0.96);
+
+// wetness and puddles
 uniform float wet = 0.0;                           // 0..1
 uniform float rain_amt = 0.0;                      // current rain, drives the fallback ripples
 uniform float puddle_gloss = 0.30;                 // higher = blurrier puddles
 uniform float puddle_strength = 0.55;              // max puddle opacity
+uniform float wet_fade_start = 22.0;               // wetness starts to thin out (m)
+uniform float wet_fade_end   = 75.0;               // wetness is completely gone (m)
+
+// ripples
 uniform float ripple_gain = 0.16;                  // bump strength
-uniform vec3  ripple_light : source_color = vec3(0.05);   // set from Lua
+uniform vec3  ripple_light : source_color = vec3(0.05);   // from Lua
 uniform sampler2D screen_rip : filter_linear, repeat_disable;   // ripple buffer, see ripple_ring.gdshader
 uniform float screen_rip_on = 0.0;                 // 1 = ripples from the buffer, 0 = procedural fallback
 uniform float screen_rip_gamma = 1.0;              // 2.2 if the buffer is sRGB encoded
-uniform float screen_rip_depth = 64.0;             // must match ripple_ring.gdshader
+uniform float screen_rip_depth = 64.0;             // must match depth_scale in ripple_ring.gdshader
 uniform float ripple_scale = 1.7;                  // fallback ripple cells per metre
-uniform float wet_fade_start = 22.0;               // metres: wetness starts to thin out
-uniform float wet_fade_end   = 75.0;               // metres: completely gone
+
+// ============================================================================
+//  Varyings
+// ============================================================================
 
 varying vec3 w_pos;
 varying vec3 w_nrm;
+
+// ============================================================================
+//  Helpers
+// ============================================================================
 
 float hash12(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
 	p3 += dot(p3, p3.yzx + 33.33);
 	return fract((p3.x + p3.y) * p3.z);
 }
+
 // ripple height at a screen position, counted only where the ring depth matches the surface
 float screen_h(vec2 uv, float depth) {
 	vec4 t = textureLod(screen_rip, uv, 0.0);
@@ -43,10 +65,12 @@ float screen_h(vec2 uv, float depth) {
 	float d = v.b * screen_rip_depth / t.a;
 	return (v.r - v.g) * (1.0 - smoothstep(0.15, 0.30, abs(d - depth)));
 }
-vec2 screen_uv_of(vec3 world, mat4 view, mat4 proj) {          // built-ins are passed in, functions cannot read them
+
+vec2 screen_uv_of(vec3 world, mat4 view, mat4 proj) {          // built-ins are passed in because functions cannot read them
 	vec4 c = proj * (view * vec4(world, 1.0));
 	return c.xy / c.w * 0.5 + 0.5;
 }
+
 float vnoise(vec2 p) {
 	vec2 i = floor(p);
 	vec2 f = fract(p);
@@ -58,10 +82,18 @@ float vnoise(vec2 p) {
 	return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
+// ============================================================================
+//  Vertex
+// ============================================================================
+
 void vertex() {
 	w_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	w_nrm = normalize(MODEL_NORMAL_MATRIX * NORMAL);
 }
+
+// ============================================================================
+//  Fragment
+// ============================================================================
 
 void fragment() {
 	vec2 uv = UV * uv1_scale.xy + uv1_offset.xy;
@@ -71,22 +103,21 @@ void fragment() {
 	}
 
 	float ny = clamp(w_nrm.y, -1.0, 1.0);
-	// world-space noise projected along the dominant axis
+	// world-space noise projected along the dominant axis of the normal
 	vec3 an = abs(w_nrm);
 	vec2 np = (an.y >= an.x && an.y >= an.z) ? w_pos.xz : ((an.x > an.z) ? w_pos.zy : w_pos.xy);
 	float nl = vnoise(np * 0.22);
 	float nm = vnoise(np * 0.85 + 11.3);
 	float n  = nl * 0.65 + nm * 0.35;
 
-	// ---- snow ----
+	// snow
 	float sa = clamp(snow_amount, 0.0, 1.0);
 	float thr = mix(1.02, -0.05, pow(sa, 0.75));                     // steeper surfaces get covered as it grows
 	float m_raw = smoothstep(thr, thr + 0.45, ny + (n - 0.5) * 0.40 + sa * 0.10);
 	float snow = smoothstep(0.10, 0.90, m_raw);
 	snow *= smoothstep(0.0, 0.02, sa);
 
-	// ---- rain ----
-	// wetness fades with distance, ripples earlier (they alias when far away)
+	// rain: wetness fades with distance, ripples earlier because they alias when far away
 	float cd = length(VERTEX);
 	float wfade = 1.0 - smoothstep(wet_fade_start, max(wet_fade_end, wet_fade_start + 1.0), cd);
 	float rfade = 1.0 - smoothstep(wet_fade_start * 0.45, wet_fade_end * 0.40, cd);
@@ -96,7 +127,7 @@ void fragment() {
 	pud *= (1.0 - snow);
 	float sheen = wt * (1.0 - snow) * (1.0 - pud);
 
-	// snow normal and puddle ripples
+	// snow bump and puddle ripples
 	vec2 bump = vec2(nm - 0.5, vnoise(np * 0.85 + 40.0) - 0.5) * 0.16;
 	vec2 nxy = bump * snow;
 	vec2 rgrad = vec2(0.0);                                          // ripple slope (world xz)
@@ -128,7 +159,7 @@ void fragment() {
 		nxy += rgrad;
 	}
 
-	// priority: snow, puddle, wet film
+	// layer priority: snow, puddle, wet film
 	float a_snow = snow;
 	float a_pud  = pud * clamp(puddle_strength, 0.0, 1.0);
 	float a_film = sheen * 0.30;
@@ -140,7 +171,7 @@ void fragment() {
 	float rgh = (a_snow >= max(a_pud, a_film)) ? 0.65 : mix(0.50, clamp(puddle_gloss, 0.05, 1.0), step(a_film, a_pud));
 	float spec = (a_snow >= max(a_pud, a_film)) ? 0.5 : mix(0.30, 0.38, step(a_film, a_pud));
 
-	// ripples stay visible without sun/moon: facets tilted towards the camera mirror the sky
+	// ripples stay visible without sun or moon: facets tilted towards the camera mirror the sky
 	float rs = length(rgrad);
 	vec3 wv = normalize((INV_VIEW_MATRIX * vec4(VIEW, 0.0)).xyz);   // towards the camera
 	float graze = 1.0 - clamp(wv.y, 0.0, 1.0);

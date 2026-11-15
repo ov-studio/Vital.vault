@@ -1,18 +1,32 @@
 shader_type spatial;
 render_mode unshaded, blend_add, depth_test_disabled, depth_draw_never, cull_disabled, fog_disabled;
 
-// Dynamic Sky: one raindrop ripple, spawned where a drop lands (sub-emitter of the splash droplets).
-// Drawn only into a 3D rendertarget (particle:set_layer), which snow_cover.gdshader reads:
-//   r = height (+)   g = height (-)   b = view depth / depth_scale   a = ring count
+// Dynamic Sky: ripple_ring.gdshader
+// Desc: one raindrop ripple, spawned where a drop lands
+// Note: sub-emitter of the splash droplets, drawn only into a 3D rendertarget (particle:set_layer) that
+//       snow_cover.gdshader reads: r = height (+), g = height (-), b = view depth / depth_scale, a = ring count.
+// Note: never write the entry point signatures inside comments (the engine injects code there).
 
-uniform float ring_radius = 0.35;     // metres: half size of one ring
-uniform float lift = 0.02;            // metres above the landing point
+// ============================================================================
+//  Uniforms
+// ============================================================================
+
+uniform float ring_radius = 0.35;     // half size of one ring (m)
+uniform float lift = 0.02;            // height above the landing point (m)
 uniform float share = 0.3333;         // each droplet spawns a ring, so each carries a share
-uniform float depth_scale = 64.0;     // metres the depth channel covers
+uniform float depth_scale = 64.0;     // range the depth channel covers (m)
+
+// ============================================================================
+//  Varyings
+// ============================================================================
 
 varying vec2  v_p;
 varying float v_age;
 varying float v_amp;
+
+// ============================================================================
+//  Vertex
+// ============================================================================
 
 void vertex() {
 	vec3 c = MODEL_MATRIX[3].xyz + vec3(0.0, lift, 0.0);
@@ -22,6 +36,10 @@ void vertex() {
 	vec3 world = c + vec3(VERTEX.x, 0.0, -VERTEX.y) * (ring_radius * 2.0);
 	POSITION = PROJECTION_MATRIX * (VIEW_MATRIX * vec4(world, 1.0));
 }
+
+// ============================================================================
+//  Fragment
+// ============================================================================
 
 void fragment() {
 	float r = length(v_p);

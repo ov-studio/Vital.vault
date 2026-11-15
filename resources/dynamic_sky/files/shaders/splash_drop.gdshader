@@ -1,17 +1,31 @@
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
-// Dynamic Sky: rain splash droplets. A camera-facing quad that stays upright and stretches along its motion:
-// thin while fast, round at the top of its arc, then fades.
+// Dynamic Sky: splash_drop.gdshader
+// Desc: rain splash droplets
+// Note: camera-facing quad that stays upright and stretches along its motion: thin while fast, round at the top of
+//       its arc, then fades.
+// Note: never write the entry point signatures inside comments (the engine injects code there).
+
+// ============================================================================
+//  Uniforms
+// ============================================================================
 
 uniform vec4  tint : source_color = vec4(0.82, 0.88, 1.0, 0.6);
 uniform float drop_size = 0.012;     // bead radius (m)
+uniform float lift = 0.03;           // height above the detected landing point (m)
 uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear;
+
+// ============================================================================
+//  Varyings
+// ============================================================================
 
 varying vec2  v_uv;
 varying float v_a;
 
-uniform float lift = 0.03;           // metres above the detected landing point
+// ============================================================================
+//  Vertex
+// ============================================================================
 
 void vertex() {
 	vec3 c = MODEL_MATRIX[3].xyz + vec3(0.0, lift, 0.0);
@@ -33,6 +47,10 @@ void vertex() {
 	v_uv = VERTEX.xy * 2.0;
 	v_a = (1.0 - smoothstep(0.55, 1.0, age)) * smoothstep(0.2, 0.9, dist) * (1.0 - smoothstep(7.0, 14.0, dist));
 }
+
+// ============================================================================
+//  Fragment
+// ============================================================================
 
 void fragment() {
 	// soft ellipse with a brighter core, tapered towards the bottom

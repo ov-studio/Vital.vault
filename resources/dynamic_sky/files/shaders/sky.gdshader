@@ -1,52 +1,55 @@
 shader_type spatial;
 render_mode unshaded, cull_disabled, depth_test_disabled, depth_draw_never, fog_disabled;
 
-// Dynamic Sky: screen-space sky on a camera-following quad, painted only where the depth buffer is sky.
-// Gradient from timecycle colours (Lua), sun, moon with phase, stars, and clouds read from cloud_pass.gdshader.
-// NOTE: keep the shader_type line first and never write the text of the entry point signatures inside comments.
+// Dynamic Sky: sky.gdshader
+// Desc: screen-space sky and god rays on a camera-following quad
+// Note: the sky is painted only where the depth buffer is sky, geometry pixels get god rays instead.
+// Note: keep shader_type on the first line, and never write the entry point signatures inside comments
+//       (the engine injects code there).
+
+// ============================================================================
+//  Uniforms
+// ============================================================================
 
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
-uniform sampler2D moon_tex : filter_linear_mipmap, repeat_disable;  // equirectangular colour map
-uniform sampler2D cloud_tex : filter_linear, repeat_disable;           // from cloud_pass.gdshader (Lua)
+uniform sampler2D moon_tex : filter_linear_mipmap, repeat_disable;   // equirectangular colour map
+uniform sampler2D cloud_tex : filter_linear, repeat_disable;         // output of cloud_pass.gdshader
 
-// ---- celestial bodies -------------------------------------------------------
-uniform vec3  sun_dir          = vec3(0.0, 1.0, 0.0);   // direction TO the sun
-uniform vec3  moon_dir         = vec3(0.0, -1.0, 0.0);  // direction TO the moon
-uniform float sun_size         = 0.0085;                // angular radius (rad)
-uniform float moon_size        = 0.0150;                // angular radius (rad)
-uniform vec3  star_axis        = vec3(0.0, 0.0, 1.0);   // celestial rotation axis
-uniform float star_angle       = 0.0;                   // celestial rotation (rad)
+// celestial bodies (from Lua)
+uniform vec3  sun_dir          = vec3(0.0, 1.0, 0.0);    // direction TO the sun
+uniform vec3  moon_dir         = vec3(0.0, -1.0, 0.0);   // direction TO the moon
+uniform float sun_size         = 0.0085;                 // angular radius (rad)
+uniform float moon_size        = 0.0150;                 // angular radius (rad)
+uniform vec3  star_axis        = vec3(0.0, 0.0, 1.0);    // celestial rotation axis
+uniform float star_angle       = 0.0;                    // celestial rotation (rad)
 
-// ---- timecycle colours (linear) ---------------------------------------------
+// timecycle colours (linear)
 uniform vec3  zenith_color     = vec3(0.10, 0.26, 0.60);
 uniform vec3  horizon_color    = vec3(0.55, 0.70, 0.88);
 uniform vec3  ground_color     = vec3(0.30, 0.34, 0.38);
-uniform vec3  glow_color       = vec3(1.00, 0.72, 0.40); // sun glow / sunset tint
+uniform vec3  glow_color       = vec3(1.00, 0.72, 0.40);   // sun glow / sunset tint
 uniform vec3  sun_color        = vec3(1.00, 0.95, 0.85);   // timecycle tint
-uniform vec3  sun_phys         = vec3(1.00, 0.93, 0.80);   // sunlight colour after the atmosphere (Lua)
+uniform vec3  sun_phys         = vec3(1.00, 0.93, 0.80);   // sunlight colour after the atmosphere
 uniform vec3  moon_color       = vec3(0.75, 0.82, 1.00);
 uniform float horizon_falloff  = 3.5;     // higher = thinner horizon band
 uniform float glow_strength    = 0.35;
 uniform float sun_intensity    = 25.0;    // 25 = full strength (weather dims it)
-uniform float sun_hdr          = 6.0;     // disc HDR brightness (bloom above the engine glow threshold)
+uniform float sun_hdr          = 6.0;     // disc HDR brightness, above the engine bloom threshold
 uniform float moon_intensity   = 1.5;
 uniform float star_visibility  = 0.0;     // 0 = day, 1 = full night sky
 uniform float exposure         = 1.0;
 
-// ---- lighting for clouds (blended sun/moon "key light") ---------------------
-
-// ---- clouds -----------------------------------------------------------------
-uniform float cloud_coverage   = 0.40;    // 0..1
-uniform vec3  ray_color        = vec3(1.0, 0.86, 0.62);  // god rays: sunlight colour
-uniform float ray_strength     = 0.0;     // 0 = off (driven from Lua)
+// clouds and god rays
+uniform float cloud_coverage   = 0.40;                   // 0..1
+uniform vec3  ray_color        = vec3(1.0, 0.86, 0.62);  // sunlight colour
+uniform float ray_strength     = 0.0;     // 0 = off
 uniform float ray_length       = 0.95;    // share of the way to the sun that is marched
 uniform float ray_decay        = 0.97;
 uniform float ray_spread       = 1.1;     // falloff with distance from the sun
 
 // ============================================================================
-//  helpers
+//  Helpers
 // ============================================================================
-
 
 float sk_hash13(vec3 p3) {
 	p3 = fract(p3 * 0.1031);
@@ -67,7 +70,7 @@ vec3 sk_rotate(vec3 v, vec3 axis, float ang) {
 }
 
 // ============================================================================
-//  stars
+//  Stars
 // ============================================================================
 
 vec3 sk_star_layer(vec3 d, float fw, float tm, float scale, float density, float seed, float size_boost) {
@@ -86,7 +89,7 @@ vec3 sk_star_layer(vec3 d, float fw, float tm, float scale, float density, float
 	float dist = length(f - pos);
 	float k = clamp(1.0 - dist / max(r, 0.0001), 0.0, 1.0);
 	k = k * k;
-	// scintillation: dim stars flicker the most
+	// dim stars flicker the most
 	float ph = h.y * 60.0;
 	float a1 = sin(tm * (2.1 + 4.0 * h.x) + ph);
 	float a2 = sin(tm * (5.3 + 7.0 * h.z) + ph * 1.7);
@@ -95,7 +98,6 @@ vec3 sk_star_layer(vec3 d, float fw, float tm, float scale, float density, float
 	float tw = clamp(0.72 + amp * (0.50 * a1 + 0.35 * a2 + 0.15 * a3) * 1.6, 0.05, 1.5);
 	vec3 tint = mix(vec3(1.0, 0.74, 0.52), vec3(0.62, 0.78, 1.0), h.z);
 	tint = mix(vec3(1.0), tint, 0.65);
-	// colour shimmer
 	tint = mix(tint, tint.bgr, 0.18 * (0.5 + 0.5 * a2));
 	return tint * (k * (0.35 + 1.9 * mag)) * tw;
 }
@@ -110,10 +112,10 @@ vec3 sk_stars(vec3 d, float fw, float tm) {
 }
 
 // ============================================================================
-//  moon
+//  Moon
 // ============================================================================
 
-// returns rgb in .rgb and coverage in .a
+// rgb = moon colour, a = coverage
 vec4 sk_moon(vec3 d, float fw) {
 	float cs = dot(d, moon_dir);
 	float cr = cos(moon_size);
@@ -152,10 +154,10 @@ vec4 sk_moon(vec3 d, float fw) {
 }
 
 // ============================================================================
-//  gradient sky + sun
+//  Sky gradient and sun
 // ============================================================================
 
-// apparent sun size, larger near the horizon
+// apparent sun radius, larger near the horizon
 float sk_sun_size_eff() {
 	float hf = 1.0 - smoothstep(0.0, 0.22, sun_dir.y);
 	return sun_size * (1.0 + 0.28 * hf);
@@ -170,21 +172,19 @@ vec3 sk_sky(vec3 d) {
 
 	float cs = max(dot(d, sun_dir), 0.0);
 	float band = 0.30 + 0.70 * exp(-abs(up) * 5.0);
-	// sun glow: wide haze + a corona that follows sun_size
+	// wide haze plus a corona that follows sun_size
 	float sse = sk_sun_size_eff();
 	float rs = max(acos(cs) / sse, 1.0);
 	float corona = 0.50 * exp(-(rs - 1.0) * 0.30) + 0.28 * exp(-(rs - 1.0) * 0.065);
 	float glow = 0.30 * pow(cs, 4.0) + 0.55 * pow(cs, 24.0) + 0.80 * corona;
-	// colour: pale core, saturating outward into the glow colour
+	// pale core, saturating outward into the glow colour
 	vec3 hot = mix(sun_phys, vec3(1.0), 0.18);
 	vec3 gtint = glow_color / max(max(glow_color.r, glow_color.g), max(glow_color.b, 1e-3));
 	vec3 aur = mix(hot, gtint, clamp((rs - 1.0) * 0.16, 0.0, 1.0));
 	col += aur * glow_strength * glow * band;
-	// glare around the disc
 	float vis = smoothstep(-0.02, 0.05, sun_dir.y) * (sun_intensity / 25.0);
 	col += hot * (0.26 * exp(-(rs - 1.0) * 1.3) + 0.06 * exp(-(rs - 1.0) * 0.22)) * vis;
 
-	// moon halo
 	float cm = max(dot(d, moon_dir), 0.0);
 	float lit_frac = clamp(0.5 - 0.5 * dot(moon_dir, sun_dir), 0.0, 1.0);
 	float rm = max(acos(cm) / moon_size, 1.0);
@@ -205,7 +205,6 @@ vec4 sk_sun_disc(vec3 d, float fw, float tm) {
 	float horizon_cut = smoothstep(-0.004, 0.010, d.y);
 	vec3 col = vec3(0.0);
 	if (disk > 0.0) {
-		// flat colour disc, tinted by the atmosphere
 		vec3 tint = sun_phys * mix(vec3(1.0), sun_color / max(max(sun_color.r, sun_color.g), max(sun_color.b, 1e-3)), 0.15);
 		tint = mix(tint, vec3(1.0, 0.97, 0.84), 0.62);
 		col = tint * clamp(sun_intensity / 25.0, 0.0, 1.0) * sun_hdr;
@@ -214,7 +213,7 @@ vec4 sk_sun_disc(vec3 d, float fw, float tm) {
 }
 
 // ============================================================================
-//  main
+//  Main
 // ============================================================================
 
 vec3 sk_view_ray(vec2 uv, mat4 inv_proj, mat4 inv_view) {
@@ -223,7 +222,7 @@ vec3 sk_view_ray(vec2 uv, mat4 inv_proj, mat4 inv_view) {
 	return normalize((inv_view * vec4(normalize(v.xyz), 0.0)).xyz);
 }
 
-// ---- god rays: geometry pixels look toward the sun on screen and count the open sky they see ----
+// God rays: geometry pixels look toward the sun on screen and count the open sky they see
 float sk_rays(vec2 uv, vec2 frag, vec3 sd, mat4 vmat, mat4 pmat) {
 	float aspect = pmat[1][1] / pmat[0][0];
 	vec4 c = pmat * (vmat * vec4(sd, 0.0));
@@ -277,7 +276,6 @@ void fragment() {
 
 		vec3 col = sk_sky(d);
 
-		// night sky: stars, moon (hidden by horizon)
 		float above = smoothstep(-0.02, 0.18, d.y);
 		if (star_visibility > 0.005 && d.y > -0.05) {
 			float moon_wash = 1.0 - clamp(pow(max(dot(d, moon_dir), 0.0), 60.0) * 2.0, 0.0, 1.0);
@@ -288,7 +286,6 @@ void fragment() {
 		vec4 sun = sk_sun_disc(d, fw, TIME);
 		col = mix(col, sun.rgb, sun.a);          // the disc replaces the glow behind it
 
-		// clouds
 		if (d.y > 0.012 && cloud_coverage > 0.01) {
 			vec4 cl = textureLod(cloud_tex, SCREEN_UV, 0.0);
 			float fade = smoothstep(0.0, 0.09, d.y);
