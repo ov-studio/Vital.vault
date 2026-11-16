@@ -30,7 +30,7 @@ Config.lightning_intensity   = 1.0            -- strength of thunderstorm flashe
 --   lightning 0..1 thunder flashes (rate and strength)
 --   tint = {r,g,b} multiplies the whole sky colour (sand / smog)
 Config.weather = {
-    clear     = { coverage = 0.12, density = 0.0030, type = 0.85, dark = 0.00, desat = 0.00, haze = 0.00 },
+    clear     = { coverage = 0.16, density = 0.0070, type = 0.95, dark = 0.00, desat = 0.00, haze = 0.00 },
     partly    = { coverage = 0.27, density = 0.0029, type = 0.80, dark = 0.04, desat = 0.05, haze = 0.05 },
     cloudy    = { coverage = 0.38, density = 0.0048, type = 0.60, dark = 0.16, desat = 0.28, haze = 0.15 },
     overcast  = { coverage = 0.55, density = 0.0070, type = 0.30, dark = 0.40, desat = 0.70, haze = 0.30 },

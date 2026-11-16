@@ -94,7 +94,7 @@ float sk_cloud_density(vec3 q, float hf, float lod) {
 	if (grad <= 1.0 - cov) {
 		return 0.0;                                   // the coverage remap can only give 0 here
 	}
-	float puff = cloud_scale * (1.0 + 0.7 * (1.0 - smoothstep(0.0, 0.35, cov)));   // sparse skies get fewer, larger clouds
+	float puff = cloud_scale * (1.0 + 0.9 * (1.0 - smoothstep(0.0, 0.35, cov)));   // sparse skies get fewer, larger clouds
 	vec3 pw = (q + wind_offset) / puff;
 	pw.y -= cloud_time * 0.00004 * puff * 0.1;
 
@@ -234,11 +234,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 	L = mix(L, horizon_color * a, haze * 0.85);
 	// thin out toward the horizon
 	float far_fade = 1.0 - 0.8 * smoothstep(12000.0, 60000.0, t0);
-	// sparse skies keep only the solid cores of the clouds, thin wisps would show up as smudges
-	float crisp = 1.0 - smoothstep(0.0, 0.45, cloud_coverage);
-	float af = a * far_fade;
-	float ac = mix(af, smoothstep(0.10, 0.55, af), crisp);
-	return vec4(L * far_fade * (ac / max(af, 0.0001)), ac);
+	return vec4(L * far_fade, a * far_fade);
 }
 
 // ============================================================================
