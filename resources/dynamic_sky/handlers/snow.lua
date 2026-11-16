@@ -50,7 +50,6 @@ end)
 
 -- Follows the camera with the snow emitter every frame and sets its fall speed, density and colour from the weather.
 Sky.on("update", function(frame)
-    state.flt = (state.flt + frame.dt) % 50.26548
     if not state.snow_on then return end
 
     local emitter, shader = state.snow_emitter, state.snow_shader
