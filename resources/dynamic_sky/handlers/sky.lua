@@ -27,6 +27,7 @@ Sky.on("init", function()
     state.shader = shader
     state.moon = core.image.create("files/textures/moon.png", true)
     shader:set_param("moon_tex", state.moon)
+    shader:set_param("cloud_sharp", Config.cloud_sharp)
     core.engine.print("info", "Sky shader created")
 end)
 

@@ -41,6 +41,7 @@ uniform float exposure         = 1.0;
 
 // clouds and god rays
 uniform float cloud_coverage   = 0.40;                   // 0..1
+uniform float cloud_sharp      = 0.5;                    // sharpening of the cloud edges, 0 = off
 uniform vec3  ray_color        = vec3(1.0, 0.86, 0.62);  // sunlight colour
 uniform float ray_strength     = 0.0;     // 0 = off
 uniform float ray_length       = 0.95;    // share of the way to the sun that is marched
@@ -288,6 +289,10 @@ void fragment() {
 
 		if (d.y > 0.012 && cloud_coverage > 0.01) {
 			vec4 cl = textureLod(cloud_tex, SCREEN_UV, 0.0);
+			vec2 px = 1.5 / vec2(textureSize(cloud_tex, 0));          // unsharp mask, the cloud target is small and blurred
+			vec4 soft = (textureLod(cloud_tex, SCREEN_UV + vec2(px.x, 0.0), 0.0) + textureLod(cloud_tex, SCREEN_UV - vec2(px.x, 0.0), 0.0) + textureLod(cloud_tex, SCREEN_UV + vec2(0.0, px.y), 0.0) + textureLod(cloud_tex, SCREEN_UV - vec2(0.0, px.y), 0.0)) * 0.25;
+			cl = max(cl + (cl - soft) * cloud_sharp, vec4(0.0));
+			cl.a = min(cl.a, 1.0);
 			float fade = smoothstep(0.0, 0.09, d.y);
 			col = col * (1.0 - cl.a * fade) + cl.rgb * fade;
 		}
