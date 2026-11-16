@@ -14,7 +14,7 @@
 
 local state = Sky.state
 local floor, sqrt = util.math.floor, util.math.sqrt
-local tint = { 0, 0, 0, 0.55 }  -- reused every frame, so no table is allocated per frame
+local tint = { 0, 0, 0, 0.55 }
 
 
 ------------------
