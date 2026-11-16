@@ -34,6 +34,7 @@ description: |
   • `util.export.call("dynamic_sky", "get_weather")` - returns the weather name
   • `util.export.call("dynamic_sky", "set_rain", value)` - rain intensity 0-1, nil = auto
   • `util.export.call("dynamic_sky", "set_snow", value)` - snow intensity 0-1, nil = auto
+  • `util.export.call("dynamic_sky", "set_sand", value)` - sand intensity 0-1, nil = auto
   • `util.export.call("dynamic_sky", "set_fog", value)` - fog intensity 0-1, nil = auto
   • `util.export.call("dynamic_sky", "set_lightning", value)` - lightning intensity 0-1, nil = auto
   • `util.export.call("dynamic_sky", "set_wind", value)` - wind multiplier 0-6, nil = auto
@@ -51,6 +52,7 @@ description: |
   • `/timescale <n>` - 1 = normal, 0 = freeze
   • `/sky_rain <0-1 | auto>` - rain intensity
   • `/sky_snow <0-1 | auto>` - snow intensity
+  • `/sky_sand <0-1 | auto>` - sand intensity
   • `/sky_fog <0-1 | auto>` - fog intensity
   • `/sky_lightning <0-1 | auto>` - lightning intensity
   • `/sky_wind <0-6 | auto>` - wind strength
@@ -58,7 +60,7 @@ description: |
   • `/snow_cover <0-1 | auto>` - snow on surfaces
   • `/sky_quality <low|medium|high|ultra>` - cloud quality
   • `/sky_clouds [on|off]` - toggles the clouds
-  • `/sky_precip [on|off]` - toggles rain and snow particles
+  • `/sky_precip [on|off]` - toggles rain, snow and sand particles
   • `/sky_splash [on|off]` - toggles rain splashes
   • `/sky_glow [on|off]` - toggles the sun bloom
   • `/sky_godrays [on|off]` - toggles the god rays
@@ -89,6 +91,8 @@ scripts:
   - { src: "handlers/precipitation.lua", type: "client" }
   - { src: "handlers/surface.lua",       type: "client" }
   - { src: "handlers/snow.lua",          type: "client" }
+  - { src: "handlers/dust.lua",          type: "client" }
+  - { src: "handlers/sand.lua",          type: "client" }
   - { src: "handlers/rain.lua",          type: "client" }
   - { src: "handlers/collision.lua",     type: "client" }
   - { src: "handlers/main.lua",          type: "client" }
