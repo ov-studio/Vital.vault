@@ -4,7 +4,7 @@
      Author: ov-studio
      Developer(s): Аниса
      DOC: 13/11/2026
-     Desc: Shared rain and snow camera, wind and particle level ]]--
+     Desc: Shared rain, snow and sand camera, wind and particle level ]]--
 ----------------------------------------------------------------
 
 
@@ -21,7 +21,7 @@ local lerp, clamp = util.math.lerp, util.math.clamp
 --[[ Utils ]]--
 ---------------
 
--- Shared by rain and snow: the emitter shows more or fewer particles in 8 steps (changing the amount restarts
+-- Shared by rain, snow and sand: the emitter shows more or fewer particles in 8 steps (changing the amount restarts
 -- the pool, so only step changes do it) and the shader's density smooths between the steps. Returns the density for
 -- the shader, or nil (emitter hidden) when there is none. state[key] remembers the current step.
 function Sky.level(emitter, key, full, intensity, active)
@@ -46,9 +46,10 @@ end
 --[[ Handlers ]]--
 ------------------
 
--- Publishes what rain and snow share every frame: the camera position, the daylight that tints them, the near white
--- drop colour and the horizontal wind speed.
+-- Publishes what rain, snow and sand share every frame: the camera position, the daylight that tints them, the near white
+-- drop colour and the horizontal wind speed. Also advances the flutter time of snow and sand (seamless wrap).
 Sky.on("update", function(frame)
+    state.flt = (state.flt + frame.dt) % 50.26548
     local camera = core.camera.get_active()
     if camera then frame.camera_pos = camera:get_global_position() end
     frame.daylight = clamp(0.10 + 0.80 * clamp(frame.cycle.light_energy, 0.0, 1.0) ^ 0.7, 0.08, 1.0) * (1.0 + frame.flash * 3.0)
@@ -69,7 +70,7 @@ end)
 --[[ Commands ]]--
 ------------------
 
--- Toggles the rain and snow particles, no argument flips
+-- Toggles the rain, snow and sand particles, no argument flips
 -- Usage: /sky_precip [on|off]
 util.input.register("sky_precip", function(args)
     state.precip = Sky.switch(args[1], state.precip)
