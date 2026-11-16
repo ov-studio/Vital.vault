@@ -112,6 +112,7 @@ Sky.on("update", function(frame)
         cycle.light[2] * frame.sun_energy * 1.6 * frame.day_weight + Config.night_light.color[2] * frame.night_energy * 2.0,
         cycle.light[3] * frame.sun_energy * 1.6 * frame.day_weight + Config.night_light.color[3] * frame.night_energy * 2.0
     }
+    frame.key_color = light_color
     private.set_cloud("horizon_color", cycle.horizon)
     private.set_cloud("haze_density", 0.000012 * (1.0 + state.cur.haze * 5.0))
     private.set_cloud("light_dir", frame.key_dir)
