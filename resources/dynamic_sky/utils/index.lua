@@ -25,7 +25,7 @@ Sky = {
 -- Registers a handler for a stage (init, update or draw), handlers run in the order their scripts are loaded.
 -- The update stage gets a per-frame table (frame): dt, then what earlier handlers publish for the later ones,
 -- cycle (timecycle values), light_left, cloud_grey, wind_dir, sun, moon, axis, angle, day_weight, key_dir, sun_energy,
--- night_energy, flash, camera_pos, daylight, precip_r / g / b and wind_x / z.
+-- night_energy, key_color, dust_ambient, flash, camera_pos, daylight, precip_r / g / b and wind_x / z.
 function Sky.on(stage, fn)
     Sky.stage[stage] = Sky.stage[stage] or {}
     Sky.stage[stage][#Sky.stage[stage] + 1] = fn

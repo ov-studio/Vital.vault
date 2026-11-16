@@ -24,9 +24,9 @@ Config.lightning_intensity   = 1.0            -- strength of thunderstorm flashe
 --   coverage, density, type   cloud cover / thickness / shape (0 flat stratus .. 1 puffy cumulus)
 --   dark    0..1   storm darkness (dims sun, light, stars)        desat 0..1  greys the sky out
 --   haze    0..2   horizon haze, redder low sun, fades far clouds
---   rain / snow 0..1   precipitation overlay intensity (world-space particles: rain_fall.gdshader / snow_fall.gdshader)
+--   rain / snow / sand 0..1   precipitation intensity (world-space particles: rain_fall / snow_fall / sand_fall .gdshader)
 --   fog     0..1   scene fog (gfx.fog), scaled by Config.fog_density_max
---   wind    x      multiplier on cloud wind + rain slant / snow drift
+--   wind    x      multiplier on cloud wind + rain slant / snow drift / sand speed
 --   lightning 0..1 thunder flashes (rate and strength)
 --   tint = {r,g,b} multiplies the whole sky colour (sand / smog)
 Config.weather = {
@@ -42,6 +42,6 @@ Config.weather = {
     snow      = { coverage = 0.58, density = 0.0070, type = 0.25, dark = 0.30, desat = 0.85, haze = 0.55, snow = 0.55, fog = 0.18, wind = 0.6, tint = { 0.96, 0.98, 1.05 } },
     blizzard  = { coverage = 0.72, density = 0.0100, type = 0.20, dark = 0.55, desat = 0.90, haze = 0.90, snow = 1.00, fog = 0.55, wind = 2.8, tint = { 0.92, 0.96, 1.05 } },
     fog       = { coverage = 0.30, density = 0.0040, type = 0.30, dark = 0.12, desat = 0.85, haze = 1.60, fog = 1.00, wind = 0.4 },
-    sandstorm = { coverage = 0.20, density = 0.0040, type = 0.40, dark = 0.30, desat = 0.20, haze = 2.00, fog = 0.70, wind = 3.0, tint = { 1.00, 0.72, 0.42 } },
+    sandstorm = { coverage = 0.20, density = 0.0040, type = 0.40, dark = 0.30, desat = 0.20, haze = 2.00, sand = 1.00, fog = 0.70, wind = 3.0, tint = { 1.00, 0.72, 0.42 } },
     smog      = { coverage = 0.18, density = 0.0040, type = 0.60, dark = 0.18, desat = 0.50, haze = 1.50, fog = 0.30, wind = 0.3, tint = { 0.93, 0.85, 0.62 } }
 }

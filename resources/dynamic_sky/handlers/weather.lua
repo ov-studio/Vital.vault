@@ -60,6 +60,7 @@ Sky.on("update", function(frame)
     local goal = { 
         rain = 0.0, 
         snow = 0.0, 
+        sand = 0.0, 
         fog = 0.0, 
         wind = 1.0, 
         lightning = 0.0, 
@@ -72,7 +73,7 @@ Sky.on("update", function(frame)
     for key, v in pairs(preset) do if key ~= "tint" then goal[key] = v end end
     -- every key blends, so a key a preset does not mention returns to its neutral value
     for key, v in pairs(goal) do state.base[key] = lerp(state.base[key], v, blend) end
-    -- effective values = blended preset + manual intensity (sky_rain / sky_snow / sky_fog / sky_lightning set the level
+    -- effective values = blended preset + manual intensity (sky_rain / sky_snow / sky_sand / sky_fog / sky_lightning set the level
     -- reached WHILE the weather has that phenomenon, so clear weather still stops it; sky_wind is a multiplier)
     for key, v in pairs(state.base) do state.cur[key] = v end
     for key, v in pairs(state.over) do
@@ -96,7 +97,7 @@ end)
 -----------------
 
 -- Public API surface exposed to other resources: set each weather intensity (set_rain, set_snow,
--- set_fog, set_lightning, set_wind) and the wind direction.
+-- set_sand, set_fog, set_lightning, set_wind) and the wind direction.
 for _, o in ipairs(overrides) do
     util.export.register("set_" .. o.key, function(v)
         state.over[o.key] = tonumber(v) and clamp(tonumber(v), o.lo, o.hi) or nil
@@ -110,15 +111,16 @@ util.export.register("set_wind_dir", private.set_wind_dir)
 ------------------
 
 -- Overrides one weather intensity, auto returns to the preset
--- rain, snow, fog, lightning: 0..1 level reached while the weather has it (clear weather still has none), wind: multiplier, 1 = preset
--- Usage: /sky_rain | /sky_snow | /sky_fog | /sky_lightning <0-1|auto>, /sky_wind <0-6|auto>
+-- rain, snow, sand, fog, lightning: 0..1 level reached while the weather has it (clear weather still has none), wind: multiplier, 1 = preset
+-- Usage: /sky_rain | /sky_snow | /sky_sand | /sky_fog | /sky_lightning <0-1|auto>, /sky_wind <0-6|auto>
 private.make_override("sky_rain", "rain", 0, 1)
 private.make_override("sky_snow", "snow", 0, 1)
+private.make_override("sky_sand", "sand", 0, 1)
 private.make_override("sky_fog", "fog", 0, 1)
 private.make_override("sky_lightning", "lightning", 0, 1)
 private.make_override("sky_wind", "wind", 0, 6)
 
--- Sets the direction the wind blows towards (0 = +Z, 90 = +X, 180 = -Z, 270 = -X), rain, snow and clouds follow
+-- Sets the direction the wind blows towards (0 = +Z, 90 = +X, 180 = -Z, 270 = -X), rain, snow, sand and clouds follow
 -- Usage: /sky_winddir <deg>
 util.input.register("sky_winddir", function(args)
     local deg = tonumber(args[1])

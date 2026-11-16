@@ -14,7 +14,7 @@
 
 -- Fields that start out unset (nil): shader, light, cshader, moon_phase_manual (nil = automatic phase),
 -- cover_manual (nil = snow cover follows the weather), fog_on (unknown until the first frame, so the level's own fog
--- is switched off when the weather has none), gpu_on / snow_on (set once the particles exist).
+-- is switched off when the weather has none), dust_ground (smoothed ground height under the camera), gpu_on / snow_on / sand_on (set once the particles exist).
 Sky.state = {
     time     = Config.start_time,
     day      = 0,
@@ -29,6 +29,7 @@ Sky.state = {
                   haze = 0.0,
                   rain = 0.0, 
                   snow = 0.0, 
+                  sand = 0.0, 
                   fog = 0.0, 
                   wind = 1.0, 
                   lightning = 0.0, 
@@ -36,7 +37,7 @@ Sky.state = {
                   tg = 1.0, 
                   tb = 1.0 
                },               -- blended weather
-    over     = {},              -- manual weather overrides: rain, snow, wind, fog, lightning
+    over     = {},              -- manual weather overrides: rain, snow, sand, wind, fog, lightning
     wdir     = util.table.clone(Config.wind_dir),    -- smoothed wind direction {x, z}
     wdir_t   = util.table.clone(Config.wind_dir),    -- wind direction target
     wind     = { 0, 0, 0 },     -- accumulated wind offset of the clouds
