@@ -149,7 +149,9 @@ vec4 sk_moon(vec3 d, float fw) {
 			float ls = max(mu0, 0.0) / (max(mu0, 0.0) + mu) * 2.0 * smoothstep(0.0, 0.07, mu0);
 			vec3 earthshine = vec3(0.50, 0.60, 0.95) * 0.022;
 			colr = moon_color * moon_intensity * surf * (ls + earthshine);
-			alpha = clamp((1.0 - sqrt(rr)) * sm / max(fw, 1e-6) + 0.5, 0.0, 1.0);
+			float soft = max(0.001, 2.0 * fw / sm);                       // soft limb: the edge fades over ~9% of the radius, never a hard cut
+			alpha = smoothstep(0.0, soft, 1.0 - sqrt(rr));
+			colr *= 0.95 + 0.05 * sqrt(lz);                              // faint limb darkening
 		}
 	}
 	return vec4(colr, alpha);
