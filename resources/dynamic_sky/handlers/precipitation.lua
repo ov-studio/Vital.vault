@@ -21,17 +21,19 @@ local lerp, clamp = util.math.lerp, util.math.clamp
 --[[ Utils ]]--
 ---------------
 
--- Shared by rain, snow and sand: the emitter shows more or fewer particles in 8 steps (changing the amount restarts
--- the pool, so only step changes do it) and the shader's density smooths between the steps. Returns the density for
--- the shader, or nil (emitter hidden) when there is none. state[key] remembers the current step.
-function Sky.level(emitter, key, full, intensity, active)
+-- Shared by rain, snow and sand: the emitter shows more or fewer particles in 8 steps and the shader's density smooths
+-- between the steps. Changing the amount restarts the pool (the particles vanish for a moment), so the pool is sized for
+-- the weather the blend is heading to (target) right at the start and only ever grows while it is visible, which makes
+-- one restart instead of one per step. Returns the density for the shader, or nil (emitter hidden) when there is none.
+-- state[key] remembers the current step.
+function Sky.level(emitter, key, full, intensity, target, active)
     local steps = 8.0
-    local level = active and min(steps, floor(intensity * steps) + 1) or 0
-    if level <= 0 then
+    if not active then
         if state[key] ~= 0 then state[key] = 0; emitter:set_visible(false); emitter:stop() end  -- a hidden emitter must not keep simulating
         return nil
     end
-    
+
+    local level = max(state[key], min(steps, floor(max(intensity, target) * steps) + 1))
     if state[key] ~= level then
         state[key] = level
         emitter:set_amount(max(40, floor(full * level / steps)))

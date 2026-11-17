@@ -81,6 +81,12 @@ Sky.on("update", function(frame)
         else state.cur[key] = v * clamp(state.base[key] / 0.3, 0.0, 1.0) end
     end
     
+    for key, v in pairs(goal) do state.target[key] = v end
+    for key, v in pairs(state.over) do
+        if key == "wind" then state.target.wind = goal.wind * v
+        else state.target[key] = v * clamp(goal[key] / 0.3, 0.0, 1.0) end
+    end
+
     -- wind / cloud evolution accumulate (changing the speed never makes clouds jump)
     local dir_blend = clamp(frame.dt * 0.6, 0, 1)
     state.wdir[1] = lerp(state.wdir[1], state.wdir_t[1], dir_blend)

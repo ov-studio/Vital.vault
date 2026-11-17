@@ -68,11 +68,19 @@ Sky.state = {
     -- surface weather
     cover    = 0.0,
     wet      = 0.0,
-    cover_on = false
+    cover_on = false,
+
+    -- particle pool step of rain, snow and sand (0 = hidden), see Sky.level
+    gpu_lvl  = 0,
+    snow_lvl = 0,
+    sand_lvl = 0
 }
 
 -- blended preset values before the manual multipliers (see over), starts as a copy of the blended weather
 Sky.state.base = util.table.clone(Sky.state.cur)
+
+-- where the blend is heading (the preset plus the manual multipliers), the particle emitters size their pool for it
+Sky.state.target = util.table.clone(Sky.state.cur)
 
 -- ripple buffer constants, ripple_ring.gdshader and snow_cover.gdshader use the same depth range
 Sky.ripple = { life = 1.2, radius = 0.35, depth = 64.0 }

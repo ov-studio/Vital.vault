@@ -149,7 +149,8 @@ Sky.on("update", function(frame)
         local snow_fade = (state.cur.snow > 0.2) and (1.0 - clamp(state.cur.snow, 0.0, 1.0)) or 1.0
         local rain_level = clamp(state.cur.rain * snow_fade, 0.0, 1.0)
         local drops = state.rain_emitter
-        local density = Sky.level(drops, "gpu_lvl", state.gpu_full, rain_level, state.precip and frame.camera_pos ~= nil and rain_level > 0.02)
+        local snow_goal = (state.target.snow > 0.2) and (1.0 - clamp(state.target.snow, 0.0, 1.0)) or 1.0
+        local density = Sky.level(drops, "gpu_lvl", state.gpu_full, rain_level, clamp(state.target.rain * snow_goal, 0.0, 1.0), state.precip and frame.camera_pos ~= nil and rain_level > 0.02)
         if density then
             local fall_x, fall_y, fall_z = frame.wind_x * (0.75 + 0.5 * state.cur.rain), -(8.5 + 9.5 * state.cur.rain ^ 0.9), frame.wind_z * (0.75 + 0.5 * state.cur.rain)
             local speed = sqrt(fall_x * fall_x + fall_y * fall_y + fall_z * fall_z)
@@ -172,7 +173,7 @@ Sky.on("update", function(frame)
 
     -- no rain for a moment (the last rings have faded): drop the ripple buffer
     if state.rip_hook and state.rrt then
-        state.rrt_idle = (state.gpu_lvl or 0) > 0 and 0.0 or (state.rrt_idle or 0.0) + frame.dt
+        state.rrt_idle = state.gpu_lvl > 0 and 0.0 or (state.rrt_idle or 0.0) + frame.dt
         if state.rrt_idle > RIP.life + 1.0 then private.buffer_free() end
     end
 end)

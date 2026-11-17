@@ -54,7 +54,7 @@ Sky.on("update", function(frame)
     if not state.sand_on then return end
 
     local emitter, shader = state.sand_emitter, state.sand_shader
-    local density = Sky.level(emitter, "sand_lvl", state.sand_full, state.cur.sand, state.precip and frame.camera_pos ~= nil and state.cur.sand > 0.02)
+    local density = Sky.level(emitter, "sand_lvl", state.sand_full, state.cur.sand, state.target.sand, state.precip and frame.camera_pos ~= nil and state.cur.sand > 0.02)
     if not density then return end
 
     local blow_x, blow_y, blow_z = frame.wind_x * Config.sand_speed, -Config.sand_fall, frame.wind_z * Config.sand_speed

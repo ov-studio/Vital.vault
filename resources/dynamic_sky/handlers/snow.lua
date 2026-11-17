@@ -53,7 +53,7 @@ Sky.on("update", function(frame)
     if not state.snow_on then return end
 
     local emitter, shader = state.snow_emitter, state.snow_shader
-    local density = Sky.level(emitter, "snow_lvl", state.snow_full, state.cur.snow, state.precip and frame.camera_pos ~= nil and state.cur.snow > 0.02)
+    local density = Sky.level(emitter, "snow_lvl", state.snow_full, state.cur.snow, state.target.snow, state.precip and frame.camera_pos ~= nil and state.cur.snow > 0.02)
     if not density then return end
 
     local fall_x, fall_y, fall_z = frame.wind_x * 0.85, -(0.9 + 0.7 * state.cur.snow), frame.wind_z * 0.85
