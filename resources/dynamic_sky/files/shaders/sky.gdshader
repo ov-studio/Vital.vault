@@ -331,7 +331,7 @@ void fragment() {
 			cl.a = min(cl.a, 1.0);
 		}
 		vec4 sun = sk_sun_disc(d, fw, TIME);
-		float sun_t = 1.0 - cl.a * fade;
+		float sun_t = 1.0 - cl.a * smoothstep(0.0, 0.02, d.y);      // occlusion uses the real cloud alpha, not the wide horizon fade, so a low sun behind cloud stays hidden
 		col = mix(col, sun.rgb, sun.a * sun_t * sun_t);      // clouds in front hide the disc, it fades into the glow behind it instead of going dark
 		if (has_clouds) {
 			col = col * (1.0 - cl.a * fade) + cl.rgb * fade;
@@ -343,7 +343,7 @@ void fragment() {
 			float sun_vis = smoothstep(-0.02, 0.05, sun_dir.y) * (sun_intensity / 25.0);
 			if (sun_vis > 0.001) {
 				float rs2 = max(acos(clamp(dot(d, sun_dir), 0.0, 1.0)) / sk_sun_size_eff(), 1.0);
-				col += sun_phys * cl.a * fade * sun_vis * 0.16 * exp(-(rs2 - 1.0) * 0.10);
+				col += sun_phys * cl.a * smoothstep(0.0, 0.03, d.y) * sun_vis * 0.16 * exp(-(rs2 - 1.0) * 0.10);
 			}
 		}
 

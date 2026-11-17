@@ -184,7 +184,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 		vec3 q = vec3(p.x + cam.x, pl - PLANET_R, p.z + cam.z);
 		float far_lod = tm > 22000.0 ? 1.0 : 0.0;          // distant steps use the cheap density
 		float dn = sk_cloud_density(q, hf, far_lod);
-		dn *= 1.0 - 0.85 * smoothstep(8000.0, 50000.0, tm);   // sparser with distance, no solid wall at the horizon
+		dn *= 1.0 - 0.65 * smoothstep(14000.0, 50000.0, tm);   // sparser with distance, no solid wall at the horizon
 		if (dn <= 0.002) {
 			continue;
 		}
@@ -249,7 +249,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 	float a = (1.0 - T);
 	L = mix(L, horizon_color * a, haze * 0.85);
 	// thin out toward the horizon
-	float far_fade = 1.0 - 0.9 * smoothstep(8000.0, 60000.0, t0);
+	float far_fade = 1.0 - 0.8 * smoothstep(12000.0, 60000.0, t0);
 	// soft knee on the radiance: caps sun-facing clouds near 1.1 so they keep shape instead of clipping to flat white
 	float m = max(L.r, max(L.g, L.b));
 	float x = max(m - 0.7, 0.0);
