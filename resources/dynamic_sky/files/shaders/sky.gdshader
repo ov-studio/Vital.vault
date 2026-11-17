@@ -44,6 +44,7 @@ uniform float cloud_coverage   = 0.40;                   // 0..1
 uniform float cloud_sharp      = 0.5;                    // sharpening of the cloud edges, 0 = off
 uniform vec3  ray_color        = vec3(1.0, 0.86, 0.62);  // sunlight colour
 uniform float ray_strength     = 0.0;     // 0 = off
+uniform float moon_ray_strength = 0.0;    // same for the moon shafts through the clouds, 0 = off
 uniform float ray_length       = 0.95;    // share of the way to the sun that is marched
 uniform float ray_decay        = 0.97;
 uniform float ray_spread       = 1.1;     // falloff with distance from the sun
@@ -319,7 +320,6 @@ void fragment() {
 			col += sk_stars(d, fw, TIME) * star_visibility * above * moon_wash;
 		}
 		vec4 moon = sk_moon(d, fw);
-		col = mix(col, moon.rgb, moon.a * smoothstep(-0.01, 0.03, d.y));
 		bool has_clouds = d.y > 0.012 && cloud_coverage > 0.01;
 		float fade = smoothstep(0.0, 0.20, d.y);      // wide fade so the far cloud layer melts into the horizon instead of ending on a line
 		vec4 cl = vec4(0.0);
@@ -333,6 +333,8 @@ void fragment() {
 		vec4 sun = sk_sun_disc(d, fw, TIME);
 		float sun_t = 1.0 - cl.a * smoothstep(0.0, 0.02, d.y);      // occlusion uses the real cloud alpha, not the wide horizon fade, so a low sun behind cloud stays hidden
 		col = mix(col, sun.rgb, sun.a * sun_t * sun_t);      // clouds in front hide the disc, it fades into the glow behind it instead of going dark
+		float moon_t = 1.0 - cl.a * smoothstep(0.0, 0.02, d.y);
+		col = mix(col, moon.rgb, moon.a * smoothstep(-0.01, 0.03, d.y) * moon_t * moon_t);     // clouds hide the moon like the sun, it fades into the glow behind it
 		if (has_clouds) {
 			col = col * (1.0 - cl.a * fade) + cl.rgb * fade;
 			if (ray_strength > 0.001) {
@@ -344,6 +346,17 @@ void fragment() {
 			if (sun_vis > 0.001) {
 				float rs2 = max(acos(clamp(dot(d, sun_dir), 0.0, 1.0)) / sk_sun_size_eff(), 1.0);
 				col += sun_phys * cl.a * smoothstep(0.0, 0.03, d.y) * sun_vis * 0.16 * exp(-(rs2 - 1.0) * 0.10);
+			}
+			// the same for the moon: glow through the cloud that covers it and soft shafts through the gaps
+			float moon_light = moon_intensity * (0.2 + clamp(0.5 - 0.5 * dot(moon_dir, sun_dir), 0.0, 1.0));
+			float moon_vis = smoothstep(-0.02, 0.10, moon_dir.y) * (1.0 - smoothstep(-0.10, 0.10, sun_dir.y));
+			if (moon_vis > 0.001) {
+				float rm2 = max(acos(clamp(dot(d, moon_dir), 0.0, 1.0)) / moon_size, 1.0);
+				col += moon_color * cl.a * smoothstep(0.0, 0.03, d.y) * moon_vis * moon_light * 0.045 * exp(-(rm2 - 1.0) * 0.10);
+				if (moon_ray_strength > 0.001) {
+					float msh = sk_cloud_shafts(SCREEN_UV, FRAGCOORD.xy, normalize(moon_dir), VIEW_MATRIX, PROJECTION_MATRIX);
+					col += moon_color * msh * moon_ray_strength * moon_light * 0.12 * fade;
+				}
 			}
 		}
 

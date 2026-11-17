@@ -20,7 +20,7 @@ local clamp, smoothstep = util.math.clamp, util.math.smoothstep
 --[[ Handlers ]]--
 ------------------
 
--- strongest with a low sun and some haze, gone under heavy overcast, at night and in precipitation
+-- strongest with a low sun and some haze, gone under heavy overcast and in precipitation; the moon shafts only show at night
 Sky.on("update", function(frame)
     local low_sun = 1.0 - smoothstep(0.2, 0.8, frame.sun[2])  -- low sun = stronger shafts
     local sun_visible = smoothstep(-0.02, 0.10, frame.sun[2])
@@ -31,6 +31,9 @@ Sky.on("update", function(frame)
     state.shader:set_param("ray_color", { sun_rgb[1], sun_rgb[2] * 0.97, sun_rgb[3] * 0.85 })
     state.shader:set_param("ray_strength", clamp(strength, 0.0, 1.5))
     state.shader:set_param("ray_decay", 0.955 + 0.02 * low_sun)
+    local night = 1.0 - smoothstep(-0.10, 0.10, frame.sun[2])
+    local moon_strength = state.rays and Config.godray_strength * smoothstep(-0.02, 0.10, frame.moon[2]) * night * clear_sky * dry_air or 0.0
+    state.shader:set_param("moon_ray_strength", clamp(moon_strength, 0.0, 1.5))
 end)
 
 
