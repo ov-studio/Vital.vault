@@ -18,7 +18,7 @@ Config.cloud_thickness = 2500.0    -- metres: height of the cloud layer
 Config.cloud_scale     = 2600.0    -- bigger = larger puffs
 Config.cloud_detail    = 0.55      -- erosion, higher = more wispy/fluffy edges
 Config.cloud_rt_div    = 4         -- clouds are marched into a rendertarget this many times smaller than the screen; size = screen size / this (4 = a sixteenth of the pixels, 2 = a quarter)
-Config.cloud_sharp     = 0.5       -- sharpening of the cloud edges on screen (0 = off, higher = crisper, too high rings)
+Config.cloud_sharp     = 1         -- sharpening of the cloud edges on screen (0 = off, higher = crisper, too high rings)
 Config.cloud_blur      = true      -- two cheap blur passes on the small cloud rendertarget (hides noise and the low resolution)
 
 Config.qualities = {
