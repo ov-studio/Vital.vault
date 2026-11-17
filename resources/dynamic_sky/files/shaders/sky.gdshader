@@ -176,15 +176,15 @@ vec3 sk_sky(vec3 d) {
 	// wide haze plus a corona that follows sun_size
 	float sse = sk_sun_size_eff();
 	float rs = max(acos(cs) / sse, 1.0);
-	float corona = 0.50 * exp(-(rs - 1.0) * 0.30) + 0.28 * exp(-(rs - 1.0) * 0.065);
-	float glow = 0.30 * pow(cs, 4.0) + 0.55 * pow(cs, 24.0) + 0.80 * corona;
+	float corona = 0.50 * exp(-(rs - 1.0) * 0.30) + 0.10 * exp(-(rs - 1.0) * 0.08);
+	float glow = 0.10 * pow(cs, 4.0) + 0.40 * pow(cs, 32.0) + 0.80 * corona;
 	// pale core, saturating outward into the glow colour
 	vec3 hot = mix(sun_phys, vec3(1.0), 0.18);
 	vec3 gtint = glow_color / max(max(glow_color.r, glow_color.g), max(glow_color.b, 1e-3));
 	vec3 aur = mix(hot, gtint, clamp((rs - 1.0) * 0.16, 0.0, 1.0));
 	col += aur * glow_strength * glow * band;
 	float vis = smoothstep(-0.02, 0.05, sun_dir.y) * (sun_intensity / 25.0);
-	col += hot * (0.26 * exp(-(rs - 1.0) * 1.3) + 0.06 * exp(-(rs - 1.0) * 0.22)) * vis;
+	col += hot * (0.26 * exp(-(rs - 1.0) * 1.3) + 0.015 * exp(-(rs - 1.0) * 0.22)) * vis;
 
 	float cm = max(dot(d, moon_dir), 0.0);
 	float lit_frac = clamp(0.5 - 0.5 * dot(moon_dir, sun_dir), 0.0, 1.0);
@@ -259,6 +259,32 @@ float sk_rays(vec2 uv, vec2 frag, vec3 sd, mat4 vmat, mat4 pmat) {
 	return clamp((ray - 0.06) * 1.7, 0.0, 1.0);   // offset drops the faint veil over distant surfaces
 }
 
+// Crepuscular rays through the clouds: sky pixels look toward the sun on screen, the share of open sky on the way becomes a warm shaft
+float sk_cloud_shafts(vec2 uv, vec2 frag, vec3 sd, mat4 vmat, mat4 pmat) {
+	float aspect = pmat[1][1] / pmat[0][0];
+	vec4 c = pmat * (vmat * vec4(sd, 0.0));
+	if (c.w <= 0.0001) {
+		return 0.0;
+	}
+	vec2 su = c.xy / c.w * 0.5 + 0.5;
+	float edge = max(abs(su.x - 0.5), abs(su.y - 0.5)) * 2.0;
+	float vis = 1.0 - smoothstep(1.0, 2.2, edge);
+	if (vis <= 0.001) {
+		return 0.0;
+	}
+	float ign = fract(52.9829189 * fract(dot(frag, vec2(0.06711056, 0.00583715))));
+	vec2 step_uv = (su - uv) * 0.9;
+	float dist = length(vec2((su.x - uv.x) * aspect, su.y - uv.y));
+	float open = 0.0;
+	for (int i = 0; i < 12; i++) {
+		vec2 p = uv + step_uv * ((float(i) + ign) / 12.0);
+		open += 1.0 - clamp(textureLod(cloud_tex, p, 0.0).a, 0.0, 1.0);
+	}
+	open /= 12.0;
+	float partial = 4.0 * open * (1.0 - open);       // strongest where the path is half blocked
+	return partial * exp(-dist * 1.6) * vis;
+}
+
 void fragment() {
 	// derivatives are taken before any divergent branch
 	vec3 d = sk_view_ray(SCREEN_UV, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX);
@@ -284,17 +310,25 @@ void fragment() {
 		}
 		vec4 moon = sk_moon(d, fw);
 		col = mix(col, moon.rgb, moon.a * smoothstep(-0.01, 0.03, d.y));
-		vec4 sun = sk_sun_disc(d, fw, TIME);
-		col = mix(col, sun.rgb, sun.a);          // the disc replaces the glow behind it
-
-		if (d.y > 0.012 && cloud_coverage > 0.01) {
-			vec4 cl = textureLod(cloud_tex, SCREEN_UV, 0.0);
+		bool has_clouds = d.y > 0.012 && cloud_coverage > 0.01;
+		float fade = smoothstep(0.0, 0.09, d.y);
+		vec4 cl = vec4(0.0);
+		if (has_clouds) {
+			cl = textureLod(cloud_tex, SCREEN_UV, 0.0);
 			vec2 px = 1.5 / vec2(textureSize(cloud_tex, 0));          // unsharp mask, the cloud target is small and blurred
 			vec4 soft = (textureLod(cloud_tex, SCREEN_UV + vec2(px.x, 0.0), 0.0) + textureLod(cloud_tex, SCREEN_UV - vec2(px.x, 0.0), 0.0) + textureLod(cloud_tex, SCREEN_UV + vec2(0.0, px.y), 0.0) + textureLod(cloud_tex, SCREEN_UV - vec2(0.0, px.y), 0.0)) * 0.25;
 			cl = max(cl + (cl - soft) * cloud_sharp, vec4(0.0));
 			cl.a = min(cl.a, 1.0);
-			float fade = smoothstep(0.0, 0.09, d.y);
+		}
+		vec4 sun = sk_sun_disc(d, fw, TIME);
+		float sun_t = 1.0 - cl.a * fade;
+		col = mix(col, sun.rgb * sun_t * sun_t, sun.a);     // the disc replaces the glow behind it, clouds dim it hard so it never blooms through
+		if (has_clouds) {
 			col = col * (1.0 - cl.a * fade) + cl.rgb * fade;
+			if (ray_strength > 0.001) {
+				float sh = sk_cloud_shafts(SCREEN_UV, FRAGCOORD.xy, normalize(sun_dir), VIEW_MATRIX, PROJECTION_MATRIX);
+				col += ray_color * sh * ray_strength * 0.35 * fade;
+			}
 		}
 
 		col *= exposure;

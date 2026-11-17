@@ -158,8 +158,11 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 
 	float lss = cloud_thickness / 30.0;
 	float cos_t = dot(d, light_dir);
-	float phase = mix(sk_hg(cos_t, -0.25) * 0.55, sk_hg(cos_t, 0.55), 0.45) * 4.0 * PI_ * 0.5;
-	float silver = pow(max(cos_t, 0.0), 12.0) * 0.9;
+	// forward scattering is tamed (about 2x the side value, not 8x) so the sun side never clips to flat white;
+	// the bright rim comes from the silver lining on thin edges, thick cores stay dark
+	float phase_raw = mix(sk_hg(cos_t, -0.25) * 0.55, sk_hg(cos_t, 0.55), 0.45) * 4.0 * PI_ * 0.5;
+	float phase = 0.235 + 0.20 * (phase_raw - 0.235);
+	float silver = pow(max(cos_t, 0.0), 10.0) * 0.5;
 
 	vec3 L = vec3(0.0);
 	float T = 1.0;
@@ -167,6 +170,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 	bool light_on = dot(light_color, vec3(1.0)) > 0.03;      // no light march at night
 	float lit_c = 0.8;                                        // light of the last march, reused every second step
 	float beers_c = 0.8;
+	float toward_c = 0.0;                                     // density one step toward the light, for edge shading
 	int lcount = 0;
 
 	for (int i = 0; i < 160; i++) {
@@ -199,27 +203,39 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 					lp += (light_dir + RANDV[j] * float(j) * 0.55) * lss;
 					float lpl = length(lp);
 					float lhf = clamp((lpl - rb) / cloud_thickness, 0.0, 1.0);
-					cd += sk_cloud_density(vec3(lp.x + cam.x, lpl - PLANET_R, lp.z + cam.z), lhf, 1.0);
+					// the first sample keeps the fine erosion so the shading follows the small billows
+					float dj = sk_cloud_density(vec3(lp.x + cam.x, lpl - PLANET_R, lp.z + cam.z), lhf, j == 0 ? 0.0 : 1.0);
+					if (j == 0) {
+						toward_c = dj;
+					}
+					cd += dj;
 				}
 				// one far sample for long range self shadowing
 				vec3 fp = p + light_dir * lss * 9.0;
 				float fpl = length(fp);
 				float fhf = clamp((fpl - rb) / cloud_thickness, 0.0, 1.0);
 				cd += sk_cloud_density(vec3(fp.x + cam.x, fpl - PLANET_R, fp.z + cam.z), fhf, 1.0) * 2.0;
+				// second far sample: clouds further along the light ray also cast shadows
+				vec3 fp2 = p + light_dir * lss * 20.0;
+				float fpl2 = length(fp2);
+				float fhf2 = clamp((fpl2 - rb) / cloud_thickness, 0.0, 1.0);
+				cd += sk_cloud_density(vec3(fp2.x + cam.x, fpl2 - PLANET_R, fp2.z + cam.z), fhf2, 1.0) * 3.0;
 
-				float tau = cloud_density * cd * lss;
+				float tau = cloud_density * cd * lss * 1.35;
 				beers_c = exp(-tau);
-				float beers2 = exp(-tau * 0.25) * 0.7;
-				lit_c = max(beers_c, beers2);
+				lit_c = 0.8 * beers_c + 0.2 * exp(-tau * 0.25);   // direct light plus a little multiple scattering
 			}
 			lcount++;
 			beers = beers_c;
 			float powder = 1.0 - exp(-dn * 5.0);
 			lit = lit_c * mix(1.0, powder, 0.5);
+			// surfaces that face the light are denser than the step toward it: brighten them, darken the ones turned away
+			lit *= 1.0 + 0.6 * clamp((dn - toward_c) * 1.5, -0.4, 0.6);
 		}
 
 		vec3 sun_term = light_color * lit * (phase + silver * beers);
-		vec3 amb_term = mix(cloud_ambient_bottom, cloud_ambient_top, smoothstep(0.0, 1.0, hf));
+		vec3 amb_term = mix(cloud_ambient_bottom * 0.65, cloud_ambient_top, smoothstep(0.0, 1.0, hf));
+		amb_term *= 1.0 - 0.3 * (1.0 - clamp(lit_c, 0.0, 1.0));      // cores shadowed by the clouds around them also get less sky light
 
 		float sigma = cloud_density * dn;
 		float step_t = exp(-sigma * dt);
@@ -234,6 +250,10 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 	L = mix(L, horizon_color * a, haze * 0.85);
 	// thin out toward the horizon
 	float far_fade = 1.0 - 0.8 * smoothstep(12000.0, 60000.0, t0);
+	// soft knee on the radiance: caps sun-facing clouds near 1.1 so they keep shape instead of clipping to flat white
+	float m = max(L.r, max(L.g, L.b));
+	float x = max(m - 0.7, 0.0);
+	L *= (m - x + 0.4 * x / (x + 0.4)) / max(m, 0.0001);
 	return vec4(L * far_fade, a * far_fade);
 }
 

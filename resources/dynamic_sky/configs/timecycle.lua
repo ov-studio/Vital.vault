@@ -151,16 +151,35 @@ Config.timecycle = {
         hour = 7.8,
         template = {
             -- morning
-            zenith         = {0.060, 0.200, 0.600},
-            horizon        = {0.610, 0.690, 0.780},
-            ground         = {0.150, 0.145, 0.135},
-            glow           = {1.000, 0.780, 0.450},
+            zenith         = {0.075, 0.215, 0.590},
+            horizon        = {0.700, 0.720, 0.760},
+            ground         = {0.150, 0.140, 0.125},
+            glow           = {1.000, 0.760, 0.420},
             glow_strength  = 0.40,
-            sun_color      = {1.000, 0.860, 0.660},
-            light          = {1.000, 0.840, 0.640},
-            light_energy   = 1.5,
-            ambient_top    = {0.400, 0.540, 0.830},
-            ambient_bottom = {0.360, 0.335, 0.300},
+            sun_color      = {1.000, 0.830, 0.600},
+            light          = {1.000, 0.800, 0.580},
+            light_energy   = 1.4,
+            ambient_top    = {0.420, 0.540, 0.810},
+            ambient_bottom = {0.380, 0.340, 0.290},
+            stars          = 0.0,
+            exposure       = 1.0
+        }
+    },
+
+    {
+        hour = 9.5,
+        template = {
+            -- late morning
+            zenith         = {0.055, 0.195, 0.610},
+            horizon        = {0.620, 0.720, 0.830},
+            ground         = {0.155, 0.150, 0.140},
+            glow           = {1.000, 0.840, 0.580},
+            glow_strength  = 0.32,
+            sun_color      = {1.000, 0.910, 0.760},
+            light          = {1.000, 0.890, 0.730},
+            light_energy   = 1.8,
+            ambient_top    = {0.330, 0.490, 0.830},
+            ambient_bottom = {0.370, 0.345, 0.310},
             stars          = 0.0,
             exposure       = 1.0
         }
@@ -170,16 +189,35 @@ Config.timecycle = {
         hour = 12.0,
         template = {
             -- noon
-            zenith         = {0.050, 0.190, 0.640},
-            horizon        = {0.600, 0.730, 0.870},
-            ground         = {0.160, 0.155, 0.145},
-            glow           = {1.000, 0.880, 0.640},
-            glow_strength  = 0.30,
-            sun_color      = {1.000, 0.930, 0.800},
-            light          = {1.000, 0.915, 0.790},
+            zenith         = {0.035, 0.150, 0.600},
+            horizon        = {0.520, 0.680, 0.860},
+            ground         = {0.160, 0.158, 0.150},
+            glow           = {1.000, 0.900, 0.700},
+            glow_strength  = 0.22,
+            sun_color      = {1.000, 0.960, 0.880},
+            light          = {1.000, 0.960, 0.900},
+            light_energy   = 2.2,
+            ambient_top    = {0.290, 0.470, 0.840},
+            ambient_bottom = {0.360, 0.350, 0.330},
+            stars          = 0.0,
+            exposure       = 1.0
+        }
+    },
+
+    {
+        hour = 14.2,
+        template = {
+            -- early afternoon
+            zenith         = {0.045, 0.170, 0.590},
+            horizon        = {0.580, 0.700, 0.840},
+            ground         = {0.155, 0.148, 0.135},
+            glow           = {1.000, 0.850, 0.600},
+            glow_strength  = 0.28,
+            sun_color      = {1.000, 0.920, 0.780},
+            light          = {1.000, 0.900, 0.760},
             light_energy   = 2.0,
-            ambient_top    = {0.310, 0.480, 0.820},
-            ambient_bottom = {0.370, 0.350, 0.315},
+            ambient_top    = {0.310, 0.480, 0.830},
+            ambient_bottom = {0.370, 0.340, 0.300},
             stars          = 0.0,
             exposure       = 1.0
         }
@@ -189,16 +227,16 @@ Config.timecycle = {
         hour = 16.2,
         template = {
             -- afternoon
-            zenith         = {0.055, 0.195, 0.610},
-            horizon        = {0.620, 0.700, 0.790},
-            ground         = {0.150, 0.140, 0.125},
-            glow           = {1.000, 0.790, 0.450},
-            glow_strength  = 0.38,
-            sun_color      = {1.000, 0.880, 0.650},
-            light          = {1.000, 0.850, 0.620},
-            light_energy   = 1.7,
-            ambient_top    = {0.350, 0.490, 0.810},
-            ambient_bottom = {0.350, 0.320, 0.280},
+            zenith         = {0.065, 0.185, 0.560},
+            horizon        = {0.700, 0.680, 0.700},
+            ground         = {0.150, 0.135, 0.115},
+            glow           = {1.000, 0.760, 0.400},
+            glow_strength  = 0.45,
+            sun_color      = {1.000, 0.840, 0.600},
+            light          = {1.000, 0.800, 0.540},
+            light_energy   = 1.5,
+            ambient_top    = {0.380, 0.480, 0.780},
+            ambient_bottom = {0.380, 0.320, 0.260},
             stars          = 0.0,
             exposure       = 1.0
         }
