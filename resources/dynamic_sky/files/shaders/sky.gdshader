@@ -321,7 +321,7 @@ void fragment() {
 		vec4 moon = sk_moon(d, fw);
 		col = mix(col, moon.rgb, moon.a * smoothstep(-0.01, 0.03, d.y));
 		bool has_clouds = d.y > 0.012 && cloud_coverage > 0.01;
-		float fade = smoothstep(0.0, 0.09, d.y);
+		float fade = smoothstep(0.0, 0.20, d.y);      // wide fade so the far cloud layer melts into the horizon instead of ending on a line
 		vec4 cl = vec4(0.0);
 		if (has_clouds) {
 			cl = textureLod(cloud_tex, SCREEN_UV, 0.0);
