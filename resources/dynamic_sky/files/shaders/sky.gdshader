@@ -242,12 +242,16 @@ float sk_rays(vec2 uv, vec2 frag, vec3 sd, mat4 vmat, mat4 pmat) {
 	float acc = 0.0;
 	float wsum = 0.0;
 	float w = 1.0;
+	bool use_clouds = cloud_coverage > 0.01;
 	for (int i = 0; i < 24; i++) {
 		float t = (float(i) + ign) / 24.0;
 		vec2 p = uv + d * t;
 		float open = 0.6;
 		if (p.x > 0.0 && p.x < 1.0 && p.y > 0.0 && p.y < 1.0) {
 			open = step(texture(depth_tex, p).r, 0.00001);
+			if (use_clouds && open > 0.5) {
+				open *= 1.0 - clamp(textureLod(cloud_tex, p, 0.0).a * 1.4, 0.0, 1.0);   // sky behind a cloud lets no sunlight through
+			}
 		}
 		float pd = length(vec2((su.x - p.x) * aspect, su.y - p.y));
 		acc += open * exp(-pd * ray_spread) * w;
@@ -256,7 +260,12 @@ float sk_rays(vec2 uv, vec2 frag, vec3 sd, mat4 vmat, mat4 pmat) {
 	}
 	acc = acc / max(wsum, 0.0001);
 	float ray = acc * exp(-dist * 0.6) * vis;
-	return clamp((ray - 0.06) * 1.7, 0.0, 1.0);   // offset drops the faint veil over distant surfaces
+	float sun_open = 1.0;
+	if (use_clouds) {
+		float behind = clamp(textureLod(cloud_tex, clamp(su, 0.0, 1.0), 0.0).a * 1.3, 0.0, 1.0);
+		sun_open = mix(1.0, 0.2, behind * behind);                 // a hidden sun leaves only faint, soft rays
+	}
+	return clamp((ray * sun_open - 0.06) * 1.7, 0.0, 1.0);   // offset drops the faint veil over distant surfaces
 }
 
 // Crepuscular rays through the clouds: sky pixels look toward the sun on screen, the share of open sky on the way becomes a warm shaft
