@@ -282,7 +282,8 @@ float sk_cloud_shafts(vec2 uv, vec2 frag, vec3 sd, mat4 vmat, mat4 pmat) {
 	}
 	open /= 12.0;
 	float partial = 4.0 * open * (1.0 - open);       // strongest where the path is half blocked
-	return partial * exp(-dist * 1.6) * vis;
+	float behind = clamp(textureLod(cloud_tex, clamp(su, 0.0, 1.0), 0.0).a * 1.5, 0.0, 1.0);   // and when the sun itself sits behind a cloud
+	return partial * (0.4 + 0.6 * behind) * exp(-dist * 1.6) * vis;
 }
 
 void fragment() {
@@ -321,12 +322,19 @@ void fragment() {
 			cl.a = min(cl.a, 1.0);
 		}
 		vec4 sun = sk_sun_disc(d, fw, TIME);
-		col = mix(col, sun.rgb, sun.a);          // the disc replaces the glow behind it
+		float sun_t = 1.0 - cl.a * fade;
+		col = mix(col, sun.rgb, sun.a * sun_t * sun_t);      // clouds in front hide the disc, it fades into the glow behind it instead of going dark
 		if (has_clouds) {
 			col = col * (1.0 - cl.a * fade) + cl.rgb * fade;
 			if (ray_strength > 0.001) {
 				float sh = sk_cloud_shafts(SCREEN_UV, FRAGCOORD.xy, normalize(sun_dir), VIEW_MATRIX, PROJECTION_MATRIX);
-				col += ray_color * sh * ray_strength * 0.35 * fade;
+				col += ray_color * sh * ray_strength * 0.55 * fade;
+			}
+			// sunlight scattering through the cloud that covers the sun: a soft warm halo that follows the cloud thickness
+			float sun_vis = smoothstep(-0.02, 0.05, sun_dir.y) * (sun_intensity / 25.0);
+			if (sun_vis > 0.001) {
+				float rs2 = max(acos(clamp(dot(d, sun_dir), 0.0, 1.0)) / sk_sun_size_eff(), 1.0);
+				col += sun_phys * cl.a * fade * sun_vis * 0.16 * exp(-(rs2 - 1.0) * 0.10);
 			}
 		}
 
