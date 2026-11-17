@@ -321,8 +321,7 @@ void fragment() {
 			cl.a = min(cl.a, 1.0);
 		}
 		vec4 sun = sk_sun_disc(d, fw, TIME);
-		float sun_t = 1.0 - cl.a * fade;
-		col = mix(col, sun.rgb * sun_t * sun_t, sun.a);     // the disc replaces the glow behind it, clouds dim it hard so it never blooms through
+		col = mix(col, sun.rgb, sun.a);          // the disc replaces the glow behind it
 		if (has_clouds) {
 			col = col * (1.0 - cl.a * fade) + cl.rgb * fade;
 			if (ray_strength > 0.001) {
