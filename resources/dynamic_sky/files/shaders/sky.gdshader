@@ -307,7 +307,7 @@ vec3 sk_contrails(vec3 d, float fw) {
 			float age = tau - (a + reach) / sp;
 			if (abs(a) < reach && age > 0.0 && age < life) {
 				float wobble = 0.75 + 0.5 * sk_vn(vec2(a / 1100.0, seed));                // swells and narrows along the trail
-				float nat = (3.0 + 2.2 * age + 0.006 * age * age) * wobble * (1.0 - 0.6 * smoothstep(0.4 * life, life, age));   // thin at the plane, spreads with age, tapers at the old end
+				float nat = (2.0 + 1.4 * age + 0.004 * age * age) * wobble * (1.0 - 0.6 * smoothstep(0.4 * life, life, age));   // thin at the plane, spreads with age, tapers at the old end
 				float width = max(nat, fw * h / (d.y * d.y) * 1.5);   // at least about a pixel wide (fw is per 2x2 quad, so it only widens the profile, never the noise)
 				float base = exp(-2.0 * c * c / (width * width));
 				// billows: noise scales with the trail width; the trail fades with age instead of breaking into fragments
@@ -316,8 +316,9 @@ vec3 sk_contrails(vec3 d, float fw) {
 				float calm = smoothstep(0.2 * life, 0.65 * life, age);   // the old end loses its noise
 				float n = mix(0.8 * sk_vn(pn) + 0.2 * sk_vn(pn * 2.0 + 7.0), 0.5, calm);
 				float dens = smoothstep(0.0, 1.2, age) * (1.0 - smoothstep(0.3 * life, life, age) * smoothstep(0.3 * life, life, age));
-				float field = base * (0.55 + 0.75 * n);
-				float trail = smoothstep(0.04, 0.95, field) * dens * smoothstep(0.02, 0.10, d.y);
+				float field = base * (0.85 + 0.30 * n);   // the noise only modulates the density a little, a strong one broke the trail into dashes
+				float ends = 1.0 - smoothstep(0.8 * reach, reach, abs(a));   // the track ends fade out instead of being cut
+				float trail = smoothstep(0.04, 0.95, field) * dens * ends * smoothstep(0.02, 0.10, d.y);
 				if (trail > 0.001) {
 					// sun-facing side brighter, far side shaded blue-grey
 					vec2 sd = normalize(vec2(dot(sun_dir.xz, u), dot(sun_dir.xz, w)) + 0.0001);
@@ -326,7 +327,7 @@ vec3 sk_contrails(vec3 d, float fw) {
 					if (trail > best) {
 						best = trail;
 						float side = clamp(c / width, -1.0, 1.0) * sd.y;   // flank facing the sun
-					res.z = clamp(0.70 + 0.9 * (n - nt) + 0.45 * (base - 0.35) + 0.35 * side, 0.45, 1.15);   // billows plus a brighter core: reads as a rounded tube
+						res.z = clamp(0.70 + 0.7 * (n - nt) + 0.45 * (base - 0.35) + 0.35 * side, 0.45, 1.15);   // billows plus a brighter core: reads as a rounded tube
 					}
 				}
 				res.x = 1.0 - (1.0 - res.x) * (1.0 - trail * 0.9 * strength);
@@ -337,7 +338,7 @@ vec3 sk_contrails(vec3 d, float fw) {
 				float cd = dot(d, hd);
 				float ang = cd > 0.9995 ? acos(min(cd, 1.0)) : 1.0;
 				float blink = mix(1.0, 0.25 + 1.5 * step(0.9, fract(contrail_time * 0.8 + sk_h11(seed0 + 5.0))), 1.0 - smoothstep(-0.2, 0.0, sun_dir.y));   // night: each aircraft strobes on its own beat
-				res.y = max(res.y, (1.0 - smoothstep(0.0, max(0.0014, fw * 1.6), ang)) * smoothstep(0.02, 0.10, hd.y) * blink);
+				res.y = max(res.y, (1.0 - smoothstep(0.0, max(0.0014, fw * 1.6), ang)) * smoothstep(0.02, 0.10, hd.y) * blink * (1.0 - smoothstep(0.8 * reach, reach, abs(head))));
 			}
 		}
 	}
