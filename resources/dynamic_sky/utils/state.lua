@@ -59,11 +59,15 @@ Sky.state = {
     -- toggles
     glow      = Config.use_engine_glow,
     rays      = Config.use_godrays,
+    contrails = Config.use_contrails,
     precip    = Config.use_precipitation,
     splash_on = Config.use_splash,
 
     -- precipitation
     flt      = 0.0,
+
+    -- contrails
+    contrail_amt = 0.0,
 
     -- surface weather
     cover    = 0.0,
