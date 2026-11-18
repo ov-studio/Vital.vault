@@ -5,6 +5,13 @@ shader_type spatial;
 render_mode unshaded, cull_disabled, depth_test_disabled, depth_draw_never, fog_disabled;
 
 
+//////////////
+// Imports //
+//////////////
+
+#include "files/shaders/helper.gdshader"
+
+
 ///////////////
 // Uniforms //
 ///////////////
@@ -33,8 +40,6 @@ uniform vec3  light_dir      = vec3(0.0, 1.0, 0.0);   // direction TO the key li
 //////////////
 // Helpers //
 //////////////
-
-#include "files/shaders/helper.gdshader"
 
 const int STEPS = 8;
 
