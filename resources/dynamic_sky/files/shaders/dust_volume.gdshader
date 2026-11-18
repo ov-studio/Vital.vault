@@ -33,9 +33,10 @@ uniform vec3  light_color    = vec3(1.0, 0.9, 0.7);   // key light (sun or moon)
 uniform vec3  ambient_color  = vec3(0.45, 0.50, 0.60);
 uniform vec3  light_dir      = vec3(0.0, 1.0, 0.0);   // direction TO the key light
 
-// ============================================================================
-//  Helpers
-// ============================================================================
+
+//////////////
+// Helpers //
+//////////////
 
 const int STEPS = 6;
 

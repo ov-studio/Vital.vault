@@ -12,6 +12,7 @@ render_mode blend_disabled;
 uniform sampler2D src : filter_linear, repeat_disable;
 uniform vec2  step_uv = vec2(0.0, 0.0);           // one texel along the blur direction (Lua)
 
+
 // ============================================================================
 //  Main
 // ============================================================================

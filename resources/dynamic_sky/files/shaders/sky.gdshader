@@ -53,9 +53,10 @@ uniform float ray_length       = 0.95;    // share of the way to the sun that is
 uniform float ray_decay        = 0.97;
 uniform float ray_spread       = 1.1;     // falloff with distance from the sun
 
-// ============================================================================
-//  Helpers
-// ============================================================================
+
+//////////////
+// Helpers //
+//////////////
 
 float sk_hash13(vec3 p3) {
 	p3 = fract(p3 * 0.1031);

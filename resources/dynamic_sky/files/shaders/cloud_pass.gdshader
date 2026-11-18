@@ -48,9 +48,10 @@ uniform float haze_density      = 0.000012;
 const float PI_ = 3.14159265359;
 const float PLANET_R = 6000000.0;
 
-// ============================================================================
-//  Helpers
-// ============================================================================
+
+//////////////
+// Helpers //
+//////////////
 
 float sk_remap(float v, float a, float b, float c, float d) {
 	return c + ((v - a) / (b - a)) * (d - c);

@@ -47,9 +47,10 @@ uniform float ripple_scale = 1.7;                  // fallback ripple cells per 
 varying vec3 w_pos;
 varying vec3 w_nrm;
 
-// ============================================================================
-//  Helpers
-// ============================================================================
+
+//////////////
+// Helpers //
+//////////////
 
 float hash12(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * 0.1031);

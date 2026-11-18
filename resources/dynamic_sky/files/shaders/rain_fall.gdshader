@@ -28,9 +28,10 @@ varying vec2  v_s;     // x: across -1..1, y: along 0 (tail) .. 1 (head)
 varying float v_a;     // per-streak alpha
 varying vec2  v_side;  // streak width axis in view space, for the refraction offset
 
-// ============================================================================
-//  Helpers
-// ============================================================================
+
+//////////////
+// Helpers //
+//////////////
 
 uint pcg(uint v) {
 	uint s = v * 747796405u + 2891336453u;
