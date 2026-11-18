@@ -146,16 +146,19 @@ vec4 sk_moon(vec3 d, float fw) {
 			float lod = max(log2(1024.0 / pix_d), 0.0);
 			vec3 tx = pow(textureLod(moon_tex, uv, lod).rgb, vec3(2.2));
 			float l = dot(tx, vec3(0.2126, 0.7152, 0.0722));
-			vec3 surf = mix(vec3(l), tx, 0.55) * 2.6;
+			vec3 surf = pow(mix(vec3(l), tx, 0.55), vec3(1.12)) * 2.7;      // a little more contrast between the maria and the highlands
 			// Lommel-Seeliger style: flat-lit at full phase
 			float mu0 = dot(n, sun_dir);
 			float mu = max(lz, 0.02);
-			float ls = max(mu0, 0.0) / (max(mu0, 0.0) + mu) * 2.0 * smoothstep(0.0, 0.07, mu0);
+			float ls = max(mu0, 0.0) / (max(mu0, 0.0) + mu) * 2.0 * smoothstep(0.0, 0.16, mu0);   // wide, gentle terminator
 			vec3 earthshine = vec3(0.50, 0.60, 0.95) * 0.022;
-			colr = moon_color * moon_intensity * surf * (ls + earthshine);
+			vec3 tint = mix(moon_color, vec3(1.0, 0.82, 0.62), 0.45 * (1.0 - smoothstep(0.0, 0.35, moon_dir.y)));   // silver-blue, warmer near the horizon
+			vec3 light = tint * moon_intensity * surf * (ls + earthshine) * (0.95 + 0.05 * sqrt(lz));   // faint limb darkening
 			float soft = max(0.001, 2.0 * fw / sm);                       // soft limb: the edge fades over ~9% of the radius, never a hard cut
-			alpha = smoothstep(0.0, soft, 1.0 - sqrt(rr));
-			colr *= 0.95 + 0.05 * sqrt(lz);                              // faint limb darkening
+			// the unlit side fades into the sky instead of showing a black disc: the opacity follows the light, the faint earthshine stays
+			float limb = smoothstep(0.0, soft, 1.0 - sqrt(rr));
+			alpha = limb * max(smoothstep(0.0, 0.5, ls), 0.05);
+			colr = min(light * limb / max(alpha, 0.001), vec3(6.0));
 		}
 	}
 	return vec4(colr, alpha);
@@ -192,7 +195,7 @@ vec3 sk_sky(vec3 d) {
 	float cm = max(dot(d, moon_dir), 0.0);
 	float lit_frac = clamp(0.5 - 0.5 * dot(moon_dir, sun_dir), 0.0, 1.0);
 	float rm = max(acos(cm) / moon_size, 1.0);
-	col += moon_color * moon_intensity * (0.2 + lit_frac) * (0.03 * pow(cm, 40.0) + 0.04 * exp(-(rm - 1.0) * 0.35));
+	col += moon_color * moon_intensity * (0.2 + lit_frac) * (0.03 * pow(cm, 40.0) + 0.05 * exp(-(rm - 1.0) * 0.25));
 	return col;
 }
 
