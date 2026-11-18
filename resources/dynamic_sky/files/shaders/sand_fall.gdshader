@@ -1,12 +1,13 @@
-shader_type spatial;
-render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
-
 // Dynamic Sky: sand_fall.gdshader
 // Desc: wind-blown sand grains on real particles
 
-// ============================================================================
-//  Uniforms
-// ============================================================================
+shader_type spatial;
+render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
+
+
+///////////////
+// Uniforms //
+///////////////
 
 uniform vec3  fall_vel     = vec3(8.0, -0.5, 0.0);    // average velocity (m/s), sets the streak direction (Lua)
 uniform float spawn_half   = 26.0;                    // half size of the area around the camera, for the edge fade (m)

@@ -1,14 +1,15 @@
-shader_type spatial;
-render_mode blend_mix, depth_draw_never, cull_disabled, diffuse_burley, specular_schlick_ggx;
-
 // Dynamic Sky: snow_cover.gdshader
 // Desc: snow and rain wetness layer over every model
 // Note: applied as a layered material on top of each surface's own material
 //       (shader:apply_to_material("*", "*", "*", 0, true)), so albedo_texture is only read for the alpha cut-out.
 
-// ============================================================================
-//  Uniforms
-// ============================================================================
+shader_type spatial;
+render_mode blend_mix, depth_draw_never, cull_disabled, diffuse_burley, specular_schlick_ggx;
+
+
+///////////////
+// Uniforms //
+///////////////
 
 // surface material
 uniform sampler2D albedo_texture : source_color, filter_linear_mipmap, repeat_enable;

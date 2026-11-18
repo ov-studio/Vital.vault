@@ -1,12 +1,13 @@
-shader_type spatial;
-render_mode unshaded, cull_disabled, depth_test_disabled, depth_draw_never, fog_disabled;
-
 // Dynamic Sky: dust_volume.gdshader
 // Desc: sandstorm dust volume over the whole screen
 
-// ============================================================================
-//  Uniforms
-// ============================================================================
+shader_type spatial;
+render_mode unshaded, cull_disabled, depth_test_disabled, depth_draw_never, fog_disabled;
+
+
+///////////////
+// Uniforms //
+///////////////
 
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
 uniform sampler2D noise_tex : filter_linear_mipmap, repeat_enable;   // baked cloud noise, G = billows

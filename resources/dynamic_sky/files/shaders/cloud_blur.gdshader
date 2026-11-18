@@ -1,12 +1,13 @@
-shader_type canvas_item;
-render_mode blend_disabled;
-
 // Dynamic Sky: cloud_blur.gdshader
 // Desc: one direction of a separable gaussian blur for the cloud rendertarget
 
-// ============================================================================
-//  Uniforms
-// ============================================================================
+shader_type canvas_item;
+render_mode blend_disabled;
+
+
+///////////////
+// Uniforms //
+///////////////
 
 uniform sampler2D src : filter_linear, repeat_disable;
 uniform vec2  step_uv = vec2(0.0, 0.0);           // one texel along the blur direction (Lua)

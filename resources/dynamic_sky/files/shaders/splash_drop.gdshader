@@ -1,12 +1,13 @@
-shader_type spatial;
-render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
-
 // Dynamic Sky: splash_drop.gdshader
 // Desc: rain splash droplets
 
-// ============================================================================
-//  Uniforms
-// ============================================================================
+shader_type spatial;
+render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
+
+
+///////////////
+// Uniforms //
+///////////////
 
 uniform vec4  tint : source_color = vec4(0.82, 0.88, 1.0, 0.6);
 uniform float drop_size = 0.012;     // bead radius (m)

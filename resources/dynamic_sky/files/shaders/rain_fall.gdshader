@@ -1,12 +1,13 @@
-shader_type spatial;
-render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
-
 // Dynamic Sky: rain_fall.gdshader
 // Desc: rain streaks on real falling particles
 
-// ============================================================================
-//  Uniforms
-// ============================================================================
+shader_type spatial;
+render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
+
+
+///////////////
+// Uniforms //
+///////////////
 
 uniform vec3  fall_vel     = vec3(0.0, -13.0, 0.0);   // average velocity (m/s), sets the streak direction (Lua)
 uniform float spawn_half   = 17.0;                    // half size of the spawn box (m), for the edge fade

@@ -1,12 +1,13 @@
-shader_type spatial;
-render_mode unshaded, cull_disabled, depth_test_disabled, depth_draw_never, fog_disabled;
-
 // Dynamic Sky: sky.gdshader
 // Desc: screen-space sky and god rays on a camera-following quad
 
-// ============================================================================
-//  Uniforms
-// ============================================================================
+shader_type spatial;
+render_mode unshaded, cull_disabled, depth_test_disabled, depth_draw_never, fog_disabled;
+
+
+///////////////
+// Uniforms //
+///////////////
 
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
 uniform sampler2D moon_tex : filter_linear_mipmap, repeat_disable;   // equirectangular colour map

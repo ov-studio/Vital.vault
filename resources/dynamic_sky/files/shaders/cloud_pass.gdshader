@@ -1,13 +1,14 @@
-shader_type canvas_item;
-render_mode blend_disabled;
-
 // Dynamic Sky: cloud_pass.gdshader
 // Desc: volumetric cloud march into a small HDR rendertarget
 // Note: output is rgb = in-scattered light, a = 1 - transmittance, blurred by cloud_blur.gdshader and read by sky.gdshader.
 
-// ============================================================================
-//  Uniforms
-// ============================================================================
+shader_type canvas_item;
+render_mode blend_disabled;
+
+
+///////////////
+// Uniforms //
+///////////////
 
 uniform sampler2D noise_tex : filter_linear_mipmap, repeat_enable;   // R shape, G erosion, B detail
 
@@ -39,9 +40,10 @@ uniform vec3  wind_offset       = vec3(0.0);
 uniform float cloud_time        = 0.0;
 uniform float haze_density      = 0.000012;
 
-// ============================================================================
-//  Constants
-// ============================================================================
+
+////////////////
+// Constants //
+////////////////
 
 const float PI_ = 3.14159265359;
 const float PLANET_R = 6000000.0;

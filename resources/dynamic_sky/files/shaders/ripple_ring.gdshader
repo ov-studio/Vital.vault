@@ -1,14 +1,15 @@
-shader_type spatial;
-render_mode unshaded, blend_add, depth_test_disabled, depth_draw_never, cull_disabled, fog_disabled;
-
 // Dynamic Sky: ripple_ring.gdshader
 // Desc: one raindrop ripple, spawned where a drop lands
 // Note: sub-emitter of the splash droplets, drawn only into a 3D rendertarget (particle:set_layer) that
 //       snow_cover.gdshader reads: r = height (+), g = height (-), b = view depth / depth_scale, a = ring count.
 
-// ============================================================================
-//  Uniforms
-// ============================================================================
+shader_type spatial;
+render_mode unshaded, blend_add, depth_test_disabled, depth_draw_never, cull_disabled, fog_disabled;
+
+
+///////////////
+// Uniforms //
+///////////////
 
 uniform float ring_radius = 0.35;     // half size of one ring (m)
 uniform float lift = 0.02;            // height above the landing point (m)
