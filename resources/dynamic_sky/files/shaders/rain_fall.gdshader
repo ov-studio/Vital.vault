@@ -38,6 +38,7 @@ uint pcg(uint v) {
 	uint w = ((s >> ((s >> 28u) + 4u)) ^ s) * 277803737u;
 	return (w >> 22u) ^ w;
 }
+
 float rnd(uint v) {
 	return float(pcg(v) & 16777215u) / 16777215.0;
 }
