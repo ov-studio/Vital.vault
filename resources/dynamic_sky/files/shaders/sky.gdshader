@@ -93,7 +93,7 @@ vec3 sk_star_layer(vec3 d, float fw, float tm, float scale, float density, float
 	}
 	vec3 h = sk_hash33(id + seed);
 	vec3 pos = 0.3 + 0.4 * h;
-	float mag = pow(sk_hash13(id * 1.7 + seed + 3.3), 5.0);   // few bright, many dim
+	float mag = pow(sk_hash13(id * 1.7 + seed + 3.3), 6.0);   // few bright, many dim
 	float px = fw * scale;
 	float r = min(px * (0.9 + size_boost * mag), 0.28);
 	float dist = length(f - pos);
@@ -109,7 +109,7 @@ vec3 sk_star_layer(vec3 d, float fw, float tm, float scale, float density, float
 	vec3 tint = mix(vec3(1.0, 0.74, 0.52), vec3(0.62, 0.78, 1.0), h.z);
 	tint = mix(vec3(1.0), tint, 0.65);
 	tint = mix(tint, tint.bgr, 0.18 * (0.5 + 0.5 * a2));
-	return tint * (k * (0.35 + 1.9 * mag)) * tw;
+	return tint * (k * (0.30 + 2.0 * mag)) * tw * 0.82;
 }
 
 vec3 sk_stars(vec3 d, float fw, float tm) {
@@ -396,9 +396,11 @@ void fragment() {
 		vec3 col = sk_sky(d);
 
 		float above = smoothstep(-0.02, 0.18, d.y);
+		vec3 star_col = vec3(0.0);
 		if (star_visibility > 0.005 && d.y > -0.05) {
 			float moon_wash = 1.0 - clamp(pow(max(dot(d, moon_dir), 0.0), 60.0) * 2.0, 0.0, 1.0);
-			col += sk_stars(d, fw, TIME) * star_visibility * above * moon_wash;
+			star_col = sk_stars(d, fw, TIME) * star_visibility * above * moon_wash;
+			col += star_col;
 		}
 		vec4 moon = sk_moon(d, fw);
 		bool has_clouds = d.y > 0.012 && cloud_coverage > 0.01;
@@ -411,6 +413,7 @@ void fragment() {
 			cl = max(cl + (cl - soft) * cloud_sharp, vec4(0.0));
 			cl.a = min(cl.a, 1.0);
 		}
+		col -= star_col * smoothstep(0.0, 0.7, cl.a * fade);      // stars fade out behind cloud, even thin cloud
 		vec4 sun = sk_sun_disc(d, fw, TIME);
 		float sun_t = 1.0 - cl.a * smoothstep(0.0, 0.02, d.y);      // real cloud alpha, not the horizon fade: a low sun behind cloud stays hidden
 		col = mix(col, sun.rgb, sun.a * sun_t * sun_t);      // fades into the glow instead of going dark
