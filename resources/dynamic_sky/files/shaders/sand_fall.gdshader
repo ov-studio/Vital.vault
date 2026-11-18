@@ -4,6 +4,8 @@
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
+#include "files/shaders/helper.gdshader"
+
 
 ///////////////
 // Uniforms //
@@ -27,32 +29,17 @@ varying vec2  v_s;
 varying float v_a;
 
 
-//////////////
-// Helpers //
-//////////////
-
-uint pcg(uint v) {
-	uint s = v * 747796405u + 2891336453u;
-	uint w = ((s >> ((s >> 28u) + 4u)) ^ s) * 277803737u;
-	return (w >> 22u) ^ w;
-}
-
-float rnd(uint v) {
-	return float(pcg(v) & 16777215u) / 16777215.0;
-}
-
-
 ///////////////
 // Handlers //
 ///////////////
 
 void vertex() {
 	uint id = uint(INSTANCE_ID);
-	float r_keep = rnd(id * 13u + 4u);
-	float r_size = rnd(id * 13u + 5u);
-	float r_a    = rnd(id * 13u + 6u);
-	float r_f    = rnd(id * 13u + 7u);
-	float r_p    = rnd(id * 13u + 8u);
+	float r_keep = sk_rnd(id * 13u + 4u);
+	float r_size = sk_rnd(id * 13u + 5u);
+	float r_a    = sk_rnd(id * 13u + 6u);
+	float r_f    = sk_rnd(id * 13u + 7u);
+	float r_p    = sk_rnd(id * 13u + 8u);
 
 	vec3 wp  = MODEL_MATRIX[3].xyz;                   // particle world position
 	float age = clamp(INSTANCE_CUSTOM.y, 0.0, 1.0);   // 0 at spawn .. 1 at end of life

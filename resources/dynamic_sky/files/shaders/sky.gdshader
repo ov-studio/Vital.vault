@@ -4,6 +4,8 @@
 shader_type spatial;
 render_mode unshaded, cull_disabled, depth_test_disabled, depth_draw_never, fog_disabled;
 
+#include "files/shaders/helper.gdshader"
+
 
 ///////////////
 // Uniforms //
@@ -209,12 +211,6 @@ vec4 sk_sun_disc(vec3 d, float fw, float tm) {
 	return vec4(col, disk * horizon_cut);
 }
 
-vec3 sk_view_ray(vec2 uv, mat4 inv_proj, mat4 inv_view) {
-	vec4 v = inv_proj * vec4(uv * 2.0 - 1.0, 0.5, 1.0);
-	v.xyz /= v.w;
-	return normalize((inv_view * vec4(normalize(v.xyz), 0.0)).xyz);
-}
-
 // God rays: geometry pixels look toward the sun on screen and count the open sky they see
 float sk_rays(vec2 uv, vec2 frag, vec3 sd, mat4 vmat, mat4 pmat) {
 	float aspect = pmat[1][1] / pmat[0][0];
@@ -266,20 +262,6 @@ const float CT_PERIODS[4] = float[4](360.0, 450.0, 600.0, 720.0);
 
 float sk_h11(float n) {
 	return fract(sin(n * 127.1) * 43758.5453);
-}
-
-// hash without sin(), which loses precision with large arguments on the GPU
-float sk_h21(vec2 p) {
-	vec3 q = fract(vec3(p.xyx) * 0.1031);
-	q += dot(q, q.yzx + 33.33);
-	return fract((q.x + q.y) * q.z);
-}
-
-// value noise
-float sk_vn(vec2 p) {
-	vec2 i = floor(p);
-	vec2 f = smoothstep(0.0, 1.0, fract(p));
-	return mix(mix(sk_h21(i), sk_h21(i + vec2(1.0, 0.0)), f.x), mix(sk_h21(i + vec2(0.0, 1.0)), sk_h21(i + vec2(1.0)), f.x), f.y);
 }
 
 vec3 sk_contrails(vec3 d, float fw) {

@@ -4,6 +4,8 @@
 shader_type spatial;
 render_mode unshaded, cull_disabled, depth_test_disabled, depth_draw_never, fog_disabled;
 
+#include "files/shaders/helper.gdshader"
+
 
 ///////////////
 // Uniforms //
@@ -59,12 +61,6 @@ vec2 sk_dust(vec3 p, float dist) {
 	float top = height * (0.55 + 0.9 * a);                           // big billows rise higher
 	float shape = 0.3 + 0.7 * smoothstep(0.30, 0.80, n);
 	return vec2(density * strength * shape * exp(-h / top), clamp(h / top, 0.0, 1.0));
-}
-
-vec3 sk_view_ray(vec2 uv, mat4 inv_proj, mat4 inv_view) {
-	vec4 v = inv_proj * vec4(uv * 2.0 - 1.0, 0.5, 1.0);
-	v.xyz /= v.w;
-	return normalize((inv_view * vec4(normalize(v.xyz), 0.0)).xyz);
 }
 
 

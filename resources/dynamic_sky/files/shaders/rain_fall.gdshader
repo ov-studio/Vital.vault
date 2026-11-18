@@ -4,6 +4,8 @@
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
+#include "files/shaders/helper.gdshader"
+
 
 ///////////////
 // Uniforms //
@@ -29,30 +31,15 @@ varying float v_a;     // per-streak alpha
 varying vec2  v_side;  // streak width axis in view space, for the refraction offset
 
 
-//////////////
-// Helpers //
-//////////////
-
-uint pcg(uint v) {
-	uint s = v * 747796405u + 2891336453u;
-	uint w = ((s >> ((s >> 28u) + 4u)) ^ s) * 277803737u;
-	return (w >> 22u) ^ w;
-}
-
-float rnd(uint v) {
-	return float(pcg(v) & 16777215u) / 16777215.0;
-}
-
-
 ///////////////
 // Handlers //
 ///////////////
 
 void vertex() {
 	uint id = uint(INSTANCE_ID);
-	float r_keep = rnd(id * 7u + 4u);
-	float r_len  = rnd(id * 7u + 5u);
-	float r_alp  = rnd(id * 7u + 6u);
+	float r_keep = sk_rnd(id * 7u + 4u);
+	float r_len  = sk_rnd(id * 7u + 5u);
+	float r_alp  = sk_rnd(id * 7u + 6u);
 
 	vec3 wp  = MODEL_MATRIX[3].xyz;                   // particle world position
 	float age = clamp(INSTANCE_CUSTOM.y, 0.0, 1.0);   // 0 at spawn .. 1 at end of life

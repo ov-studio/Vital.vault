@@ -6,6 +6,8 @@
 shader_type spatial;
 render_mode blend_mix, depth_draw_never, cull_disabled, diffuse_burley, specular_schlick_ggx;
 
+#include "files/shaders/helper.gdshader"
+
 
 ///////////////
 // Uniforms //
@@ -52,12 +54,6 @@ varying vec3 w_nrm;
 // Helpers //
 //////////////
 
-float hash12(vec2 p) {
-	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
-	p3 += dot(p3, p3.yzx + 33.33);
-	return fract((p3.x + p3.y) * p3.z);
-}
-
 // ripple height at a screen position, counted only where the ring depth matches the surface
 float screen_h(vec2 uv, float depth) {
 	vec4 t = textureLod(screen_rip, uv, 0.0);
@@ -70,17 +66,6 @@ float screen_h(vec2 uv, float depth) {
 vec2 screen_uv_of(vec3 world, mat4 view, mat4 proj) {          // built-ins are passed in because functions cannot read them
 	vec4 c = proj * (view * vec4(world, 1.0));
 	return c.xy / c.w * 0.5 + 0.5;
-}
-
-float vnoise(vec2 p) {
-	vec2 i = floor(p);
-	vec2 f = fract(p);
-	f = f * f * (3.0 - 2.0 * f);
-	float a = hash12(i);
-	float b = hash12(i + vec2(1.0, 0.0));
-	float c = hash12(i + vec2(0.0, 1.0));
-	float d = hash12(i + vec2(1.0, 1.0));
-	return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
 
@@ -104,8 +89,8 @@ void fragment() {
 	// world-space noise projected along the dominant axis of the normal
 	vec3 an = abs(w_nrm);
 	vec2 np = (an.y >= an.x && an.y >= an.z) ? w_pos.xz : ((an.x > an.z) ? w_pos.zy : w_pos.xy);
-	float nl = vnoise(np * 0.22);
-	float nm = vnoise(np * 0.85 + 11.3);
+	float nl = sk_vn(np * 0.22);
+	float nm = sk_vn(np * 0.85 + 11.3);
 	float n  = nl * 0.65 + nm * 0.35;
 
 	// snow
@@ -126,7 +111,7 @@ void fragment() {
 	float sheen = wt * (1.0 - snow) * (1.0 - pud);
 
 	// snow bump and puddle ripples
-	vec2 bump = vec2(nm - 0.5, vnoise(np * 0.85 + 40.0) - 0.5) * 0.16;
+	vec2 bump = vec2(nm - 0.5, sk_vn(np * 0.85 + 40.0) - 0.5) * 0.16;
 	vec2 nxy = bump * snow;
 	vec2 rgrad = vec2(0.0);                                          // ripple slope (world xz)
 	if (screen_rip_on > 0.5) {
@@ -148,9 +133,9 @@ void fragment() {
 		// no ripple buffer: looping ripples on a world-space grid
 		vec2 g = w_pos.xz * ripple_scale;
 		vec2 cell = floor(g);
-		vec2 jit = (vec2(hash12(cell + 7.1), hash12(cell + 19.7)) - 0.5) * 0.24;
+		vec2 jit = (vec2(sk_h21(cell + 7.1), sk_h21(cell + 19.7)) - 0.5) * 0.24;
 		vec2 lf = fract(g) - 0.5 - jit;
-		float ph = fract(TIME * 0.7 + hash12(cell));
+		float ph = fract(TIME * 0.7 + sk_h21(cell));
 		float rr = max(length(lf), 0.001);
 		float ring = sin((rr - ph * 0.45) * 45.0) * (1.0 - ph) * (1.0 - smoothstep(0.0, 0.14, abs(rr - ph * 0.45)));
 		rgrad = (lf / rr) * ring * 0.22 * pud * rain_amt * rfade;
