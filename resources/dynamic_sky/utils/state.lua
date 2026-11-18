@@ -12,9 +12,6 @@
 --[[ Variables ]]--
 -------------------
 
--- Fields that start out unset (nil): shader, light, cshader, moon_phase_manual (nil = automatic phase),
--- cover_manual (nil = snow cover follows the weather), fog_on (unknown until the first frame, so the level's own fog
--- is switched off when the weather has none), dust_ground (smoothed ground height under the camera), gpu_on / snow_on / sand_on (set once the particles exist).
 Sky.state = {
     time     = Config.start_time,
     day      = 0,
@@ -36,16 +33,16 @@ Sky.state = {
                   tr = 1.0, 
                   tg = 1.0, 
                   tb = 1.0 
-               },               -- blended weather
-    over     = {},              -- manual weather overrides: rain, snow, sand, wind, fog, lightning
-    wdir     = util.table.clone(Config.wind_dir),    -- smoothed wind direction {x, z}
-    wdir_t   = util.table.clone(Config.wind_dir),    -- wind direction target
-    wind     = { 0, 0, 0 },     -- accumulated wind offset of the clouds
+               },   -- blended weather
+    over     = {},  -- manual weather overrides: rain, snow, sand, wind, fog, lightning
+    wdir     = util.table.clone(Config.wind_dir),  -- smoothed wind direction {x, z}
+    wdir_t   = util.table.clone(Config.wind_dir),  -- wind direction target
+    wind     = { 0, 0, 0 },  -- accumulated wind offset of the clouds
     cloud_t  = 0.0,
     enabled  = true,
 
     -- lightning
-    flash    = 0.0,             -- manual flash 0..1
+    flash    = 0.0,  -- manual flash 0..1
     bolt_cd  = 4.0,
 
     -- sun / moon
@@ -80,12 +77,7 @@ Sky.state = {
     sand_lvl = 0
 }
 
--- blended preset values before the manual multipliers (see over), starts as a copy of the blended weather
 Sky.state.base = util.table.clone(Sky.state.cur)
-
--- where the blend is heading (the preset plus the manual multipliers), the particle emitters size their pool for it
 Sky.state.target = util.table.clone(Sky.state.cur)
-
--- ripple buffer constants, ripple_ring.gdshader and snow_cover.gdshader use the same depth range
 Sky.ripple = { life = 1.2, radius = 0.35, depth = 64.0 }
 Sky.wrap = 5.0e6    -- wind / cloud time wrap, keeps float precision
