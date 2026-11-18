@@ -3,10 +3,6 @@ render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
 // Dynamic Sky: snow_fall.gdshader
 // Desc: snow flakes on real falling particles
-// Note: a flake disappears on contact with the world, so nothing snows indoors.
-// Note: the quad sits at the particle position and faces the camera, with a visual-only flutter on top.
-//       Flakes are soft round sprites that stretch into short streaks in strong wind.
-// Note: never write the entry point signatures inside comments (the engine injects code there).
 
 // ============================================================================
 //  Uniforms

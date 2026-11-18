@@ -5,8 +5,6 @@ render_mode blend_mix, depth_draw_never, cull_disabled, diffuse_burley, specular
 // Desc: snow and rain wetness layer over every model
 // Note: applied as a layered material on top of each surface's own material
 //       (shader:apply_to_material("*", "*", "*", 0, true)), so albedo_texture is only read for the alpha cut-out.
-// Note: snow_amount and wet are animated from Lua.
-// Note: never write the entry point signatures inside comments (the engine injects code there).
 
 // ============================================================================
 //  Uniforms

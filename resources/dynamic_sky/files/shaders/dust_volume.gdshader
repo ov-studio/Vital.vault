@@ -3,12 +3,6 @@ render_mode unshaded, cull_disabled, depth_test_disabled, depth_draw_never, fog_
 
 // Dynamic Sky: dust_volume.gdshader
 // Desc: sandstorm dust volume over the whole screen
-// Note: a post process quad that marches a few steps along every view ray, from the camera to the scene (or to
-//       max_dist in open sky), through a world-space dust field that blows with the wind. Distant things sink into the
-//       dust, which gives the storm its depth.
-// Note: the field is low frequency noise stretched along the wind and thicker near the ground, lit by the key light
-//       (sun or moon) and the ambient sky, so it follows the time of day.
-// Note: never write the entry point signatures inside comments (the engine injects code there).
 
 // ============================================================================
 //  Uniforms

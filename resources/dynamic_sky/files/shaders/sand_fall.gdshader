@@ -3,10 +3,6 @@ render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
 // Dynamic Sky: sand_fall.gdshader
 // Desc: wind-blown sand grains on real particles
-// Note: a grain disappears on contact with the world, so nothing blows indoors.
-// Note: the quad sits at the particle position and always faces the camera, turned in the screen plane along the
-//       projected wind, so a grain is a short streak that never looks like a flat card in the world.
-// Note: never write the entry point signatures inside comments (the engine injects code there).
 
 // ============================================================================
 //  Uniforms

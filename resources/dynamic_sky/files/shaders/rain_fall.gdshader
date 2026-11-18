@@ -3,10 +3,6 @@ render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
 // Dynamic Sky: rain_fall.gdshader
 // Desc: rain streaks on real falling particles
-// Note: a particle disappears on contact with the world, where the engine spawns the splash.
-// Note: the quad sits at the particle position, stretched along the fall direction and turned to face the camera
-//       around that axis.
-// Note: never write the entry point signatures inside comments (the engine injects code there).
 
 // ============================================================================
 //  Uniforms

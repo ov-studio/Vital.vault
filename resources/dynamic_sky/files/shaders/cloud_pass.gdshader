@@ -4,7 +4,6 @@ render_mode blend_disabled;
 // Dynamic Sky: cloud_pass.gdshader
 // Desc: volumetric cloud march into a small HDR rendertarget
 // Note: output is rgb = in-scattered light, a = 1 - transmittance, blurred by cloud_blur.gdshader and read by sky.gdshader.
-// Note: never write the entry point signatures inside comments (the engine injects code there).
 
 // ============================================================================
 //  Uniforms
@@ -94,7 +93,7 @@ float sk_cloud_density(vec3 q, float hf, float lod) {
 	if (grad <= 1.0 - cov) {
 		return 0.0;                                   // the coverage remap can only give 0 here
 	}
-	float puff = cloud_scale * (1.0 + 0.9 * (1.0 - smoothstep(0.0, 0.35, cov)));   // sparse skies get fewer, larger clouds
+	float puff = cloud_scale * (1.0 + 0.9 * (1.0 - smoothstep(0.0, 0.35, cov)));   // sparse skies: fewer, larger clouds
 	vec3 pw = (q + wind_offset) / puff;
 	pw.y -= cloud_time * 0.00004 * puff * 0.1;
 
@@ -110,7 +109,7 @@ float sk_cloud_density(vec3 q, float hf, float lod) {
 	float wfbm = lod < 0.5 ? n.g : 0.5;
 	float base = clamp((shape + 1.0 - wfbm) / (2.0 - wfbm), 0.0, 1.0);
 	base = clamp(sk_remap(base * grad, 1.0 - cov, 1.0, 0.0, 1.0), 0.0, 1.0);
-	base *= cov + (1.0 - cov) * 0.12 * (1.0 - smoothstep(0.0, 0.5, cov));   // sparse skies keep solid puffs instead of thin wisps
+	base *= cov + (1.0 - cov) * 0.12 * (1.0 - smoothstep(0.0, 0.5, cov));   // sparse skies keep solid puffs
 	if (base <= 0.0 || lod > 0.5) {
 		return base;
 	}
@@ -158,8 +157,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 
 	float lss = cloud_thickness / 30.0;
 	float cos_t = dot(d, light_dir);
-	// forward scattering is tamed (about 2x the side value, not 8x) so the sun side never clips to flat white;
-	// the bright rim comes from the silver lining on thin edges, thick cores stay dark
+	// forward scattering is tamed so the sun side never clips to flat white, the rim comes from the silver lining
 	float phase_raw = mix(sk_hg(cos_t, -0.25) * 0.55, sk_hg(cos_t, 0.55), 0.45) * 4.0 * PI_ * 0.5;
 	float phase = 0.235 + 0.20 * (phase_raw - 0.235);
 	float silver = pow(max(cos_t, 0.0), 10.0) * 0.5;
@@ -235,7 +233,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 
 		vec3 sun_term = light_color * lit * (phase + silver * beers);
 		vec3 amb_term = mix(cloud_ambient_bottom * 0.65, cloud_ambient_top, smoothstep(0.0, 1.0, hf));
-		amb_term *= 1.0 - 0.3 * (1.0 - clamp(lit_c, 0.0, 1.0));      // cores shadowed by the clouds around them also get less sky light
+		amb_term *= 1.0 - 0.3 * (1.0 - clamp(lit_c, 0.0, 1.0));      // shadowed cores get less sky light
 
 		float sigma = cloud_density * dn;
 		float step_t = exp(-sigma * dt);
@@ -250,7 +248,7 @@ vec4 sk_clouds(vec3 d, vec3 cam, float jitter) {
 	L = mix(L, horizon_color * a, haze * 0.85);
 	// thin out toward the horizon
 	float far_fade = 1.0 - 0.8 * smoothstep(12000.0, 60000.0, t0);
-	// soft knee on the radiance: caps sun-facing clouds near 1.1 so they keep shape instead of clipping to flat white
+	// soft knee: caps the radiance near 1.1 so sun-facing clouds keep their shape
 	float m = max(L.r, max(L.g, L.b));
 	float x = max(m - 0.7, 0.0);
 	L *= (m - x + 0.4 * x / (x + 0.4)) / max(m, 0.0001);

@@ -5,7 +5,6 @@ render_mode unshaded, blend_add, depth_test_disabled, depth_draw_never, cull_dis
 // Desc: one raindrop ripple, spawned where a drop lands
 // Note: sub-emitter of the splash droplets, drawn only into a 3D rendertarget (particle:set_layer) that
 //       snow_cover.gdshader reads: r = height (+), g = height (-), b = view depth / depth_scale, a = ring count.
-// Note: never write the entry point signatures inside comments (the engine injects code there).
 
 // ============================================================================
 //  Uniforms

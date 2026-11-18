@@ -3,9 +3,6 @@ render_mode unshaded, cull_disabled, depth_test_disabled, depth_draw_never, fog_
 
 // Dynamic Sky: sky.gdshader
 // Desc: screen-space sky and god rays on a camera-following quad
-// Note: the sky is painted only where the depth buffer is sky, geometry pixels get god rays instead.
-// Note: keep shader_type on the first line, and never write the entry point signatures inside comments
-//       (the engine injects code there).
 
 // ============================================================================
 //  Uniforms
@@ -277,23 +274,22 @@ float sk_rays(vec2 uv, vec2 frag, vec3 sd, mat4 vmat, mat4 pmat) {
 	return clamp((ray * sun_open - 0.06) * 1.7, 0.0, 1.0);   // offset drops the faint veil over distant surfaces
 }
 
-// Contrails and aircraft: every slot flies one straight track and starts a new random flight each cycle (the cycles divide
-// an hour, so the wrap is seamless). A track point is passed at tau_pass and the trail there is `age` seconds old: it forms
-// behind the plane, spreads into billows, breaks into fragments and fades. x = trail, y = aircraft, z = light on the trail
+// Contrails and aircraft: every slot flies a straight track and starts a new random flight each cycle (the cycles divide
+// an hour, so the wrap is seamless). x = trail, y = aircraft, z = light on the trail
 const float CT_PERIODS[4] = float[4](360.0, 450.0, 600.0, 720.0);
 
 float sk_h11(float n) {
 	return fract(sin(n * 127.1) * 43758.5453);
 }
 
-// hash without sin(): sin of large arguments loses precision on the GPU and turned the noise into blocks
+// hash without sin(), which loses precision with large arguments on the GPU
 float sk_h21(vec2 p) {
 	vec3 q = fract(vec3(p.xyx) * 0.1031);
 	q += dot(q, q.yzx + 33.33);
 	return fract((q.x + q.y) * q.z);
 }
 
-// smooth value noise
+// value noise
 float sk_vn(vec2 p) {
 	vec2 i = floor(p);
 	vec2 f = smoothstep(0.0, 1.0, fract(p));
@@ -316,11 +312,11 @@ vec3 sk_contrails(vec3 d, float fw) {
 		float cycle = floor(t / period);
 		float flights = 3600.0 / period;
 		for (int j = 0; j < 2; j++) {
-			float tau = mod(t, period) + float(j) * period;     // j = 1: the flight before, its trail outlives the plane
+			float tau = mod(t, period) + float(j) * period;     // j = 1: the previous flight, its trail outlives the plane
 			float seed = seed0 + mod(cycle - float(j), flights) * 3.7;
-			// every flight is its own: an airway per slot (with some spread), either direction, own speed, altitude and trail lifetime
+			// per flight: airway of the slot (with spread), either direction, speed, altitude and trail lifetime
 			float sp = contrail_speed * (0.85 + 0.3 * sk_h11(seed + 4.0));
-			float reach = sp * period * 0.5;                    // each flight crosses the same stretch of sky in one period, whatever its speed
+			float reach = sp * period * 0.5;                    // one crossing per period, whatever the speed
 			float life = contrail_life * (0.3 + 0.9 * sk_h11(seed + 6.0));
 			float strength = 0.55 + 0.45 * sk_h11(seed + 7.0);
 			if (j == 1 && tau - period > life) {
@@ -329,36 +325,35 @@ vec3 sk_contrails(vec3 d, float fw) {
 			float az = sk_h11(seed0 + 9.0) * 3.14159265 + (sk_h11(seed + 1.0) - 0.5) * 0.6 + step(0.5, sk_h11(seed + 8.0)) * 3.14159265;
 			vec2 u = vec2(cos(az), sin(az));
 			vec2 w = vec2(-u.y, u.x);
-			float off = (0.2 + 0.8 * sk_h11(seed + 2.0)) * 16000.0 * (sk_h11(seed + 10.0) < 0.5 ? -1.0 : 1.0);   // never straight over the observer
+			float off = (0.2 + 0.8 * sk_h11(seed + 2.0)) * 16000.0 * (sk_h11(seed + 10.0) < 0.5 ? -1.0 : 1.0);   // keeps tracks off the zenith
 			float h = contrail_height * (0.8 + 0.4 * sk_h11(seed + 3.0));
 
-			vec2 q = d.xz * (h / d.y);                          // where the view ray crosses the flight level
+			vec2 q = d.xz * (h / d.y);                          // view ray at the flight level
 			float a = dot(q, u);
 			float c = dot(q, w) - off;
 			float age = tau - (a + reach) / sp;
 			if (abs(a) < reach && age > 0.0 && age < life) {
-				float wobble = 0.75 + 0.5 * sk_vn(vec2(a / 1100.0, seed));                // the trail swells and narrows along its length
-				float nat = (3.0 + 2.2 * age + 0.006 * age * age) * wobble * (1.0 - 0.6 * smoothstep(0.4 * life, life, age));   // starts thin, spreads out as it ages, tapers off thin at the old end
-				float width = max(nat, fw * h / (d.y * d.y) * 1.5);   // never thinner than about a pixel (fw is per 2x2 quad, so it only widens the profile, never the noise)
+				float wobble = 0.75 + 0.5 * sk_vn(vec2(a / 1100.0, seed));                // swells and narrows along the trail
+				float nat = (3.0 + 2.2 * age + 0.006 * age * age) * wobble * (1.0 - 0.6 * smoothstep(0.4 * life, life, age));   // thin at the plane, spreads with age, tapers at the old end
+				float width = max(nat, fw * h / (d.y * d.y) * 1.5);   // at least about a pixel wide (fw is per 2x2 quad, so it only widens the profile, never the noise)
 				float base = exp(-2.0 * c * c / (width * width));
-				// billows: the noise scales with the trail width (puffs stretched along the trail); the trail fades out smoothly with age
-				// (a rising threshold chopped the thin ends into dashes)
+				// billows: noise scales with the trail width; the trail fades with age instead of breaking into fragments
 				float ns = max(nat, 120.0);
 				vec2 pn = vec2(a / (ns * 3.5), c / ns) * 0.9 + seed;
-				float calm = smoothstep(0.2 * life, 0.65 * life, age);   // the old end loses its noise and just fades out
+				float calm = smoothstep(0.2 * life, 0.65 * life, age);   // the old end loses its noise
 				float n = mix(0.8 * sk_vn(pn) + 0.2 * sk_vn(pn * 2.0 + 7.0), 0.5, calm);
 				float dens = smoothstep(0.0, 1.2, age) * (1.0 - smoothstep(0.3 * life, life, age) * smoothstep(0.3 * life, life, age));
 				float field = base * (0.55 + 0.75 * n);
 				float trail = smoothstep(0.04, 0.95, field) * dens * smoothstep(0.02, 0.10, d.y);
 				if (trail > 0.001) {
-					// the side facing the sun is brighter, the side away from it is shaded blue-grey: gives the billows their volume
+					// sun-facing side brighter, far side shaded blue-grey
 					vec2 sd = normalize(vec2(dot(sun_dir.xz, u), dot(sun_dir.xz, w)) + 0.0001);
 					vec2 pt = pn + sd * 0.45;
 					float nt = mix(0.8 * sk_vn(pt) + 0.2 * sk_vn(pt * 2.0 + 7.0), 0.5, calm);
 					if (trail > best) {
 						best = trail;
-						float side = clamp(c / width, -1.0, 1.0) * sd.y;   // which flank of the tube faces the sun
-					res.z = clamp(0.70 + 0.9 * (n - nt) + 0.45 * (base - 0.35) + 0.35 * side, 0.45, 1.15);   // billow shading plus a denser, brighter core: reads as a rounded tube
+						float side = clamp(c / width, -1.0, 1.0) * sd.y;   // flank facing the sun
+					res.z = clamp(0.70 + 0.9 * (n - nt) + 0.45 * (base - 0.35) + 0.35 * side, 0.45, 1.15);   // billows plus a brighter core: reads as a rounded tube
 					}
 				}
 				res.x = 1.0 - (1.0 - res.x) * (1.0 - trail * 0.9 * strength);
@@ -368,7 +363,7 @@ vec3 sk_contrails(vec3 d, float fw) {
 				vec3 hd = normalize(vec3(w.x * off + u.x * head, h, w.y * off + u.y * head));
 				float cd = dot(d, hd);
 				float ang = cd > 0.9995 ? acos(min(cd, 1.0)) : 1.0;
-				float blink = mix(1.0, 0.25 + 1.5 * step(0.9, fract(contrail_time * 0.8 + sk_h11(seed0 + 5.0))), 1.0 - smoothstep(-0.2, 0.0, sun_dir.y));   // at night every aircraft strobes on its own beat
+				float blink = mix(1.0, 0.25 + 1.5 * step(0.9, fract(contrail_time * 0.8 + sk_h11(seed0 + 5.0))), 1.0 - smoothstep(-0.2, 0.0, sun_dir.y));   // night: each aircraft strobes on its own beat
 				res.y = max(res.y, (1.0 - smoothstep(0.0, max(0.0014, fw * 1.6), ang)) * smoothstep(0.02, 0.10, hd.y) * blink);
 			}
 		}
@@ -428,7 +423,7 @@ void fragment() {
 		}
 		vec4 moon = sk_moon(d, fw);
 		bool has_clouds = d.y > 0.012 && cloud_coverage > 0.01;
-		float fade = smoothstep(0.0, 0.20, d.y);      // wide fade so the far cloud layer melts into the horizon instead of ending on a line
+		float fade = smoothstep(0.0, 0.20, d.y);      // wide fade: the far cloud layer melts into the horizon
 		vec4 cl = vec4(0.0);
 		if (has_clouds) {
 			cl = textureLod(cloud_tex, SCREEN_UV, 0.0);
@@ -438,23 +433,23 @@ void fragment() {
 			cl.a = min(cl.a, 1.0);
 		}
 		vec4 sun = sk_sun_disc(d, fw, TIME);
-		float sun_t = 1.0 - cl.a * smoothstep(0.0, 0.02, d.y);      // occlusion uses the real cloud alpha, not the wide horizon fade, so a low sun behind cloud stays hidden
-		col = mix(col, sun.rgb, sun.a * sun_t * sun_t);      // clouds in front hide the disc, it fades into the glow behind it instead of going dark
+		float sun_t = 1.0 - cl.a * smoothstep(0.0, 0.02, d.y);      // real cloud alpha, not the horizon fade: a low sun behind cloud stays hidden
+		col = mix(col, sun.rgb, sun.a * sun_t * sun_t);      // fades into the glow instead of going dark
 		float moon_t = 1.0 - cl.a * smoothstep(0.0, 0.02, d.y);
-		col = mix(col, moon.rgb, moon.a * smoothstep(-0.01, 0.03, d.y) * moon_t * moon_t);     // clouds hide the moon like the sun, it fades into the glow behind it
+		col = mix(col, moon.rgb, moon.a * smoothstep(-0.01, 0.03, d.y) * moon_t * moon_t);  
 		if (has_clouds) {
 			col = col * (1.0 - cl.a * fade) + cl.rgb * fade;
 			if (ray_strength > 0.001) {
 				float sh = sk_cloud_shafts(SCREEN_UV, FRAGCOORD.xy, normalize(sun_dir), VIEW_MATRIX, PROJECTION_MATRIX);
 				col += ray_color * sh * ray_strength * 0.55 * fade;
 			}
-			// sunlight scattering through the cloud that covers the sun: a soft warm halo that follows the cloud thickness
+			// halo of sunlight scattering through the cloud that covers the sun
 			float sun_vis = smoothstep(-0.02, 0.05, sun_dir.y) * (sun_intensity / 25.0);
 			if (sun_vis > 0.001) {
 				float rs2 = max(acos(clamp(dot(d, sun_dir), 0.0, 1.0)) / sk_sun_size_eff(), 1.0);
 				col += sun_phys * cl.a * smoothstep(0.0, 0.03, d.y) * sun_vis * 0.16 * exp(-(rs2 - 1.0) * 0.10);
 			}
-			// the same for the moon: glow through the cloud that covers it and soft shafts through the gaps
+			// same for the moon, plus shafts through the gaps
 			float moon_light = moon_intensity * (0.2 + clamp(0.5 - 0.5 * dot(moon_dir, sun_dir), 0.0, 1.0));
 			float moon_vis = smoothstep(-0.02, 0.10, moon_dir.y) * (1.0 - smoothstep(-0.10, 0.10, sun_dir.y));
 			if (moon_vis > 0.001) {
@@ -470,7 +465,7 @@ void fragment() {
 		if (contrail_amount > 0.001 && d.y > 0.02) {
 			vec3 ct = sk_contrails(d, fw);
 			if (ct.x + ct.y > 0.001) {
-				// the planes fly above the clouds, so a cloud in front hides them; high up they stay sunlit after the ground is dark
+				// the planes fly above the clouds and stay sunlit after the ground is dark
 				float cvis = (1.0 - cl.a * fade) * contrail_amount;
 				float lit = smoothstep(-0.20, 0.0, sun_dir.y) * (sun_intensity / 25.0);
 				vec3 tint = mix(glow_color * 1.15, sun_phys, smoothstep(0.02, 0.35, sun_dir.y));

@@ -3,8 +3,6 @@ render_mode blend_disabled;
 
 // Dynamic Sky: cloud_blur.gdshader
 // Desc: one direction of a separable gaussian blur for the cloud rendertarget
-// Note: run horizontal, then vertical.
-// Note: never write the entry point signatures inside comments (the engine injects code there).
 
 // ============================================================================
 //  Uniforms

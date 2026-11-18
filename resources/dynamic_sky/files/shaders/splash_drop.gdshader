@@ -3,9 +3,6 @@ render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, fog_disabled;
 
 // Dynamic Sky: splash_drop.gdshader
 // Desc: rain splash droplets
-// Note: camera-facing quad that stays upright and stretches along its motion: thin while fast, round at the top of
-//       its arc, then fades.
-// Note: never write the entry point signatures inside comments (the engine injects code there).
 
 // ============================================================================
 //  Uniforms
