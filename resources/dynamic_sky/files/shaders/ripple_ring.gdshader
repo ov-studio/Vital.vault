@@ -16,9 +16,10 @@ uniform float lift = 0.02;            // height above the landing point (m)
 uniform float share = 0.3333;         // each droplet spawns a ring, so each carries a share
 uniform float depth_scale = 64.0;     // range the depth channel covers (m)
 
-// ============================================================================
-//  Varyings
-// ============================================================================
+
+///////////////
+// Varyings //
+///////////////
 
 varying vec2  v_p;
 varying float v_age;

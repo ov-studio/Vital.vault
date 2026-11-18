@@ -14,9 +14,10 @@ uniform float drop_size = 0.012;     // bead radius (m)
 uniform float lift = 0.03;           // height above the detected landing point (m)
 uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear;
 
-// ============================================================================
-//  Varyings
-// ============================================================================
+
+///////////////
+// Varyings //
+///////////////
 
 varying vec2  v_uv;
 varying float v_a;

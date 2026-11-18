@@ -39,9 +39,10 @@ uniform float screen_rip_gamma = 1.0;              // 2.2 if the buffer is sRGB 
 uniform float screen_rip_depth = 64.0;             // must match depth_scale in ripple_ring.gdshader
 uniform float ripple_scale = 1.7;                  // fallback ripple cells per metre
 
-// ============================================================================
-//  Varyings
-// ============================================================================
+
+///////////////
+// Varyings //
+///////////////
 
 varying vec3 w_pos;
 varying vec3 w_nrm;

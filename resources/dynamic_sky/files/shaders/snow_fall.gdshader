@@ -19,9 +19,10 @@ uniform vec4  tint : source_color = vec4(0.95, 0.97, 1.0, 0.85);   // flake colo
 uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear;
 uniform sampler2D depth_tex  : hint_depth_texture, filter_nearest;
 
-// ============================================================================
-//  Varyings
-// ============================================================================
+
+///////////////
+// Varyings //
+///////////////
 
 varying vec2  v_s;
 varying float v_a;

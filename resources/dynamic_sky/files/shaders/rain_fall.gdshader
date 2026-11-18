@@ -19,9 +19,10 @@ uniform float refract_str  = 0.010;                   // screen-space distortion
 uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear;
 uniform sampler2D depth_tex  : hint_depth_texture, filter_nearest;
 
-// ============================================================================
-//  Varyings
-// ============================================================================
+
+///////////////
+// Varyings //
+///////////////
 
 varying vec2  v_s;     // x: across -1..1, y: along 0 (tail) .. 1 (head)
 varying float v_a;     // per-streak alpha

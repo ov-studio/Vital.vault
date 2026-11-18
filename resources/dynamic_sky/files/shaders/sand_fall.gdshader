@@ -18,9 +18,10 @@ uniform float grain_size   = 0.010;                   // typical grain size up c
 uniform float stretch      = 0.003;                   // extra length per m/s of speed (m)
 uniform vec4  tint : source_color = vec4(0.62, 0.46, 0.28, 0.55);
 
-// ============================================================================
-//  Varyings
-// ============================================================================
+
+///////////////
+// Varyings //
+///////////////
 
 varying vec2  v_s;
 varying float v_a;
