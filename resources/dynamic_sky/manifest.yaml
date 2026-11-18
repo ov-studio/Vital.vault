@@ -12,7 +12,7 @@ tags:
   - "library"
 
 description: |
-  Dynamic Sky ft. a living day/night cycle with a glowing sun, a moon with real phases, twinkling stars, volumetric clouds and cinematic god rays and aircraft leaving fading contrails, all synced from the server to every player.
+  Dynamic Sky ft. a living day/night cycle with a glowing sun, a moon with real phases, twinkling stars, volumetric clouds and cinematic god rays, aircraft leaving fading contrails, morning mist and shimmering heat haze, all synced from the server to every player.
 
   Fourteen weather presets from drizzle to blizzard. Rain, snow and sand fall for real and never indoors, every drop splashes and ripples where it lands, puddles form on wet ground, and snow piles up on every surface, then melts away.
 
@@ -65,6 +65,8 @@ description: |
   • `/sky_glow [on|off]` - toggles the sun bloom
   • `/sky_godrays [on|off]` - toggles the god rays
   • `/sky_contrails [on|off]` - toggles the aircraft and their contrails
+  • `/sky_mist [on|off]` - toggles the morning mist
+  • `/sky_heat [on|off]` - toggles the heat haze
   • `/sky_toggle` - switches the sky on/off
   • `/sun_size <deg>` - apparent sun radius
   • `/moon_size <deg>` - apparent moon radius
@@ -84,6 +86,7 @@ scripts:
   - { src: "handlers/lightning.lua",     type: "client" }
   - { src: "handlers/celestial.lua",     type: "client" }
   - { src: "handlers/clouds.lua",        type: "client" }
+  - { src: "handlers/heat.lua",          type: "client" }
   - { src: "handlers/sky.lua",           type: "client" }
   - { src: "handlers/godrays.lua",       type: "client" }
   - { src: "handlers/contrails.lua",     type: "client" }
@@ -94,6 +97,7 @@ scripts:
   - { src: "handlers/surface.lua",       type: "client" }
   - { src: "handlers/snow.lua",          type: "client" }
   - { src: "handlers/dust.lua",          type: "client" }
+  - { src: "handlers/mist.lua",          type: "client" }
   - { src: "handlers/sand.lua",          type: "client" }
   - { src: "handlers/rain.lua",          type: "client" }
   - { src: "handlers/collision.lua",     type: "client" }

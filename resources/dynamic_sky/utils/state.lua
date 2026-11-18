@@ -66,6 +66,12 @@ Sky.state = {
     -- contrails
     contrail_amt = 0.0,
 
+    -- haze
+    mist     = Config.use_mist,
+    mist_amt = 0.0,
+    heat     = Config.use_heat_haze,
+    heat_amt = 0.0,
+
     -- surface weather
     cover    = 0.0,
     wet      = 0.0,
