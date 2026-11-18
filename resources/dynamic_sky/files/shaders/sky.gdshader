@@ -76,10 +76,6 @@ vec3 sk_rotate(vec3 v, vec3 axis, float ang) {
 	return v * c + cross(axis, v) * s + axis * dot(axis, v) * (1.0 - c);
 }
 
-// ============================================================================
-//  Stars
-// ============================================================================
-
 vec3 sk_star_layer(vec3 d, float fw, float tm, float scale, float density, float seed, float size_boost) {
 	vec3 p = d * scale;
 	vec3 id = floor(p);
@@ -117,10 +113,6 @@ vec3 sk_stars(vec3 d, float fw, float tm) {
 	s += sk_star_layer(dc, fw, tm, 22.0, 0.06, 13.0, 2.4);
 	return s;
 }
-
-// ============================================================================
-//  Moon
-// ============================================================================
 
 // rgb = moon colour, a = coverage
 vec4 sk_moon(vec3 d, float fw) {
@@ -161,10 +153,6 @@ vec4 sk_moon(vec3 d, float fw) {
 	}
 	return vec4(colr, alpha);
 }
-
-// ============================================================================
-//  Sky gradient and sun
-// ============================================================================
 
 // apparent sun radius, larger near the horizon
 float sk_sun_size_eff() {
@@ -220,10 +208,6 @@ vec4 sk_sun_disc(vec3 d, float fw, float tm) {
 	}
 	return vec4(col, disk * horizon_cut);
 }
-
-// ============================================================================
-//  Main
-// ============================================================================
 
 vec3 sk_view_ray(vec2 uv, mat4 inv_proj, mat4 inv_view) {
 	vec4 v = inv_proj * vec4(uv * 2.0 - 1.0, 0.5, 1.0);
@@ -399,6 +383,11 @@ float sk_cloud_shafts(vec2 uv, vec2 frag, vec3 sd, mat4 vmat, mat4 pmat) {
 	float behind = clamp(textureLod(cloud_tex, clamp(su, 0.0, 1.0), 0.0).a * 1.5, 0.0, 1.0);   // and when the sun itself sits behind a cloud
 	return partial * (0.4 + 0.6 * behind) * exp(-dist * 1.6) * vis;
 }
+
+
+///////////////
+// Handlers //
+///////////////
 
 void fragment() {
 	// derivatives are taken before any divergent branch

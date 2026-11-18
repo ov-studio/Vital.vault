@@ -25,9 +25,10 @@ varying vec2  v_p;
 varying float v_age;
 varying float v_amp;
 
-// ============================================================================
-//  Vertex
-// ============================================================================
+
+///////////////
+// Handlers //
+///////////////
 
 void vertex() {
 	vec3 c = MODEL_MATRIX[3].xyz + vec3(0.0, lift, 0.0);
@@ -37,10 +38,6 @@ void vertex() {
 	vec3 world = c + vec3(VERTEX.x, 0.0, -VERTEX.y) * (ring_radius * 2.0);
 	POSITION = PROJECTION_MATRIX * (VIEW_MATRIX * vec4(world, 1.0));
 }
-
-// ============================================================================
-//  Fragment
-// ============================================================================
 
 void fragment() {
 	float r = length(v_p);

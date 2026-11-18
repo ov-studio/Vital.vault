@@ -13,9 +13,9 @@ uniform sampler2D src : filter_linear, repeat_disable;
 uniform vec2  step_uv = vec2(0.0, 0.0);           // one texel along the blur direction (Lua)
 
 
-// ============================================================================
-//  Main
-// ============================================================================
+///////////////
+// Handlers //
+///////////////
 
 void fragment() {
 	// 5 taps give a 9 tap gaussian (linear sampling trick)

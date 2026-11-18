@@ -22,9 +22,10 @@ uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linea
 varying vec2  v_uv;
 varying float v_a;
 
-// ============================================================================
-//  Vertex
-// ============================================================================
+
+///////////////
+// Handlers //
+///////////////
 
 void vertex() {
 	vec3 c = MODEL_MATRIX[3].xyz + vec3(0.0, lift, 0.0);
@@ -46,10 +47,6 @@ void vertex() {
 	v_uv = VERTEX.xy * 2.0;
 	v_a = (1.0 - smoothstep(0.55, 1.0, age)) * smoothstep(0.2, 0.9, dist) * (1.0 - smoothstep(7.0, 14.0, dist));
 }
-
-// ============================================================================
-//  Fragment
-// ============================================================================
 
 void fragment() {
 	// soft ellipse with a brighter core, tapered towards the bottom

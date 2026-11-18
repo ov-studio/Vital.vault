@@ -67,9 +67,10 @@ vec3 sk_view_ray(vec2 uv, mat4 inv_proj, mat4 inv_view) {
 	return normalize((inv_view * vec4(normalize(v.xyz), 0.0)).xyz);
 }
 
-// ============================================================================
-//  Main
-// ============================================================================
+
+///////////////
+// Handlers //
+///////////////
 
 void fragment() {
 	vec3 d = sk_view_ray(SCREEN_UV, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX);
