@@ -57,8 +57,8 @@ Sky.on("update", function(frame)
     shader:set_param("light_dir", frame.key_dir)
     shader:set_param("light_color", frame.key_color)
 
-    -- ambient sky light plus a moonlit floor at night, and lightning flashes
-    local sky, glow = frame.cycle.ambient_top, Config.mist_night
+    -- horizon light plus a moonlit floor at night, and lightning flashes
+    local sky, glow = frame.cycle.horizon, Config.mist_night
     local night = clamp(frame.cycle.stars, 0.0, 1.0)
     ambient[1], ambient[2], ambient[3] = sky[1] + glow[1] * night + frame.flash * 2.2, sky[2] + glow[2] * night + frame.flash * 2.4, sky[3] + glow[3] * night + frame.flash * 3.2
     shader:set_param("ambient_color", ambient)
