@@ -100,7 +100,7 @@ void fragment() {
 	// the mist hugs the ground: it fades out towards the sky and never hides the clouds above the horizon
 	float a = clamp(1.0 - T, 0.0, 0.85);
 	if (depth <= 0.00001) {
-		a *= (1.0 - smoothstep(0.0, 0.2, d.y)) * 0.7;
+		a *= smoothstep(-0.12, 0.0, d.y) * (1.0 - smoothstep(0.0, 0.2, d.y)) * 0.7;   // a soft band on the horizon only, nothing looking down into the void
 	}
 	ALBEDO = L / max(1.0 - T, 0.001);
 	ALPHA = a;
