@@ -44,9 +44,9 @@ uniform vec3  light_dir      = vec3(0.0, 1.0, 0.0);   // direction TO the key li
 const int STEPS = 8;
 
 // Mist extinction at a world position (per metre), and the height of the mist there in .y
-vec2 sk_mist(vec3 p, float dist) {
+vec2 sk_mist(vec3 p, float dist, bool sky) {
 	float lod = 2.0 + clamp(dist * 0.006, 0.0, 3.0);                  // blurrier far away, never a visible noise pattern
-	float n = textureLod(noise_tex, (p.xz - drift) * noise_scale + p.y * 0.002, lod).g;
+	float n = sky ? 0.5 : textureLod(noise_tex, (p.xz - drift) * noise_scale + p.y * 0.002, lod).g;   // no patches against the sky, they would read as smudges
 	float h = max(p.y - ground_y, 0.0);
 	float top = height * (0.7 + 0.6 * n);                             // patches rise to different heights
 	float shape = 0.55 + 0.45 * smoothstep(0.30, 0.75, n);            // mostly even, a little patchy
@@ -87,7 +87,7 @@ void fragment() {
 		float u = (float(i) + ign) / float(STEPS);
 		float t = t_end * pow(u, 1.5);                                 // dense steps near the camera
 		float dt = t_end * 1.5 * sqrt(u) / float(STEPS);
-		vec2 s = sk_mist(cam + d * t, t);
+		vec2 s = sk_mist(cam + d * t, t, depth <= 0.00001);
 		float step_t = exp(-s.x * dt);
 		vec3 c = albedo * (light_color * phase * mix(0.55, 1.0, s.y) + ambient_color);
 		L += T * (1.0 - step_t) * c;
