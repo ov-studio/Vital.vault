@@ -25,6 +25,7 @@ uniform vec3  sun_dir          = vec3(0.0, 1.0, 0.0);    // direction TO the sun
 uniform vec3  moon_dir         = vec3(0.0, -1.0, 0.0);   // direction TO the moon
 uniform float sun_size         = 0.0085;                 // angular radius (rad)
 uniform float moon_size        = 0.0150;                 // angular radius (rad)
+uniform float moon_blur        = 3.0;                    // surface softness in texture mip levels, 0 = full detail
 uniform vec3  star_axis        = vec3(0.0, 0.0, 1.0);    // celestial rotation axis
 uniform float star_angle       = 0.0;                    // celestial rotation (rad)
 
@@ -143,7 +144,7 @@ vec4 sk_moon(vec3 d, float fw) {
 			float lat = asin(clamp(q.y, -1.0, 1.0));
 			vec2 uv = vec2(0.5 + lon / 6.2831853, 0.5 - lat / 3.1415927);
 			float pix_d = 2.0 * sm / max(fw, 1e-6);
-			float lod = max(log2(1024.0 / pix_d), 0.0);
+			float lod = max(log2(1024.0 / pix_d), 0.0) + moon_blur;
 			vec3 tx = pow(textureLod(moon_tex, uv, lod).rgb, vec3(2.2));
 			float l = dot(tx, vec3(0.2126, 0.7152, 0.0722));
 			vec3 surf = pow(mix(vec3(l), tx, 0.55), vec3(1.12)) * 2.7;      // a little more contrast between the maria and the highlands
